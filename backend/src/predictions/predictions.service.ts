@@ -511,7 +511,7 @@ export class PredictionsService {
     const take = Math.max(
       1,
       Math.min(
-        Number.isFinite(takeRaw as number) ? (takeRaw as number) : 20,
+        Number.isFinite(takeRaw as number) ? (takeRaw as number) : 10,
         50,
       ),
     );
