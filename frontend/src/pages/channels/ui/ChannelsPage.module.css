@@ -1,0 +1,25 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.title {
+    margin: 0;
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.subtitle {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(15, 23, 42, 0.7);
+}

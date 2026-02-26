@@ -1,0 +1,18 @@
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.state {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.stateError {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(220, 38, 38, 1);
+}
+    

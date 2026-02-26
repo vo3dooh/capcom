@@ -1,0 +1,440 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum UserRole {
+  user
+  moderator
+  admin
+}
+
+enum SocialType {
+  telegram
+  twitter
+  instagram
+  website
+}
+
+enum ChannelVisibility {
+  public
+  private
+  unlisted
+}
+
+enum ChannelPredictionsVisibility {
+  public
+  members
+}
+
+enum ChannelJoinPolicy {
+  open
+  request
+  inviteOnly
+}
+
+enum ChannelMemberRole {
+  owner
+  editor
+  moderator
+  member
+}
+
+enum ChannelMemberStatus {
+  active
+  left
+  banned
+}
+
+enum ChannelInviteStatus {
+  pending
+  accepted
+  revoked
+  expired
+}
+
+enum ChannelJoinRequestStatus {
+  pending
+  approved
+  rejected
+  canceled
+}
+
+enum ChannelLinkType {
+  telegram
+  twitter
+  instagram
+  website
+}
+
+enum BankrollChangeType {
+  deposit
+  withdrawal
+  bet_win
+  bet_loss
+  correction
+  reset
+}
+
+enum PredictionStatus {
+  pending
+  win
+  loss
+  void
+}
+
+enum CompetitorType {
+  team
+  player
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  passHash  String
+  username  String?  @unique
+  handle    String?  @unique
+  avatarUrl String?
+  coverUrl  String?
+  about     String?
+  role      UserRole @default(user)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  socials            UserSocial[]    @relation("UserSocialUser")
+  channelMemberships ChannelMember[] @relation("UserChannelMemberships")
+
+  channelOwned         Channel[]            @relation("ChannelOwner")
+  channelInvitesBy     ChannelInvite[]      @relation("ChannelInvitedBy")
+  channelInvitedUser   ChannelInvite[]      @relation("ChannelInvitedUser")
+  channelBansBy        ChannelBan[]         @relation("ChannelBannedBy")
+  channelBans          ChannelBan[]         @relation("ChannelBanUser")
+  channelJoinDecisions ChannelJoinRequest[] @relation("ChannelJoinRequestDecidedBy")
+  channelJoinRequests  ChannelJoinRequest[] @relation("ChannelJoinRequestUser")
+
+  predictions Prediction[]
+}
+
+model UserSocial {
+  id     String     @id @default(cuid())
+  userId String
+  type   SocialType
+  url    String
+
+  user User @relation("UserSocialUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+}
+
+model Channel {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String?
+  avatarUrl   String?
+  coverUrl    String?
+
+  visibility            ChannelVisibility            @default(public)
+  predictionsVisibility ChannelPredictionsVisibility @default(public)
+  joinPolicy            ChannelJoinPolicy            @default(open)
+
+  ownerId String
+  owner   User   @relation("ChannelOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+
+  startingBankroll Float   @default(1000)
+  currentBankroll  Float   @default(1000)
+  bankrollCurrency String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  membersCount Int @default(0)
+
+  members      ChannelMember[]      @relation("ChannelMembers")
+  links        ChannelLink[]        @relation("ChannelLinks")
+  invites      ChannelInvite[]      @relation("ChannelInvites")
+  joinRequests ChannelJoinRequest[] @relation("ChannelJoinRequests")
+  bans         ChannelBan[]         @relation("ChannelBans")
+  bankrollLogs ChannelBankrollLog[] @relation("ChannelBankrollLogs")
+
+  sports ChannelSport[]        @relation("ChannelSports")
+  tags   ChannelTagOnChannel[] @relation("ChannelTags")
+
+  predictions Prediction[]
+
+  stats ChannelStats?
+
+  @@index([ownerId])
+  @@index([visibility])
+  @@index([deletedAt])
+}
+
+model ChannelStats {
+  channelId String @id
+
+  totalPredictions Int @default(0)
+  wins              Int @default(0)
+  losses            Int @default(0)
+  voids             Int @default(0)
+
+  totalStake  Float @default(0)
+  totalProfit Float @default(0)
+
+  roi     Float @default(0)
+  winRate Float @default(0)
+
+  updatedAt DateTime @updatedAt
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+}
+
+model ChannelMember {
+  id        String              @id @default(cuid())
+  userId    String
+  channelId String
+  role      ChannelMemberRole   @default(member)
+  status    ChannelMemberStatus @default(active)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  leftAt    DateTime?
+
+  user    User    @relation("UserChannelMemberships", fields: [userId], references: [id], onDelete: Cascade)
+  channel Channel @relation("ChannelMembers", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channelId])
+  @@index([channelId, role])
+  @@index([channelId, status])
+  @@index([userId])
+}
+
+model ChannelLink {
+  id        String          @id @default(cuid())
+  channelId String
+  type      ChannelLinkType
+  url       String
+  sortOrder Int             @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channel Channel @relation("ChannelLinks", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, type])
+  @@index([channelId, sortOrder])
+}
+
+model ChannelInvite {
+  id        String              @id @default(cuid())
+  channelId String
+  token     String              @unique
+  status    ChannelInviteStatus @default(pending)
+
+  invitedById String
+  invitedBy   User   @relation("ChannelInvitedBy", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  invitedUserId String?
+  invitedUser   User?   @relation("ChannelInvitedUser", fields: [invitedUserId], references: [id], onDelete: SetNull)
+
+  email     String?
+  expiresAt DateTime?
+
+  createdAt  DateTime  @default(now())
+  acceptedAt DateTime?
+
+  channel Channel @relation("ChannelInvites", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId, status])
+  @@index([invitedById])
+  @@index([invitedUserId])
+  @@index([expiresAt])
+}
+
+model ChannelJoinRequest {
+  id        String                   @id @default(cuid())
+  channelId String
+  userId    String
+  status    ChannelJoinRequestStatus @default(pending)
+  message   String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  decidedAt DateTime?
+
+  decidedById String?
+  decidedBy   User?   @relation("ChannelJoinRequestDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  channel Channel @relation("ChannelJoinRequests", fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation("ChannelJoinRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+  @@index([channelId, status])
+  @@index([userId, status])
+  @@index([decidedById])
+}
+
+model ChannelBan {
+  id        String    @id @default(cuid())
+  channelId String
+  userId    String
+  reason    String?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  bannedById String
+  bannedBy   User   @relation("ChannelBannedBy", fields: [bannedById], references: [id], onDelete: Restrict)
+
+  channel Channel @relation("ChannelBans", fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation("ChannelBanUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+  @@index([channelId])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ChannelBankrollLog {
+  id        String             @id @default(cuid())
+  channelId String
+  amount    Float
+  type      BankrollChangeType
+  note      String?
+  createdAt DateTime @default(now())
+
+  channel Channel @relation("ChannelBankrollLogs", fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@index([channelId])
+  @@index([type])
+}
+
+model Sport {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  channels ChannelSport[] @relation("SportChannels")
+
+  leagues     League[]
+  competitors Competitor[]
+  events      Event[]
+}
+
+model ChannelSport {
+  channelId String
+  sportId   String
+
+  channel Channel @relation("ChannelSports", fields: [channelId], references: [id], onDelete: Cascade)
+  sport   Sport   @relation("SportChannels", fields: [sportId], references: [id], onDelete: Cascade)
+
+  @@id([channelId, sportId])
+  @@index([sportId])
+}
+
+model ChannelTag {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  channels ChannelTagOnChannel[] @relation("TagChannels")
+}
+
+model ChannelTagOnChannel {
+  channelId String
+  tagId     String
+  createdAt DateTime @default(now())
+
+  channel Channel    @relation("ChannelTags", fields: [channelId], references: [id], onDelete: Cascade)
+  tag     ChannelTag @relation("TagChannels", fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([channelId, tagId])
+  @@index([tagId])
+}
+
+model League {
+  id           String   @id @default(cuid())
+  name         String
+  sportId      String
+  logoUrl      String?
+  tsdbLeagueId String?
+  tsdbSportName String?
+  createdAt    DateTime @default(now())
+
+  sport  Sport  @relation(fields: [sportId], references: [id], onDelete: Cascade)
+  events Event[]
+
+  @@index([sportId])
+  @@index([tsdbLeagueId])
+}
+
+model Competitor {
+  id        String         @id @default(cuid())
+  name      String
+  type      CompetitorType
+  logoUrl   String?
+  sportId   String
+  createdAt DateTime       @default(now())
+
+  sport Sport @relation(fields: [sportId], references: [id], onDelete: Cascade)
+
+  homeEvents Event[] @relation("HomeCompetitor")
+  awayEvents Event[] @relation("AwayCompetitor")
+
+  @@index([sportId])
+}
+
+model Event {
+  id String @id @default(cuid())
+
+  sportId  String
+  leagueId String?
+
+  homeCompetitorId String
+  awayCompetitorId String
+
+  startTime DateTime
+  createdAt DateTime @default(now())
+
+  sport  Sport  @relation(fields: [sportId], references: [id])
+  league League? @relation(fields: [leagueId], references: [id])
+
+  homeCompetitor Competitor @relation("HomeCompetitor", fields: [homeCompetitorId], references: [id])
+  awayCompetitor Competitor @relation("AwayCompetitor", fields: [awayCompetitorId], references: [id])
+
+  predictions Prediction[]
+
+  @@index([sportId])
+  @@index([leagueId])
+  @@index([startTime])
+}
+
+model Prediction {
+  id        String @id @default(cuid())
+  channelId String
+  authorId  String
+  eventId   String
+
+  odds      Float
+  stake     Float
+  market    String
+  selection String
+
+  result PredictionStatus @default(pending)
+
+  createdAt DateTime @default(now())
+  settledAt DateTime?
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  event   Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([channelId])
+  @@index([authorId])
+  @@index([eventId])
+  @@index([result])
+}

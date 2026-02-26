@@ -1,0 +1,1 @@
+export { ProfileSocial } from "./ProfileSocial";

@@ -1,0 +1,43 @@
+.profile-about {
+    background: #ffffff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.profile-about__title {
+    font: 700 16px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #0b1220;
+}
+
+.profile-about__text {
+    margin-top: 12px;
+    font: 500 13px / 1.7 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+.profile-about__subTitle {
+    margin-top: 16px;
+    font: 700 13px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111827;
+}
+
+.profile-about__tags {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-about__tag {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #111827;
+    font: 600 12px / 1 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    display: inline-flex;
+    align-items: center;
+}

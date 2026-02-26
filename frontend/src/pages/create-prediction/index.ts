@@ -1,0 +1,1 @@
+export { CreatePredictionPage } from "./ui/CreatePredictionPage";

@@ -1,0 +1,75 @@
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: #ffffff;
+    text-decoration: none;
+}
+
+    .card:hover {
+        border-color: rgba(15, 23, 42, 0.2);
+    }
+
+.cardTop {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cardTitle {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.cardMeta {
+    font-size: 12px;
+    line-height: 16px;
+    color: rgba(15, 23, 42, 0.6);
+}
+
+.cardDesc {
+    font-size: 13px;
+    line-height: 18px;
+    color: rgba(15, 23, 42, 0.75);
+    min-height: 36px;
+}
+
+.cardBottom {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.pill {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.06);
+    color: #0f172a;
+}
+
+.state {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(15, 23, 42, 0.7);
+}
+
+.stateError {
+    font-size: 14px;
+    line-height: 20px;
+    color: rgba(220, 38, 38, 1);
+}

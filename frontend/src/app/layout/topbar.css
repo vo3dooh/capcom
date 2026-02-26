@@ -1,0 +1,206 @@
+.topbar {
+    grid-column: 2;
+    grid-row: 1;
+    height: 86px;
+    padding: 0 10   px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.topbar__spacer {
+    flex: 1;
+}
+
+.topbar__left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+    gap: 16px;
+    padding-right: 10px;
+}
+
+.topbar__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.topbar__auth {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar__iconBtn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background 160ms ease, border-color 160ms ease;
+}
+
+    .topbar__iconBtn:hover {
+        background: #f9fafb;
+        border-color: rgba(0, 0, 0, 0.10);
+    }
+
+    .topbar__iconBtn:active {
+        transform: translateY(1px);
+        background: #eef0f3;
+    }
+
+.topbar__icon {
+    width: 18px;
+    height: 18px;
+    color: #111827;
+}
+
+.topbar__profilePill {
+    height: 48px;
+    padding: 8px;
+    border-radius: 12px;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    min-width: 180px;
+    max-width: 260px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    transition: background 160ms ease, border-color 160ms ease;
+}
+
+    .topbar__profilePill:hover {
+        background: #f9fafb;
+        border-color: rgba(0, 0, 0, 0.10);
+    }
+
+.topbar__avatarImg {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: #eef0f3;
+    flex: 0 0 auto;
+    object-fit: cover;
+    display: block;
+}
+
+.topbar__avatarFallback {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: #eef0f3;
+    flex: 0 0 auto;
+    display: block;
+}
+
+.topbar__chevIcon {
+    width: 16px;
+    height: 16px;
+    color: rgba(17, 24, 39, 0.55);
+    margin-left: auto;
+}
+
+.topbar__profileText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.topbar__profileName {
+    font: 600 13px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar__profileSub {
+    font: 400 12px / 1.5 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: rgba(17, 24, 39, 0.55);
+    white-space: nowrap;
+}
+
+.topbar__profileWrapper {
+    position: relative;
+}
+
+.topbarSearch {
+    height: 48px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    width: 48px;
+    transition: width 220ms ease, border-color 160ms ease, background 160ms ease;
+    flex: 0 0 auto;
+}
+
+.topbarSearch--open {
+    width: 320px;
+    border-color: rgba(0, 0, 0, 0.10);
+}
+
+.topbarSearch__btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .topbarSearch__btn:hover {
+        background: #f9fafb;
+    }
+
+    .topbarSearch__btn:active {
+        background: #eef0f3;
+    }
+
+.topbarSearch__icon {
+    width: 18px;
+    height: 18px;
+    color: #111827;
+}
+
+.topbarSearch__field {
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 220ms ease, opacity 140ms ease;
+}
+
+.topbarSearch--open .topbarSearch__field {
+    width: 272px;
+    opacity: 1;
+}
+
+
+
+.topbarSearch__input {
+    height: 48px;
+    width: 272px;
+    padding: 0 14px 0 6px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #111827;
+    font: 400 14px / 1.5 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+    .topbarSearch__input::placeholder {
+        color: rgba(17, 24, 39, 0.45);
+    }

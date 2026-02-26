@@ -1,0 +1,180 @@
+.profile-header {
+    background: #ffffff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.profile-header__cover {
+    height: 220px;
+    background: #dfe3ea;
+    position: relative;
+}
+
+.profile-header__cover--compact {
+    height: 140px;
+}
+
+.profile-header__coverImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-header__coverPlaceholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #d6dbe3 0%, #cfd6df 45%, #e3e7ee 100%);
+}
+
+.profile-header__content {
+    display: flex;
+    gap: 20px;
+    padding: 18px 20px 20px 20px;
+    position: relative;
+}
+
+.profile-header__avatarWrap {
+    width: 96px;
+    height: 96px;
+    flex: 0 0 auto;
+    position: relative;
+    transform: translateY(-52px);
+    z-index: 2;
+}
+
+    .profile-header__avatarWrap::before {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border-radius: 999px;
+        background: #ffffff;
+        z-index: 0;
+    }
+
+.profile-header__avatarImg {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.profile-header__avatarFallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: #eef0f3;
+    color: #111827;
+    font: 700 22px / 1 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    display: grid;
+    place-items: center;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.profile-header__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-header__topRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.profile-header__title {
+    min-width: 0;
+}
+
+.profile-header__name {
+    font: 700 18px / 1.2 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #0b1220;
+}
+
+.profile-header__handle {
+    margin-top: 4px;
+    font: 500 13px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #6b7280;
+}
+
+.profile-header__shareBtn {
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #ffffff;
+    color: #111827;
+    font: 600 13px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 160ms ease, border-color 160ms ease;
+    flex: 0 0 auto;
+}
+
+    .profile-header__shareBtn:hover {
+        background: #f9fafb;
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+
+.profile-header__badges {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.profile-header__badge {
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 11px / 1 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    letter-spacing: 0.4px;
+}
+
+.profile-header__badge--verified {
+    background: rgba(59, 130, 246, 0.12);
+    color: #1d4ed8;
+}
+
+.profile-header__badge--pro {
+    background: rgba(168, 85, 247, 0.12);
+    color: #7e22ce;
+}
+
+.profile-header__tagline {
+    margin-top: 10px;
+    font: 500 13px / 1.5 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #374151;
+}
+
+.profile-header__chips {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-header__chip {
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #111827;
+    font: 600 12px / 1 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    display: inline-flex;
+    align-items: center;
+}

@@ -1,0 +1,154 @@
+/* frontend/src/shared/ui/Sidebar/sidebar.css */
+.sidebar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    padding: 10px;
+    overflow: auto;
+    background: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar__top {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sidebar__logo {
+    padding: 10px 10px;
+    border-radius: 14px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+    .sidebar__logo .logo {
+        width: 100%;
+    }
+
+    .sidebar__logo .logo__stack {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidebar__logo .logo__main {
+        flex: 0 0 auto;
+    }
+
+    .sidebar__logo .logo__badge {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+
+
+.sidebar__status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sidebar__statusDot {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: #111827;
+    position: relative;
+}
+
+    .sidebar__statusDot::after {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border-radius: 999px;
+        border: 2px dotted rgba(99, 102, 241, 0.85);
+    }
+
+.sidebar__statusText {
+    font: 500 13px / 1.2 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: rgba(17, 24, 39, 0.6);
+}
+
+.sidebar__section {
+    padding: 10px;
+}
+
+.sidebar__title {
+    padding: 0 10px;
+    margin-bottom: 8px;
+    font: 700 11px / 1 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: rgba(17, 24, 39, 0.45);
+}
+
+.sidebar__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar__link {
+    height: 48px;
+    padding: 0 10px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(17, 24, 39, 0.8);
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+    .sidebar__link:hover {
+        background: rgba(255, 255, 255, 0.7);
+        border-color: rgba(0, 0, 0, 0.06);
+    }
+
+.sidebar__link--active {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.06);
+    color: #111827;
+    transition: none;
+}
+
+    .sidebar__link--active:hover {
+        background: #ffffff;
+        border-color: rgba(0, 0, 0, 0.06);
+    }
+
+    .sidebar__link:focus,
+    .sidebar__link:focus-visible,
+    .sidebar__link--active:focus,
+    .sidebar__link--active:focus-visible {
+        outline: none;
+        box-shadow: none;
+    }
+
+.sidebar__icon {
+    width: 22px;
+    display: grid;
+    place-items: center;
+    color: rgba(17, 24, 39, 0.75);
+}
+
+.sidebar__link--active .sidebar__icon {
+    color: #111827;
+}
+
+.sidebar__label {
+    font: 600 14px / 1.2 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

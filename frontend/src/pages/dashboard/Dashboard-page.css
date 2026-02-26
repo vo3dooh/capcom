@@ -1,0 +1,104 @@
+.dash {
+  display: grid;
+  gap: 16px;
+}
+
+.dash__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dash__mid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.kpi {
+  padding: 12px;
+}
+
+.kpi__title {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.panel__head {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-weight: 700;
+}
+
+.panel__body {
+  padding: 12px;
+}
+
+.table__head {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.table__title {
+  font-weight: 700;
+}
+
+.table__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.table__body {
+  padding: 12px;
+}
+
+/* скелетоны / плейсхолдеры */
+.skeleton {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.skeleton--lg {
+  height: 18px;
+  width: 60%;
+}
+
+.skeleton--sm {
+  margin-top: 8px;
+  height: 12px;
+  width: 40%;
+}
+
+.placeholder {
+  background: #f3f4f6;
+  border: 1px dashed #d1d5db;
+  border-radius: 12px;
+}
+
+.placeholder--chart {
+  height: 220px;
+}
+
+.placeholder--donut {
+  height: 220px;
+}
+
+.placeholder--table {
+  height: 240px;
+}
+
+.input--sm {
+  width: 220px;
+}

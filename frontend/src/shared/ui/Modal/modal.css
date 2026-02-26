@@ -1,0 +1,296 @@
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+    .modal[data-state="closing"] {
+        pointer-events: none;
+    }
+
+.modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 12, 18, 0.62);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    will-change: opacity;
+    transform: translateZ(0);
+}
+
+.modal__panel {
+    position: relative;
+    width: min(1040px, 100%);
+    max-height: min(86vh, 900px);
+    overflow: hidden;
+    border-radius: 28px;
+    padding: 10px;
+    background: #ffffff;
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.985);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
+
+    .modal__panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        padding: 1px;
+        mask-composite: exclude;
+    }
+
+.modal[data-state="open"] .modal__overlay {
+    animation: modalOverlayIn 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+
+.modal[data-state="open"] .modal__panel {
+    animation: modalPanelIn 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.modal[data-state="closing"] .modal__overlay {
+    animation: modalOverlayOut 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 12, 18, 0.70);
+}
+
+
+.modal[data-state="closing"] .modal__panel {
+    animation: modalPanelOut 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes modalOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalOverlayOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes modalPanelIn {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 10px, 0) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+
+@keyframes modalPanelOut {
+    from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translate3d(0, 2px, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal__overlay,
+    .modal__panel {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    .modal[data-state="closing"] .modal__overlay,
+    .modal[data-state="closing"] .modal__panel {
+        opacity: 0 !important;
+    }
+}
+
+.modal__layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    min-height: 560px;
+}
+
+.modal__aside {
+    position: relative;
+    overflow: hidden;
+    padding: 28px;
+    color: rgba(255, 255, 255, 0.92);
+    background: radial-gradient(1200px 600px at 20% 20%, rgba(255, 64, 64, 0.45), transparent 55%), radial-gradient(900px 500px at 80% 70%, rgba(120, 80, 255, 0.35), transparent 60%), linear-gradient(135deg, #0a0c12, #121827);
+}
+
+    .modal__aside::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(800px 500px at 50% 10%, rgba(255, 255, 255, 0.10), transparent 60%);
+        pointer-events: none;
+    }
+
+.modal__asideTop {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.modal__asideBrand {
+    position: relative;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.modal__asideHint {
+    position: relative;
+    margin-top: 18px;
+    max-width: 420px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.modal__content {
+    padding: 34px 34px 28px;
+}
+
+.modal__title {
+    font-size: 44px;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0;
+    color: #0b1220;
+}
+
+.modal__subtitle {
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(11, 18, 32, 0.60);
+}
+
+.modal__form {
+    margin-top: 26px;
+    display: grid;
+    gap: 12px;
+}
+
+.modal__row {
+    display: grid;
+    gap: 8px;
+}
+
+.modal__input {
+    height: 44px;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(17, 24, 39, 0.14);
+    background: #ffffff;
+    padding: 0 14px;
+    outline: none;
+    transition: box-shadow 120ms ease, border-color 120ms ease;
+}
+
+    .modal__input:focus {
+        border-color: rgba(255, 64, 64, 0.55);
+        box-shadow: 0 0 0 4px rgba(255, 64, 64, 0.15);
+    }
+
+.modal__actions {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+}
+
+.modal__buttonPrimary {
+    height: 46px;
+    border-radius: 999px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(180deg, #ff4b4b, #e63b3b);
+    box-shadow: 0 14px 26px rgba(230, 59, 59, 0.28);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+    .modal__buttonPrimary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 18px 32px rgba(230, 59, 59, 0.34);
+    }
+
+.modal__buttonGhost {
+    height: 46px;
+    border-radius: 999px;
+    border: 1px solid rgba(17, 24, 39, 0.14);
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    color: rgba(11, 18, 32, 0.78);
+}
+
+.modal__divider {
+    margin: 10px 0;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 10px;
+    color: rgba(11, 18, 32, 0.45);
+    font-size: 12px;
+}
+
+    .modal__divider::before,
+    .modal__divider::after {
+        content: "";
+        height: 1px;
+        background: rgba(17, 24, 39, 0.10);
+    }
+
+@media (max-width: 860px) {
+    .modal {
+        padding: 16px;
+    }
+
+    .modal__panel {
+        width: min(720px, 100%);
+        border-radius: 22px;
+        max-height: 90vh;
+    }
+
+    .modal__layout {
+        grid-template-columns: 1fr;
+        min-height: unset;
+    }
+
+    .modal__aside {
+        display: none;
+    }
+
+    .modal__content {
+        padding: 26px 20px 18px;
+    }
+
+    .modal__title {
+        font-size: 34px;
+    }
+}

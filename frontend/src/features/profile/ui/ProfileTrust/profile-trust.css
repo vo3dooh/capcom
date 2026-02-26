@@ -1,0 +1,39 @@
+.profile-trust {
+    background: #ffffff;
+    border: 1px solid #efefef;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.profile-trust__title {
+    font: 700 16px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #0b1220;
+}
+
+.profile-trust__rows {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+}
+
+.profile-trust__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 10px;
+    border: 1px solid #efefef;
+    background: #ffffff;
+}
+
+.profile-trust__label {
+    font: 700 12px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #6b7280;
+}
+
+.profile-trust__value {
+    font: 700 12px / 1.3 "Manrope", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111827;
+}
