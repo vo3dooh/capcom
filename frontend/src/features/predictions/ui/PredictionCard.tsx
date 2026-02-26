@@ -195,6 +195,8 @@ export function PredictionCard({ item }: { item: PredictionItem }) {
     const awayLogo = item.event.awayCompetitor.logoUrl || "";
 
     const league = item.event.league ? item.event.league.name : null;
+    const leagueLogo = item.event.league?.logoUrl || "";
+
     const sportName = item.event.sport?.name || "Sport";
 
     const sportKey =
@@ -235,21 +237,27 @@ export function PredictionCard({ item }: { item: PredictionItem }) {
             <div className={styles.row}>
                 <div className={styles.leftCol}>
                     <div className={styles.metaTop}>
-<span
-    className={`${styles.sportPill} ${sportVisual.pillClassName}`}
-    title={sportName}
->
-    <Icon
-        icon={sportVisual.icon}
-        className={`${styles.sportIcon} ${sportVisual.iconClassName}`}
-        aria-hidden="true"
-    />
-</span>
+                        <span
+                            className={`${styles.sportPill} ${sportVisual.pillClassName}`}
+                            title={sportName}
+                        >
+                            <Icon
+                                icon={sportVisual.icon}
+                                className={`${styles.sportIcon} ${sportVisual.iconClassName}`}
+                                aria-hidden="true"
+                            />
+                        </span>
 
                         <div className={styles.metaStack}>
-                            <div className={styles.leagueText} title={league ? league : sportName}>
-                                🏳️ {league ? league : sportName}
+                            <div className={styles.leagueRow} title={league ? league : sportName}>
+                                {leagueLogo ? (
+                                    <img className={styles.leagueLogo} src={leagueLogo} alt="" />
+                                ) : (
+                                    <span className={styles.leagueLogoFallback} />
+                                )}
+                                <span className={styles.leagueTextInline}> {league ? league : sportName}</span>
                             </div>
+
                             {bookmaker ? (
                                 <div className={styles.bookmakerText} title={bookmaker}>
                                     {bookmaker}
