@@ -16,34 +16,58 @@
     color: rgba(220, 38, 38, 1);
 }
 
+.paginationMeta {
+    margin-top: 6px;
+    font-size: 13px;
+    color: rgba(71, 85, 105, 1);
+}
+
 .paginationControls {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 8px;
 }
 
-.pageBtn {
-    border: 1px solid rgba(148, 163, 184, 0.6);
-    background: white;
-    color: rgb(15, 23, 42);
-    border-radius: 10px;
-    padding: 8px 14px;
+.pageBtn,
+.pageNumberBtn {
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: rgba(71, 85, 105, 1);
+    padding: 8px 10px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    line-height: 1;
+    min-width: 32px;
 }
 
-.pageBtn:disabled {
-    opacity: 0.6;
+.pageNumberBtn {
+    color: rgb(15, 23, 42);
+}
+
+.pageBtn:disabled,
+.pageNumberBtn:disabled {
+    color: rgba(148, 163, 184, 1);
     cursor: default;
 }
 
-.pageLabel {
+.pageNumberBtnActive {
+    border-bottom-color: rgba(37, 99, 235, 1);
+    color: rgba(37, 99, 235, 1);
+}
+
+.ellipsis {
+    color: rgba(100, 116, 139, 1);
     font-size: 13px;
     line-height: 1;
-    color: rgba(51, 65, 85, 1);
-    min-width: 88px;
+}
+
+.loadingHint {
     text-align: center;
+    font-size: 12px;
+    color: rgba(100, 116, 139, 1);
 }
