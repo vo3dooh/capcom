@@ -27,8 +27,7 @@
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 4px;
 }
 
 .pageBtn,
@@ -37,16 +36,18 @@
     border-bottom: 2px solid transparent;
     background: transparent;
     color: rgba(71, 85, 105, 1);
-    padding: 8px 10px;
-    font-size: 13px;
+    padding: 8px;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     line-height: 1;
-    min-width: 32px;
+    min-width: 27px;
+    text-align: center;
 }
 
 .pageNumberBtn {
     color: rgb(15, 23, 42);
+    text-align: center;
 }
 
 .pageBtn:disabled,

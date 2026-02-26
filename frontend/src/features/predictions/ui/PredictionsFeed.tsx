@@ -1,3 +1,5 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { useChannelPredictions } from "../model/useChannelPredictions";
 import { PredictionCard } from "./PredictionCard";
 import styles from "./PredictionsFeed.module.css";
@@ -30,15 +32,10 @@ export function PredictionsFeed({ slug }: { slug: string }) {
                 <PredictionCard key={p.id} item={p} />
             ))}
 
-            <div className={styles.paginationMeta}>Прогнозов: {totalItems}. Страница {page} из {totalPages}</div>
-
             <div className={styles.paginationControls}>
-                <button type="button" className={styles.pageBtn} onClick={() => goToPage(1)} disabled={!hasPrevPage}>
-                    First
-                </button>
 
                 <button type="button" className={styles.pageBtn} onClick={goToPrevPage} disabled={!hasPrevPage}>
-                    Previous
+                    <ChevronLeft size={24} />
                 </button>
 
                 {!isFirstPageInView && (
@@ -73,12 +70,9 @@ export function PredictionsFeed({ slug }: { slug: string }) {
                 )}
 
                 <button type="button" className={styles.pageBtn} onClick={goToNextPage} disabled={!hasNextPage}>
-                    Next
+                    <ChevronRight size={24} />
                 </button>
-
-                <button type="button" className={styles.pageBtn} onClick={() => goToPage(totalPages)} disabled={!hasNextPage}>
-                    Last
-                </button>
+                
             </div>
 
             {loading && <div className={styles.loadingHint}>Загружаем следующую страницу…</div>}
