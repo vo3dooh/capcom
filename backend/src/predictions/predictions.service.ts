@@ -520,25 +520,33 @@ export class PredictionsService {
       Number.isFinite(skipRaw as number) ? (skipRaw as number) : 0,
     );
 
-    const items = await this.prisma.prediction.findMany({
-      where: { channelId: channel.id },
-      orderBy: { createdAt: 'desc' },
-      take,
-      skip,
-      include: {
-        event: {
-          include: {
-            league: true,
-            sport: true,
-            homeCompetitor: true,
-            awayCompetitor: true,
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.prediction.findMany({
+        where: { channelId: channel.id },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+        include: {
+          event: {
+            include: {
+              league: true,
+              sport: true,
+              homeCompetitor: true,
+              awayCompetitor: true,
+            },
+          },
+          author: {
+            select: { id: true, username: true, handle: true, avatarUrl: true },
           },
         },
-        author: {
-          select: { id: true, username: true, handle: true, avatarUrl: true },
-        },
-      },
-    });
+      }),
+      this.prisma.prediction.count({ where: { channelId: channel.id } }),
+    ]);
+
+    const currentPage = Math.floor(skip / take) + 1;
+    const totalPages = Math.max(1, Math.ceil(total / take));
+
+    const normalizedCurrentPage = Math.min(currentPage, totalPages);
 
     const leagueSeen = new Set<string>();
     const competitorSeen = new Set<string>();
@@ -585,7 +593,16 @@ export class PredictionsService {
       }
     }
 
-    return items;
+    return {
+      items,
+      pagination: {
+        take,
+        skip,
+        total,
+        totalPages,
+        currentPage: normalizedCurrentPage,
+      },
+    };
   }
 
   async settle(
