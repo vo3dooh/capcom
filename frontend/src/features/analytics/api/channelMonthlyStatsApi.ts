@@ -4,6 +4,7 @@ export type ChannelMonthlyStatsItem = {
   monthStart: string;
   predictionsCount: number;
   profitPercent: number;
+  roiPercent: number;
   drawdownPercent: number;
 };
 

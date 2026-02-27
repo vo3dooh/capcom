@@ -16,6 +16,12 @@ function formatPercent(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 }
 
+function getValueTone(value: number): string {
+  if (value > 0) return styles.positive;
+  if (value < 0) return styles.negative;
+  return styles.neutral;
+}
+
 export function ChannelMonthlyStatsCardConnected({ slug }: { slug: string }) {
   const { isLoading, error, monthlyStats } = useChannelMonthlyStats(slug);
   const [showYear, setShowYear] = useState(false);
@@ -26,6 +32,8 @@ export function ChannelMonthlyStatsCardConnected({ slug }: { slug: string }) {
     return showYear ? copy : copy.slice(0, DEFAULT_MONTHS);
   }, [monthlyStats?.items, showYear]);
 
+  const canToggleYear = Boolean(monthlyStats && monthlyStats.items.length > DEFAULT_MONTHS);
+
   return (
     <section className={styles.card}>
       <h3 className={styles.title}>Статистика по месяцам</h3>
@@ -34,23 +42,35 @@ export function ChannelMonthlyStatsCardConnected({ slug }: { slug: string }) {
       {error ? <div className={styles.error}>{error}</div> : null}
 
       {rows.length > 0 ? (
-        <div className={styles.list}>
-          {rows.map((row) => (
-            <div className={styles.row} key={row.monthStart}>
-              <div className={styles.month}>{formatMonth(row.monthStart)}</div>
-              <div className={styles.metric}>Прогнозов: {row.predictionsCount}</div>
-              <div className={styles.metric}>Прибыль: {formatPercent(row.profitPercent)}</div>
-              <div className={styles.metric}>Просадка: {formatPercent(-row.drawdownPercent)}</div>
-            </div>
-          ))}
+        <div className={`${styles.listWrap} ${showYear ? styles.expanded : ''}`}>
+          <div className={styles.headRow}>
+            <div>Месяц</div>
+            <div>Количество прогнозов</div>
+            <div>Просадка</div>
+            <div>ROI</div>
+            <div>Прибыль</div>
+          </div>
+          <div className={styles.list}>
+            {rows.map((row) => (
+              <div className={styles.row} key={row.monthStart}>
+                <div className={styles.month}>{formatMonth(row.monthStart)}</div>
+                <div className={styles.metric}>{row.predictionsCount}</div>
+                <div className={styles.metric}>{formatPercent(-row.drawdownPercent)}</div>
+                <div className={`${styles.metric} ${getValueTone(row.roiPercent)}`}>{formatPercent(row.roiPercent)}</div>
+                <div className={`${styles.metric} ${getValueTone(row.profitPercent)}`}>
+                  {formatPercent(row.profitPercent)}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : null}
 
       {!isLoading && rows.length === 0 ? <div className={styles.state}>Данные за месяцы пока отсутствуют</div> : null}
 
-      {monthlyStats && monthlyStats.items.length > DEFAULT_MONTHS ? (
+      {canToggleYear ? (
         <button className={styles.toggleBtn} onClick={() => setShowYear((v) => !v)} type="button">
-          {showYear ? 'Скрыть' : 'Показать за год'}
+          {showYear ? 'Скрыть результаты за год' : 'Показать результаты за год'}
         </button>
       ) : null}
     </section>

@@ -28,6 +28,7 @@ type ChannelMonthlyStatsItem = {
   monthStart: string
   predictionsCount: number
   profitPercent: number
+  roiPercent: number
   drawdownPercent: number
 }
 
@@ -243,12 +244,13 @@ export class ChannelAnalyticsService {
       orderBy: { createdAt: 'asc' }
     })
 
-    const perMonth = new Map<string, { profits: number[] }>()
+    const perMonth = new Map<string, { profits: number[]; totalStake: number }>()
 
     for (const p of predictions) {
       const key = `${p.createdAt.getUTCFullYear()}-${String(p.createdAt.getUTCMonth() + 1).padStart(2, '0')}`
-      const monthData = perMonth.get(key) ?? { profits: [] }
+      const monthData = perMonth.get(key) ?? { profits: [], totalStake: 0 }
       monthData.profits.push(calcProfit(p.result, p.stake, p.odds))
+      monthData.totalStake = round2(monthData.totalStake + p.stake)
       perMonth.set(key, monthData)
     }
 
@@ -259,9 +261,11 @@ export class ChannelAnalyticsService {
       const key = `${current.getUTCFullYear()}-${String(current.getUTCMonth() + 1).padStart(2, '0')}`
       const monthData = perMonth.get(key)
       const profits = monthData?.profits ?? []
+      const totalStake = monthData?.totalStake ?? 0
 
       const totalProfit = round2(profits.reduce((acc, v) => acc + v, 0))
       const profitPercent = base !== 0 ? round2((totalProfit / Math.abs(base)) * 100) : 0
+      const roiPercent = totalStake !== 0 ? round2((totalProfit / totalStake) * 100) : 0
 
       let running = 0
       let peak = 0
@@ -279,6 +283,7 @@ export class ChannelAnalyticsService {
         monthStart: current.toISOString(),
         predictionsCount: profits.length,
         profitPercent,
+        roiPercent,
         drawdownPercent
       })
     }
