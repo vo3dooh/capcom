@@ -1,0 +1,76 @@
+.card {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 900;
+  color: rgba(15, 23, 42, 0.8);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.row {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(15, 23, 42, 0.02);
+  border-radius: 10px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1.1fr repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.month {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.metric {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(15, 23, 42, 0.72);
+}
+
+.toggleBtn {
+  width: 100%;
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  background: rgba(2, 132, 199, 0.1);
+  color: #075985;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.state {
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.error {
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(220, 38, 38, 1);
+}
+
+@media (max-width: 1200px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
