@@ -17,4 +17,9 @@ export class ChannelAnalyticsController {
     const period: Period = periodRaw === 'all' ? 'all' : 'month'
     return this.service.getOverview({ slug, period })
   }
+
+  @Get('monthly-stats')
+  async getMonthlyStats(@Param('slug') slug: string) {
+    return this.service.getMonthlyStats({ slug })
+  }
 }

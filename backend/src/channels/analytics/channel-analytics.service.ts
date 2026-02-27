@@ -24,6 +24,19 @@ type ChannelOverviewResponse = {
   series: OverviewPoint[]
 }
 
+type ChannelMonthlyStatsItem = {
+  monthStart: string
+  predictionsCount: number
+  profitPercent: number
+  roiPercent: number
+  drawdownPercent: number
+}
+
+type ChannelMonthlyStatsResponse = {
+  updatedAt: string
+  items: ChannelMonthlyStatsItem[]
+}
+
 function round2(x: number): number {
   return Math.round(x * 100) / 100
 }
@@ -194,6 +207,97 @@ export class ChannelAnalyticsService {
       bottom: { valueText: `${trend >= 0 ? '+' : ''}${trend.toFixed(2)}`, valueSuffix: '%' },
       lastUpdatedText: formatUpdated(lastUpdated),
       series
+    }
+  }
+
+  async getMonthlyStats(params: { slug: string }): Promise<ChannelMonthlyStatsResponse> {
+    const { slug } = params
+
+    const channel = await this.prisma.channel.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        startingBankroll: true,
+        stats: { select: { updatedAt: true } }
+      }
+    })
+
+    if (!channel) throw new NotFoundException('Channel not found')
+
+    const base = channel.startingBankroll ?? 1000
+    const now = new Date()
+
+    const fromDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1, 0, 0, 0, 0))
+
+    const predictions = await this.prisma.prediction.findMany({
+      where: {
+        channelId: channel.id,
+        createdAt: { gte: fromDate },
+        result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+      },
+      select: {
+        createdAt: true,
+        result: true,
+        stake: true,
+        odds: true
+      },
+      orderBy: { createdAt: 'asc' }
+    })
+
+    const perMonth = new Map<string, { profits: number[]; stakesTotal: number; netProfitNoVoid: number }>()
+
+    for (const p of predictions) {
+      const key = `${p.createdAt.getUTCFullYear()}-${String(p.createdAt.getUTCMonth() + 1).padStart(2, '0')}`
+      const monthData = perMonth.get(key) ?? { profits: [], stakesTotal: 0, netProfitNoVoid: 0 }
+      const profit = calcProfit(p.result, p.stake, p.odds)
+      monthData.profits.push(profit)
+      monthData.stakesTotal = round2(monthData.stakesTotal + p.stake)
+
+      if (p.result !== PredictionStatus.void) {
+        monthData.netProfitNoVoid = round2(monthData.netProfitNoVoid + profit)
+      }
+
+      perMonth.set(key, monthData)
+    }
+
+    const items: ChannelMonthlyStatsItem[] = []
+
+    for (let i = 11; i >= 0; i -= 1) {
+      const current = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1, 0, 0, 0, 0))
+      const key = `${current.getUTCFullYear()}-${String(current.getUTCMonth() + 1).padStart(2, '0')}`
+      const monthData = perMonth.get(key)
+      const profits = monthData?.profits ?? []
+      const stakesTotal = monthData?.stakesTotal ?? 0
+      const netProfitNoVoid = monthData?.netProfitNoVoid ?? 0
+
+      const totalProfit = round2(profits.reduce((acc, v) => acc + v, 0))
+      const profitPercent = base !== 0 ? round2((totalProfit / Math.abs(base)) * 100) : 0
+      const roiPercent = stakesTotal !== 0 ? round2((netProfitNoVoid / Math.abs(stakesTotal)) * 100) : 0
+
+      let running = 0
+      let peak = 0
+      let maxDrawdown = 0
+
+      for (const profit of profits) {
+        running = round2(running + profit)
+        peak = Math.max(peak, running)
+        maxDrawdown = Math.max(maxDrawdown, peak - running)
+      }
+
+      const drawdownPercent = base !== 0 ? round2((maxDrawdown / Math.abs(base)) * 100) : 0
+
+      items.push({
+        monthStart: current.toISOString(),
+        predictionsCount: profits.length,
+        profitPercent,
+        roiPercent,
+        drawdownPercent
+      })
+    }
+
+    return {
+      updatedAt: (channel.stats?.updatedAt ?? now).toISOString(),
+      items
     }
   }
 }
