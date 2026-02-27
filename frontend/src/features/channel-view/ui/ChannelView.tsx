@@ -3,6 +3,7 @@ import { Plus, Settings } from "lucide-react"
 import { useChannelView } from "../model/useChannelView"
 import { PredictionsFeed } from "@/features/predictions/ui/PredictionsFeed"
 import { ChannelOverviewCardConnected } from "@/features/analytics/ui/ChannelOverviewCard"
+import { ChannelMonthlyStatsCardConnected } from "@/features/analytics/ui/ChannelMonthlyStatsCard"
 import styles from "./ChannelView.module.css"
 
 export function ChannelView({ slug }: { slug: string }) {
@@ -140,6 +141,7 @@ export function ChannelView({ slug }: { slug: string }) {
                 <div className={styles.right}>
                     <div className={styles.sideStack}>
                         <ChannelOverviewCardConnected slug={data.slug} />
+                        <ChannelMonthlyStatsCardConnected slug={data.slug} />
 
                         <div className={styles.card}>
                             <div className={styles.sectionTitle}>Статистика</div>
