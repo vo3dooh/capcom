@@ -25,7 +25,7 @@
 .paginationControls {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: right;
     flex-wrap: wrap;
     gap: 4px;
 }
@@ -36,12 +36,12 @@
     border-bottom: 2px solid transparent;
     background: transparent;
     color: rgba(71, 85, 105, 1);
-    padding: 8px;
+    padding: 6px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     line-height: 1;
-    min-width: 27px;
+    min-width: 20px;
     text-align: center;
 }
 

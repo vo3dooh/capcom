@@ -35,7 +35,7 @@ export function PredictionsFeed({ slug }: { slug: string }) {
             <div className={styles.paginationControls}>
 
                 <button type="button" className={styles.pageBtn} onClick={goToPrevPage} disabled={!hasPrevPage}>
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={16} />
                 </button>
 
                 {!isFirstPageInView && (
@@ -70,9 +70,9 @@ export function PredictionsFeed({ slug }: { slug: string }) {
                 )}
 
                 <button type="button" className={styles.pageBtn} onClick={goToNextPage} disabled={!hasNextPage}>
-                    <ChevronRight size={24} />
+                    <ChevronRight size={16} />
                 </button>
-                
+
             </div>
 
             {loading && <div className={styles.loadingHint}>Загружаем следующую страницу…</div>}
