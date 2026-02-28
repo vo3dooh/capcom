@@ -1,14 +1,19 @@
 .card {
-  border: 1px solid rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
   background: #ffffff;
-  border-radius: 14px;
   padding: 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow: visible;
 }
 
 .title {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
   margin: 0;
   font-size: 13px;
   line-height: 18px;
@@ -17,9 +22,8 @@
 }
 
 .listWrap {
-  overflow: hidden;
+  overflow: visible;
   max-height: 470px;
-  opacity: 0.96;
   transition: max-height 320ms ease, opacity 320ms ease;
 }
 
@@ -30,44 +34,48 @@
 
 .list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .headRow {
   display: grid;
-  grid-template-columns: 1.25fr repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: 1fr repeat(4, minmax(0, 1fr));
   align-items: center;
-  padding: 0 10px;
   font-size: 11px;
-  line-height: 14px;
-  font-weight: 800;
-  color: rgba(15, 23, 42, 0.55);
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.46);
+  text-align: center;
+  padding-bottom: 10px;
 }
 
 .row {
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  background: rgba(15, 23, 42, 0.03);
-  border-radius: 12px;
-  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 6px 10px;
   display: grid;
   grid-template-columns: 1.25fr repeat(4, minmax(0, 1fr));
   gap: 8px;
   align-items: center;
+  box-shadow: 4px 4px 10px rgba(14, 24, 48, 0.04);;
+  transition: transform 120ms
+  ease, box-shadow 160ms
+  ease, border-color 160ms
+  ease;
 }
 
 .month {
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: 800;
+  font-size: 12px;
+  font-weight: 600;
   color: #0f172a;
 }
 
 .metric {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 18px;
-  color: rgba(15, 23, 42, 0.72);
-  font-weight: 700;
+  color: #0f172a;
+  font-weight: 600;
+  text-align: center;
 }
 
 .positive {
@@ -83,13 +91,14 @@
 }
 
 .toggleBtn {
-  width: 100%;
-  border: 1px solid rgba(2, 132, 199, 0.35);
-  background: linear-gradient(180deg, rgba(2, 132, 199, 0.15), rgba(2, 132, 199, 0.09));
-  color: #075985;
-  border-radius: 12px;
+  width: auto;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+  border-radius: 6px;
   padding: 9px 12px;
   font-size: 13px;
+  margin-left: auto;
   line-height: 18px;
   font-weight: 900;
   cursor: pointer;
@@ -97,8 +106,8 @@
 }
 
 .toggleBtn:hover {
-  background: linear-gradient(180deg, rgba(2, 132, 199, 0.18), rgba(2, 132, 199, 0.12));
-  border-color: rgba(2, 132, 199, 0.5);
+  background: #f9fafb;
+  border-color: rgba(0, 0, 0, 0.10);
 }
 
 .toggleBtn:active {
@@ -129,4 +138,30 @@
   .month {
     grid-column: 1 / -1;
   }
+}
+
+
+.monthHeader {
+  text-align: left;
+  padding-left: 10px;
+  min-width: 70px;
+}
+
+.predictionsHeader {
+  min-width: 80px;
+  text-align: center;
+}
+
+.drawdownHeader {
+  min-width: 75px;
+  text-align: center;
+}
+
+.roiHeader {
+  text-align: center;
+}
+
+.profitHeader {
+  text-align: center;
+  padding-right: 10px;
 }

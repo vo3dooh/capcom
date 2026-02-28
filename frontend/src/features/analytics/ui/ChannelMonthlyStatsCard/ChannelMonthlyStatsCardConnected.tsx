@@ -6,10 +6,10 @@ const DEFAULT_MONTHS = 6;
 
 function formatMonth(isoDate: string): string {
   const d = new Date(isoDate);
-  const month = d.toLocaleString('ru-RU', { month: 'long' });
+  const month = d.toLocaleString('ru-RU', { month: 'short' }).replace('.', '');
   const normalizedMonth = month.charAt(0).toUpperCase() + month.slice(1);
   const year = d.toLocaleString('ru-RU', { year: '2-digit' });
-  return `${normalizedMonth} '${year}`;
+  return `${normalizedMonth} ${year}`;
 }
 
 function formatPercent(value: number): string {
@@ -44,11 +44,11 @@ export function ChannelMonthlyStatsCardConnected({ slug }: { slug: string }) {
       {rows.length > 0 ? (
         <div className={`${styles.listWrap} ${showYear ? styles.expanded : ''}`}>
           <div className={styles.headRow}>
-            <div>Месяц</div>
-            <div>Количество прогнозов</div>
-            <div>Просадка</div>
-            <div>ROI</div>
-            <div>Прибыль</div>
+            <div className={styles.monthHeader}>Месяц</div>
+            <div className={styles.predictionsHeader}>Прогнозов</div>
+            <div className={styles.drawdownHeader}>Просадка</div>
+            <div className={styles.roiHeader}>ROI</div>
+            <div className={styles.profitHeader}>Прибыль</div>
           </div>
           <div className={styles.list}>
             {rows.map((row) => (

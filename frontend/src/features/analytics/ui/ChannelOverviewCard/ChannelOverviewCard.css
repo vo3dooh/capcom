@@ -3,7 +3,7 @@
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 10px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
-    padding: 20px;
+    padding: 10px 14px;
     width: 100%;
     overflow: hidden;
 }
@@ -21,7 +21,7 @@
 }
 
 .ccOverview__title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: #0f172a;
 }
@@ -59,13 +59,14 @@
 }
 
 .ccOverview__hintLabel {
-    font-size: 12px;
-    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.46);
 }
 
 .ccOverview__hintValue {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: #0f172a;
 }
 
@@ -98,13 +99,14 @@
     border: 0;
     background: transparent;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
     color: #6b7280;
+    font-weight: 600;
 }
 
 .ccOverview__segBtn--active {
     background: #ffffff;
-    color: #111827;
+    color: #0f172a;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     font-weight: 600;
 }
@@ -245,7 +247,7 @@
 
 .ccOverview__ttDelta {
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
     color: #64748b;
     line-height: 14px;
 }
@@ -284,13 +286,14 @@
 }
 
 .ccOverview__updatedLabel {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.46);
+    padding-bottom: 4px;
 }
 
 .ccOverview__updatedValue {
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: #0f172a;
 }
