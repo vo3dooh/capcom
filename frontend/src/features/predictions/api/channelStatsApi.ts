@@ -3,6 +3,9 @@ import { http } from '@/shared/api/http';
 export type ChannelStatsResponse = {
   startingBankroll: number;
   totalPredictions: number;
+  turnoverPercent: number;
+  deltaPredictions30d: number;
+  deltaTurnoverPercent30d: number;
   totalStake: number;
   outcomes: {
     wins: number;

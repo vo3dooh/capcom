@@ -42,6 +42,9 @@ type ChannelStatsStreakType = 'win' | 'loss' | 'none'
 type ChannelStatsResponse = {
   startingBankroll: number
   totalPredictions: number
+  turnoverPercent: number
+  deltaPredictions30d: number
+  deltaTurnoverPercent30d: number
   totalStake: number
   outcomes: {
     wins: number
@@ -338,7 +341,11 @@ export class ChannelAnalyticsService {
 
     if (!channel) throw new NotFoundException('Channel not found')
 
-    const [totalPredictions, settledPredictions] = await this.prisma.$transaction([
+    const now = new Date()
+    const currentWindowFrom = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    const previousWindowFrom = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+
+    const [totalPredictions, settledPredictions, currentPredictions30d, previousPredictions30d, currentSettled30d, previousSettled30d] = await this.prisma.$transaction([
       this.prisma.prediction.count({ where: { channelId: channel.id } }),
       this.prisma.prediction.findMany({
         where: {
@@ -353,6 +360,38 @@ export class ChannelAnalyticsService {
           createdAt: true
         },
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+      }),
+      this.prisma.prediction.count({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: currentWindowFrom, lt: now }
+        }
+      }),
+      this.prisma.prediction.count({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: previousWindowFrom, lt: currentWindowFrom }
+        }
+      }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: currentWindowFrom, lt: now },
+          result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+        },
+        select: {
+          stake: true
+        }
+      }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: previousWindowFrom, lt: currentWindowFrom },
+          result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+        },
+        select: {
+          stake: true
+        }
       })
     ])
 
@@ -400,6 +439,17 @@ export class ChannelAnalyticsService {
     const averageStakePercent = settledPredictions.length > 0 ? this.round1(stakePercentSum / settledPredictions.length) : 0
     const roiPercent = turnover > 0 ? this.round1(((totalWinnings - turnover) / turnover) * 100) : 0
     const averageOdds = settledPredictions.length > 0 ? round2(totalOdds / settledPredictions.length) : 0
+    const turnoverPercent = channel.startingBankroll !== 0 ? this.round1((turnover / Math.abs(channel.startingBankroll)) * 100) : 0
+
+    const currentTurnover30d = currentSettled30d.reduce((sum, prediction) => sum + prediction.stake, 0)
+    const previousTurnover30d = previousSettled30d.reduce((sum, prediction) => sum + prediction.stake, 0)
+    const currentTurnoverPercent30d =
+      channel.startingBankroll !== 0 ? this.round1((currentTurnover30d / Math.abs(channel.startingBankroll)) * 100) : 0
+    const previousTurnoverPercent30d =
+      channel.startingBankroll !== 0 ? this.round1((previousTurnover30d / Math.abs(channel.startingBankroll)) * 100) : 0
+
+    const deltaPredictions30d = currentPredictions30d - previousPredictions30d
+    const deltaTurnoverPercent30d = this.round1(currentTurnoverPercent30d - previousTurnoverPercent30d)
 
     const meanProfit = profits.length > 0 ? profits.reduce((acc, p) => acc + p, 0) / profits.length : 0
     const variance =
@@ -430,6 +480,9 @@ export class ChannelAnalyticsService {
     return {
       startingBankroll: channel.startingBankroll,
       totalPredictions,
+      turnoverPercent,
+      deltaPredictions30d,
+      deltaTurnoverPercent30d,
       totalStake: round2(turnover),
       outcomes: {
         wins,
