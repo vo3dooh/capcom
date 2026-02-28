@@ -202,7 +202,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
 
     const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
-    const profitPercentAllTime = stats && stats.totalStake > 0 ? `${((stats.totalProfit / stats.totalStake) * 100).toFixed(1)}%` : "0.0%";
+    const profitPercentAllTime = stats
+        ? `${(stats.startingBankroll > 0 ? (stats.totalProfit / stats.startingBankroll) * 100 : 0).toFixed(1)}%`
+        : loading
+            ? "..."
+            : "0.0%";
 
     const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
     const maxDrawdownPercent = stats && stats.startingBankroll > 0 ? `${((stats.maxDrawdown / stats.startingBankroll) * 100).toFixed(1)}%` : "0.0%";
