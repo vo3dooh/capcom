@@ -696,7 +696,7 @@ export class PredictionsService {
       const nextLosses = stats.losses + lossesInc;
       const nextVoids = stats.voids + voidsInc;
 
-      const nextStake = stats.totalStake + (result === 'void' ? 0 : stake);
+      const nextStake = stats.totalStake + stake;
       const nextProfit = stats.totalProfit + profit;
 
       const denom = nextStake > 0 ? nextStake : 0;
@@ -744,6 +744,7 @@ export class PredictionsService {
     let voids = 0;
     let totalStake = 0;
     let totalProfit = 0;
+    let totalWinnings = 0;
 
     for (const p of preds) {
       totalPredictions += 1;
@@ -751,6 +752,7 @@ export class PredictionsService {
       if (p.result === 'win') {
         wins += 1;
         totalStake += p.stake;
+        totalWinnings += p.stake * p.odds;
         totalProfit += p.stake * (p.odds - 1);
       } else if (p.result === 'loss') {
         losses += 1;
@@ -758,10 +760,12 @@ export class PredictionsService {
         totalProfit += -p.stake;
       } else if (p.result === 'void') {
         voids += 1;
+        totalStake += p.stake;
+        totalWinnings += p.stake;
       }
     }
 
-    const roi = totalStake > 0 ? (totalProfit / totalStake) * 100 : 0;
+    const roi = totalStake > 0 ? ((totalWinnings - totalStake) / totalStake) * 100 : 0;
     const wl = wins + losses;
     const winRate = wl > 0 ? (wins / wl) * 100 : 0;
 

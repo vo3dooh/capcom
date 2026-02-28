@@ -9,6 +9,7 @@ import {
     PlusCircle,
     MinusCircle,
     RotateCcw,
+    HelpCircle,
 } from "lucide-react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
@@ -18,11 +19,28 @@ type StatItemProps = {
     title: string;
     value: string | number;
     meta?: string;
+    helpText?: string;
 };
 
-function StatItem({ icon, title, value, meta }: StatItemProps) {
+type HelpTipProps = {
+    text: string;
+};
+
+function HelpTip({ text }: HelpTipProps) {
+    return (
+        <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${text}`}>
+            <HelpCircle size={14} />
+            <span className={styles.helpTooltip} role="tooltip">
+                {text}
+            </span>
+        </button>
+    );
+}
+
+function StatItem({ icon, title, value, meta, helpText }: StatItemProps) {
     return (
         <div className={styles.statItem}>
+            {helpText ? <HelpTip text={helpText} /> : null}
             <div className={styles.statHead}>
                 <div className={styles.iconWrap}>{icon}</div>
                 <div className={styles.title}>{title}</div>
@@ -143,6 +161,32 @@ function TotalProfitStat({
     );
 }
 
+function MaxDrawdownStat({
+                             drawdownMoney,
+                             drawdownPercent,
+                             loading,
+                             helpText,
+                         }: {
+    drawdownMoney: string;
+    drawdownPercent: string;
+    loading: boolean;
+    helpText: string;
+}) {
+    return (
+        <div className={styles.statItem}>
+            <HelpTip text={helpText} />
+            <div className={styles.statHead}>
+                <div className={styles.iconWrap}>
+                    <ShieldAlert size={16} />
+                </div>
+                <div className={styles.title}>Максимальная просадка</div>
+            </div>
+            <SplitValue left={drawdownMoney} right={drawdownPercent} loading={loading} />
+            <div className={styles.meta}>$ | % от банкролла</div>
+        </div>
+    );
+}
+
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, loading, error } = useChannelStats(slug);
 
@@ -158,9 +202,10 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
 
     const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
-    const profitPercent = stats ? `${stats.roiPercent.toFixed(1)}%` : "0.0%";
+    const profitPercentAllTime = stats && stats.totalStake > 0 ? `${((stats.totalProfit / stats.totalStake) * 100).toFixed(1)}%` : "0.0%";
 
-    const maxDrawdown = stats ? stats.maxDrawdown.toFixed(2) : loading ? "..." : "0.00";
+    const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
+    const maxDrawdownPercent = stats && stats.startingBankroll > 0 ? `${((stats.maxDrawdown / stats.startingBankroll) * 100).toFixed(1)}%` : "0.0%";
     const volatility = stats ? stats.volatility.toFixed(2) : loading ? "..." : "0.00";
 
     const wins = stats ? stats.outcomes.wins : 0;
@@ -171,13 +216,30 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
         <div className={styles.wrap}>
             <StatItem icon={<BarChart3 size={16} />} title="Общее количество прогнозов" value={totalPredictions} meta="Всего создано" />
             <OutcomesStat wins={wins} losses={losses} voids={voids} loading={loading} />
-            <StatItem icon={<TrendingUp size={16} />} title="ROI" value={roi} meta="Доходность" />
-            <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercent} loading={loading} />
+            <StatItem
+                icon={<TrendingUp size={16} />}
+                title="ROI"
+                value={roi}
+                meta="Доходность"
+                helpText="Доходность: ((общая сумма выигрыша − сумма всех ставок) / сумма всех ставок) × 100. Учитывает возвратные ставки."
+            />
+            <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
             <StakeAndOddsStat stakePercent={avgStake} odds={avgOdds} loading={loading} />
             <StatItem icon={<Percent size={16} />} title="Проходимость" value={hitRate} meta="W / (W+L)" />
-            <StatItem icon={<ShieldAlert size={16} />} title="Максимальная просадка" value={maxDrawdown} meta="От пика до минимума" />
-            <StatItem icon={<Activity size={16} />} title="Волатильность" value={volatility} meta="Разброс результата" />
+            <MaxDrawdownStat
+                drawdownMoney={maxDrawdownMoney}
+                drawdownPercent={maxDrawdownPercent}
+                loading={loading}
+                helpText="Максимальное падение банкролла от локального пика до минимума за период."
+            />
+            <StatItem
+                icon={<Activity size={16} />}
+                title="Волатильность"
+                value={volatility}
+                meta="Разброс результата"
+                helpText="Разброс результата: чем выше значение, тем сильнее колебания прибыли/убытка."
+            />
         </div>
     );
 }
