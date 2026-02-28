@@ -132,10 +132,7 @@ export function ChannelView({ slug }: { slug: string }) {
                     </div>
 
                     <div className={styles.leftStack}>
-                        <div className={styles.card}>
-                            <div className={styles.sectionTitle}>Статистика</div>
-                            <ChannelStatsBlock slug={data.slug} />
-                        </div>
+                        <ChannelStatsBlock slug={data.slug} />
 
                         <div className={styles.card}>
                             <div className={styles.sectionTitle}>Прогнозы</div>

@@ -82,9 +82,8 @@
     display: inline-flex;
     gap: 3px;
     padding: 4px;
-    border-radius: 999px;
-    background: #f3f4f6;
-    border: 1px solid #e7e7ea;
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.06);
     justify-content: center;
 }
 
@@ -95,7 +94,7 @@
 .ccOverview__segBtn {
     height: 28px;
     padding: 0 6px;
-    border-radius: 999px;
+    border-radius: 6px;
     border: 0;
     background: transparent;
     cursor: pointer;
