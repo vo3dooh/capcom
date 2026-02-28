@@ -69,6 +69,41 @@
     min-height: 14px;
 }
 
+.metaGroup {
+    margin-top: 2px;
+}
+
+.metaDeltas {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 14px;
+    color: rgba(100, 116, 139, 1);
+    min-height: 14px;
+}
+
+.metaDeltaItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.metaDeltaDivider {
+    width: 1px;
+    height: 12px;
+    background: rgba(226, 232, 240, 1);
+}
+
+.metaDeltaPositive {
+    color: #16a34a;
+}
+
+.metaDeltaNegative {
+    color: rgba(239, 68, 68, 1);
+}
+
 .stateError {
     font-size: 14px;
     line-height: 20px;
