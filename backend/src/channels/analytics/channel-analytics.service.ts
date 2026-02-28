@@ -40,7 +40,9 @@ type ChannelMonthlyStatsResponse = {
 type ChannelStatsStreakType = 'win' | 'loss' | 'none'
 
 type ChannelStatsResponse = {
+  startingBankroll: number
   totalPredictions: number
+  totalStake: number
   outcomes: {
     wins: number
     losses: number
@@ -270,13 +272,15 @@ export class ChannelAnalyticsService {
       orderBy: { createdAt: 'asc' }
     })
 
-    const perMonth = new Map<string, { profits: number[]; totalStake: number }>()
+    const perMonth = new Map<string, { profits: number[]; totalStake: number; totalWinnings: number }>()
 
     for (const p of predictions) {
       const key = `${p.createdAt.getUTCFullYear()}-${String(p.createdAt.getUTCMonth() + 1).padStart(2, '0')}`
-      const monthData = perMonth.get(key) ?? { profits: [], totalStake: 0 }
+      const monthData = perMonth.get(key) ?? { profits: [], totalStake: 0, totalWinnings: 0 }
       monthData.profits.push(calcProfit(p.result, p.stake, p.odds))
       monthData.totalStake = round2(monthData.totalStake + p.stake)
+      if (p.result === PredictionStatus.win) monthData.totalWinnings = round2(monthData.totalWinnings + p.stake * p.odds)
+      if (p.result === PredictionStatus.void) monthData.totalWinnings = round2(monthData.totalWinnings + p.stake)
       perMonth.set(key, monthData)
     }
 
@@ -288,10 +292,11 @@ export class ChannelAnalyticsService {
       const monthData = perMonth.get(key)
       const profits = monthData?.profits ?? []
       const totalStake = monthData?.totalStake ?? 0
+      const totalWinnings = monthData?.totalWinnings ?? 0
 
       const totalProfit = round2(profits.reduce((acc, v) => acc + v, 0))
       const profitPercent = base !== 0 ? round2((totalProfit / Math.abs(base)) * 100) : 0
-      const roiPercent = totalStake !== 0 ? round2((totalProfit / totalStake) * 100) : 0
+      const roiPercent = totalStake !== 0 ? round2(((totalWinnings - totalStake) / totalStake) * 100) : 0
 
       let running = 0
       let peak = 0
@@ -356,6 +361,7 @@ export class ChannelAnalyticsService {
     let voids = 0
     let turnover = 0
     let totalProfit = 0
+    let totalWinnings = 0
     let totalOdds = 0
     let stakePercentSum = 0
 
@@ -377,6 +383,9 @@ export class ChannelAnalyticsService {
         channel.startingBankroll !== 0 ? (prediction.stake / Math.abs(channel.startingBankroll)) * 100 : 0
       stakePercentSum += stakePercent
 
+      if (prediction.result === PredictionStatus.win) totalWinnings += prediction.stake * prediction.odds
+      if (prediction.result === PredictionStatus.void) totalWinnings += prediction.stake
+
       const profit = calcProfit(prediction.result, prediction.stake, prediction.odds)
       profits.push(profit)
       totalProfit += profit
@@ -389,7 +398,7 @@ export class ChannelAnalyticsService {
     const wl = wins + losses
     const hitRatePercent = wl > 0 ? this.round1((wins / wl) * 100) : 0
     const averageStakePercent = settledPredictions.length > 0 ? this.round1(stakePercentSum / settledPredictions.length) : 0
-    const roiPercent = turnover > 0 ? this.round1((totalProfit / turnover) * 100) : 0
+    const roiPercent = turnover > 0 ? this.round1(((totalWinnings - turnover) / turnover) * 100) : 0
     const averageOdds = settledPredictions.length > 0 ? round2(totalOdds / settledPredictions.length) : 0
 
     const meanProfit = profits.length > 0 ? profits.reduce((acc, p) => acc + p, 0) / profits.length : 0
@@ -419,7 +428,9 @@ export class ChannelAnalyticsService {
     }
 
     return {
+      startingBankroll: channel.startingBankroll,
       totalPredictions,
+      totalStake: round2(turnover),
       outcomes: {
         wins,
         losses,
