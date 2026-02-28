@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { Plus, Settings } from "lucide-react"
 import { useChannelView } from "../model/useChannelView"
 import { PredictionsFeed } from "@/features/predictions/ui/PredictionsFeed"
+import { ChannelStatsBlock } from "@/features/predictions/ui/ChannelStatsBlock"
 import { ChannelOverviewCardConnected } from "@/features/analytics/ui/ChannelOverviewCard"
 import { ChannelMonthlyStatsCardConnected } from "@/features/analytics/ui/ChannelMonthlyStatsCard"
 import styles from "./ChannelView.module.css"
@@ -132,6 +133,11 @@ export function ChannelView({ slug }: { slug: string }) {
 
                     <div className={styles.leftStack}>
                         <div className={styles.card}>
+                            <div className={styles.sectionTitle}>Статистика</div>
+                            <ChannelStatsBlock slug={data.slug} />
+                        </div>
+
+                        <div className={styles.card}>
                             <div className={styles.sectionTitle}>Прогнозы</div>
                             <PredictionsFeed slug={data.slug} />
                         </div>
@@ -142,38 +148,6 @@ export function ChannelView({ slug }: { slug: string }) {
                     <div className={styles.sideStack}>
                         <ChannelOverviewCardConnected slug={data.slug} />
                         <ChannelMonthlyStatsCardConnected slug={data.slug} />
-
-                        <div className={styles.card}>
-                            <div className={styles.sectionTitle}>Статистика</div>
-
-                            <div className={styles.statsGrid}>
-                                <div className={styles.stat}>
-                                    <div className={styles.statLabel}>Прогнозов</div>
-                                    <div className={styles.statValue}>{data.stats ? data.stats.totalPredictions : 0}</div>
-                                </div>
-
-                                <div className={styles.stat}>
-                                    <div className={styles.statLabel}>ROI</div>
-                                    <div className={styles.statValue}>
-                                        {data.stats ? data.stats.roi.toFixed(1) : "0.0"}%
-                                    </div>
-                                </div>
-
-                                <div className={styles.stat}>
-                                    <div className={styles.statLabel}>Проходимость</div>
-                                    <div className={styles.statValue}>
-                                        {data.stats ? data.stats.winRate.toFixed(1) : "0.0"}%
-                                    </div>
-                                </div>
-
-                                <div className={styles.stat}>
-                                    <div className={styles.statLabel}>Профит</div>
-                                    <div className={styles.statValue}>
-                                        {data.stats ? data.stats.totalProfit.toFixed(1) : "0.0"}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         <div className={styles.card}>
                             <div className={styles.sectionTitle}>Владелец</div>

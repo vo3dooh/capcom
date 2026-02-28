@@ -37,6 +37,28 @@ type ChannelMonthlyStatsResponse = {
   items: ChannelMonthlyStatsItem[]
 }
 
+type ChannelStatsStreakType = 'win' | 'loss' | 'none'
+
+type ChannelStatsResponse = {
+  totalPredictions: number
+  outcomes: {
+    wins: number
+    losses: number
+    voids: number
+  }
+  hitRatePercent: number
+  averageStakePercent: number
+  totalProfit: number
+  roiPercent: number
+  maxDrawdown: number
+  currentStreak: {
+    type: ChannelStatsStreakType
+    count: number
+  }
+  averageOdds: number
+  volatility: number
+}
+
 function round2(x: number): number {
   return Math.round(x * 100) / 100
 }
@@ -71,6 +93,10 @@ function calcProfit(result: PredictionStatus, stake: number, odds: number): numb
 @Injectable()
 export class ChannelAnalyticsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private round1(x: number): number {
+    return Math.round(x * 10) / 10
+  }
 
   private async profitInRange(params: { channelId: string; from: Date; toExclusive: Date }): Promise<number> {
     const rows = await this.prisma.prediction.findMany({
@@ -291,6 +317,125 @@ export class ChannelAnalyticsService {
     return {
       updatedAt: (channel.stats?.updatedAt ?? now).toISOString(),
       items
+    }
+  }
+
+  async getChannelStats(params: { slug: string }): Promise<ChannelStatsResponse> {
+    const { slug } = params
+
+    const channel = await this.prisma.channel.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        startingBankroll: true
+      }
+    })
+
+    if (!channel) throw new NotFoundException('Channel not found')
+
+    const [totalPredictions, settledPredictions] = await this.prisma.$transaction([
+      this.prisma.prediction.count({ where: { channelId: channel.id } }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+        },
+        select: {
+          id: true,
+          result: true,
+          stake: true,
+          odds: true,
+          createdAt: true
+        },
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+      })
+    ])
+
+    let wins = 0
+    let losses = 0
+    let voids = 0
+    let turnover = 0
+    let totalProfit = 0
+    let totalOdds = 0
+    let stakePercentSum = 0
+
+    let runningProfit = 0
+    let runningPeak = 0
+    let maxDrawdown = 0
+
+    const profits: number[] = []
+
+    for (const prediction of settledPredictions) {
+      if (prediction.result === PredictionStatus.win) wins += 1
+      if (prediction.result === PredictionStatus.loss) losses += 1
+      if (prediction.result === PredictionStatus.void) voids += 1
+
+      turnover += prediction.stake
+      totalOdds += prediction.odds
+
+      const stakePercent =
+        channel.startingBankroll !== 0 ? (prediction.stake / Math.abs(channel.startingBankroll)) * 100 : 0
+      stakePercentSum += stakePercent
+
+      const profit = calcProfit(prediction.result, prediction.stake, prediction.odds)
+      profits.push(profit)
+      totalProfit += profit
+
+      runningProfit += profit
+      runningPeak = Math.max(runningPeak, runningProfit)
+      maxDrawdown = Math.max(maxDrawdown, runningPeak - runningProfit)
+    }
+
+    const wl = wins + losses
+    const hitRatePercent = wl > 0 ? this.round1((wins / wl) * 100) : 0
+    const averageStakePercent = settledPredictions.length > 0 ? this.round1(stakePercentSum / settledPredictions.length) : 0
+    const roiPercent = turnover > 0 ? this.round1((totalProfit / turnover) * 100) : 0
+    const averageOdds = settledPredictions.length > 0 ? round2(totalOdds / settledPredictions.length) : 0
+
+    const meanProfit = profits.length > 0 ? profits.reduce((acc, p) => acc + p, 0) / profits.length : 0
+    const variance =
+      profits.length > 0 ? profits.reduce((acc, p) => acc + (p - meanProfit) ** 2, 0) / profits.length : 0
+    const volatility = round2(Math.sqrt(variance))
+
+    let streakType: ChannelStatsStreakType = 'none'
+    let streakCount = 0
+
+    for (let i = settledPredictions.length - 1; i >= 0; i -= 1) {
+      const result = settledPredictions[i].result
+      if (result === PredictionStatus.void) break
+
+      const mappedType: ChannelStatsStreakType = result === PredictionStatus.win ? 'win' : 'loss'
+      if (streakType === 'none') {
+        streakType = mappedType
+        streakCount = 1
+        continue
+      }
+
+      if (streakType === mappedType) {
+        streakCount += 1
+      } else {
+        break
+      }
+    }
+
+    return {
+      totalPredictions,
+      outcomes: {
+        wins,
+        losses,
+        voids
+      },
+      hitRatePercent,
+      averageStakePercent,
+      totalProfit: round2(totalProfit),
+      roiPercent,
+      maxDrawdown: round2(maxDrawdown),
+      currentStreak: {
+        type: streakType,
+        count: streakCount
+      },
+      averageOdds,
+      volatility
     }
   }
 }
