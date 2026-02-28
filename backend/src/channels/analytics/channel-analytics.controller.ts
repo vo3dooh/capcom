@@ -22,9 +22,4 @@ export class ChannelAnalyticsController {
   async getMonthlyStats(@Param('slug') slug: string) {
     return this.service.getMonthlyStats({ slug })
   }
-
-  @Get('stats')
-  async getStats(@Param('slug') slug: string) {
-    return this.service.getChannelStats({ slug })
-  }
 }
