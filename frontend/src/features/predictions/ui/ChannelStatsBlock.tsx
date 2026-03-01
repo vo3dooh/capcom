@@ -24,6 +24,7 @@ type StatItemProps = {
     value: string | number;
     meta?: React.ReactNode;
     helpText?: string;
+    iconWrapClassName?: string;
 };
 
 type HelpTipProps = {
@@ -41,12 +42,12 @@ function HelpTip({ text }: HelpTipProps) {
     );
 }
 
-function StatItem({ icon, title, value, meta, helpText }: StatItemProps) {
+function StatItem({ icon, title, value, meta, helpText, iconWrapClassName }: StatItemProps) {
     return (
         <div className={styles.statItem}>
             {helpText ? <HelpTip text={helpText} /> : null}
             <div className={styles.statHead}>
-                <div className={styles.iconWrap}>{icon}</div>
+                <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>{icon}</div>
                 <div className={styles.title}>{title}</div>
             </div>
             <div className={styles.value}>{value}</div>
@@ -378,6 +379,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
                 helpText="ROI (Return on Investment) — доходность на оборот: (общая прибыль / общий оборот ставок) × 100%. Показывает эффективность ставок на дистанции."
+                iconWrapClassName={!loading && roiPercent >= 10 ? styles.roiHeadIconExceptional : undefined}
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
