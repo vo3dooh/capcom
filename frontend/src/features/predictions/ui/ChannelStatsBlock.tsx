@@ -12,6 +12,9 @@ import {
     HelpCircle,
     ArrowUp,
     ArrowDown,
+    Cloud,
+    CloudCheck,
+    CloudOff,
 } from "lucide-react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
@@ -152,18 +155,38 @@ function DeltaMetaValue({
 function PredictionsAndTurnoverStat({
                                         totalPredictions,
                                         turnoverPercent,
+                                        activeDays30d,
                                         deltaPredictions30d,
                                         deltaTurnoverPercent30d,
                                         loading,
                                     }: {
     totalPredictions: number;
     turnoverPercent: string;
+    activeDays30d: number;
     deltaPredictions30d: number;
     deltaTurnoverPercent30d: number;
     loading: boolean;
 }) {
     const deltaPredictionsValue = `${deltaPredictions30d > 0 ? "+" : ""}${deltaPredictions30d}`;
     const deltaTurnoverValue = `${deltaTurnoverPercent30d > 0 ? "+" : ""}${deltaTurnoverPercent30d.toFixed(1)}%`;
+
+    const activity = activeDays30d < 10
+        ? {
+            label: "Низкая активность",
+            icon: <CloudOff size={12} />,
+            className: styles.activityLow,
+        }
+        : activeDays30d <= 20
+            ? {
+                label: "Средняя активность",
+                icon: <Cloud size={12} />,
+                className: styles.activityMedium,
+            }
+            : {
+                label: "Высокая активность",
+                icon: <CloudCheck size={12} />,
+                className: styles.activityHigh,
+            };
 
     return (
         <div className={styles.statItem}>
@@ -175,7 +198,13 @@ function PredictionsAndTurnoverStat({
             </div>
             <SplitValue left={totalPredictions} right={turnoverPercent} loading={loading} />
             <div className={styles.metaGroup}>
-                <div className={styles.meta}>Изменение за месяц</div>
+                <div className={styles.metaTopRow}>
+                    <div className={styles.meta}>За месяц</div>
+                    <div className={`${styles.activityStatus} ${activity.className}`}>
+                        {activity.icon}
+                        <span>{activity.label}</span>
+                    </div>
+                </div>
                 <div className={styles.metaDeltas}>
                     <DeltaMetaValue value={deltaPredictionsValue} trend={deltaPredictions30d} loading={loading} />
                     <span className={styles.metaDeltaDivider} />
@@ -267,6 +296,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const turnoverPercent = stats ? `${stats.turnoverPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
     const deltaPredictions30d = stats ? stats.deltaPredictions30d : 0;
     const deltaTurnoverPercent30d = stats ? stats.deltaTurnoverPercent30d : 0;
+    const activeDays30d = stats ? stats.activeDays30d : 0;
 
     const hitRate = stats ? `${stats.hitRatePercent.toFixed(1)}%` : loading ? "..." : "0.0%";
 
@@ -295,6 +325,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             <PredictionsAndTurnoverStat
                 totalPredictions={totalPredictions}
                 turnoverPercent={turnoverPercent}
+                activeDays30d={activeDays30d}
                 deltaPredictions30d={deltaPredictions30d}
                 deltaTurnoverPercent30d={deltaTurnoverPercent30d}
                 loading={loading}
