@@ -155,6 +155,104 @@
     visibility: visible;
 }
 
+.roiStatusButton {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+    min-height: 14px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: help;
+    vertical-align: top;
+}
+
+.roiStatusText {
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.46);
+    white-space: nowrap;
+}
+
+.roiIcon {
+    width: 12px;
+    height: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+.roiIcon svg {
+    width: 12px;
+    height: 12px;
+}
+
+.roiIconRed {
+    color: rgba(239, 68, 68, 1);
+}
+
+.roiIconGray {
+    color: rgba(100, 116, 139, 1);
+}
+
+.roiIconLightGreen {
+    color: rgba(74, 222, 128, 1);
+}
+
+.roiIconGreen {
+    color: rgba(22, 163, 74, 1);
+}
+
+.roiIconExceptional {
+    animation: roiExceptionalGlow 1.4s ease-in-out infinite;
+}
+
+@keyframes roiExceptionalGlow {
+    0% {
+        opacity: 0.75;
+        filter: drop-shadow(0 0 0 rgba(34, 197, 94, 0));
+    }
+    50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.7));
+    }
+    100% {
+        opacity: 0.75;
+        filter: drop-shadow(0 0 0 rgba(34, 197, 94, 0));
+    }
+}
+
+.roiTooltip {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    min-width: 180px;
+    max-width: 240px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    color: rgba(15, 23, 42, 1);
+    font-size: 11px;
+    line-height: 16px;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.roiStatusButton:hover .roiTooltip,
+.roiStatusButton:focus-visible .roiTooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
 .stateError {
     font-size: 14px;
     line-height: 20px;

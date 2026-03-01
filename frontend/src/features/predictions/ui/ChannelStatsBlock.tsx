@@ -13,6 +13,7 @@ import {
     Cloud,
     CloudCheck,
     CloudOff,
+    Circle,
 } from "lucide-react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
@@ -21,7 +22,7 @@ type StatItemProps = {
     icon: React.ReactNode;
     title: string;
     value: string | number;
-    meta?: string;
+    meta?: React.ReactNode;
     helpText?: string;
 };
 
@@ -210,6 +211,54 @@ function PredictionsAndTurnoverStat({
     );
 }
 
+function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loading: boolean }) {
+    const roiLevel = loading
+        ? {
+            label: "...",
+            iconClassName: styles.roiIconGray,
+        }
+        : roiPercent < 0
+            ? {
+                label: "Убыточная доходность",
+                iconClassName: styles.roiIconRed,
+            }
+            : roiPercent < 2
+                ? {
+                    label: "Слабая доходность",
+                    iconClassName: styles.roiIconGray,
+                }
+                : roiPercent < 5
+                    ? {
+                        label: "Уверенная доходность",
+                        iconClassName: styles.roiIconLightGreen,
+                    }
+                    : roiPercent < 10
+                        ? {
+                            label: "Высокая доходность",
+                            iconClassName: styles.roiIconGreen,
+                        }
+                        : {
+                            label: "Исключительная доходность",
+                            iconClassName: `${styles.roiIconGreen} ${styles.roiIconExceptional}`,
+                        };
+
+    return (
+        <button
+            type="button"
+            className={styles.roiStatusButton}
+            aria-label="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
+        >
+            <span className={`${styles.roiIcon} ${roiLevel.iconClassName}`}>
+                <Circle size={12} />
+            </span>
+            <span className={styles.roiStatusText}>{roiLevel.label}</span>
+            <span className={styles.roiTooltip} role="tooltip">
+                Уровень доходности рассчитывается по ROI за выбранный период. Чем выше ROI, тем выше уровень.
+            </span>
+        </button>
+    );
+}
+
 function StakeAndOddsStat({
                               stakePercent,
                               odds,
@@ -296,6 +345,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const avgStake = stats ? `${stats.averageStakePercent.toFixed(1)}%` : "0.0%";
     const avgOdds = stats ? stats.averageOdds.toFixed(2) : "0.00";
 
+    const roiPercent = stats ? stats.roiPercent : 0;
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
 
     const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
@@ -326,7 +376,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<TrendingUp size={16} />}
                 title="ROI"
                 value={roi}
-                meta="Доходность"
+                meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
                 helpText="Доходность: ((общая сумма выигрыша − сумма всех ставок) / сумма всех ставок) × 100. Учитывает возвратные ставки."
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
