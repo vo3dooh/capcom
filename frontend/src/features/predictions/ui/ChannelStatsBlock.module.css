@@ -381,14 +381,11 @@
 
 .helpButton {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 18px;
-    height: 18px;
-    border: 1px solid rgba(148, 163, 184, 0.8);
-    border-radius: 999px;
-    background: #ffffff;
-    color: rgba(100, 116, 139, 1);
+    top: 10px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    color: rgba(15, 23, 42, 0.46);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -397,8 +394,8 @@
 }
 
 .helpButton svg {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
 }
 
 .helpTooltip {
