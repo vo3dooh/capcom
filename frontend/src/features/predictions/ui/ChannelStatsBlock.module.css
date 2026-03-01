@@ -38,37 +38,41 @@
 }
 
 .roiHeadIconExceptional {
-    animation: roiRainbowBgShimmer 2.2s ease-in-out infinite;
+    background:
+            linear-gradient(
+                    135deg,
+                    rgba(17, 94, 43, 0.28),
+                    rgba(22, 163, 74, 0.22),
+                    rgba(74, 222, 128, 0.20),
+                    rgba(34, 197, 94, 0.24),
+                    rgba(17, 94, 43, 0.28)
+            ),
+            radial-gradient(
+                    120% 120% at 30% 25%,
+                    rgba(74, 222, 128, 0.24),
+                    rgba(22, 163, 74, 0.10) 55%,
+                    rgba(17, 94, 43, 0.00) 75%
+            );
+    background-size: 280% 280%, 200% 200%;
+    background-position: 10% 50%, 30% 25%;
+    animation: roiHeadNobleGreenFlow 3.4s ease-in-out infinite;
 }
 
-@keyframes roiRainbowBgShimmer {
+@keyframes roiHeadNobleGreenFlow {
     0% {
-        background: rgba(30, 144, 255, 0.14);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 8px rgba(30, 144, 255, 0.16);
+        background-position: 10% 50%, 30% 25%;
     }
-    16% {
-        background: rgba(124, 77, 255, 0.14);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 9px rgba(124, 77, 255, 0.18);
+    18% {
+        background-position: 55% 20%, 70% 18%;
     }
-    33% {
-        background: rgba(255, 77, 109, 0.14);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 10px rgba(255, 77, 109, 0.2);
+    45% {
+        background-position: 100% 55%, 85% 70%;
     }
-    50% {
-        background: rgba(255, 167, 38, 0.15);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 10px rgba(255, 167, 38, 0.2);
-    }
-    66% {
-        background: rgba(46, 204, 113, 0.15);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 10px rgba(46, 204, 113, 0.2);
-    }
-    83% {
-        background: rgba(0, 188, 212, 0.14);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 9px rgba(0, 188, 212, 0.18);
+    70% {
+        background-position: 60% 90%, 25% 82%;
     }
     100% {
-        background: rgba(30, 144, 255, 0.14);
-        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05), 0 0 8px rgba(30, 144, 255, 0.16);
+        background-position: 10% 50%, 30% 25%;
     }
 }
 
@@ -246,45 +250,35 @@
 .roiIconExceptional {
     width: 12px;
     height: 12px;
-    stroke: #1e90ff;
+    stroke: #0f7a3a;
     filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
-    animation: roiRainbowShimmer 2.2s ease-in-out infinite;
+    animation: roiGreenFlow 1.8s ease-in-out infinite;
 }
 
-@keyframes roiRainbowShimmer {
+@keyframes roiGreenFlow {
     0% {
-        stroke: #1e90ff;
-        filter: drop-shadow(0 0 2px rgba(30, 144, 255, 0.25));
+        stroke: #0f7a3a;
+        filter: drop-shadow(0 0 2px rgba(15, 122, 58, 0.18));
         opacity: 0.95;
     }
-    16% {
-        stroke: #7c4dff;
-        filter: drop-shadow(0 0 3px rgba(124, 77, 255, 0.30));
-        opacity: 1;
-    }
-    33% {
-        stroke: #ff4d6d;
-        filter: drop-shadow(0 0 4px rgba(255, 77, 109, 0.35));
+    25% {
+        stroke: #169b45;
+        filter: drop-shadow(0 0 4px rgba(22, 155, 69, 0.24));
         opacity: 1;
     }
     50% {
-        stroke: #ffa726;
-        filter: drop-shadow(0 0 5px rgba(255, 167, 38, 0.35));
+        stroke: #37d67a;
+        filter: drop-shadow(0 0 7px rgba(55, 214, 122, 0.38));
         opacity: 1;
     }
-    66% {
-        stroke: #2ecc71;
-        filter: drop-shadow(0 0 5px rgba(46, 204, 113, 0.35));
-        opacity: 1;
-    }
-    83% {
-        stroke: #00bcd4;
-        filter: drop-shadow(0 0 4px rgba(0, 188, 212, 0.30));
+    75% {
+        stroke: #19b85e;
+        filter: drop-shadow(0 0 4px rgba(25, 184, 94, 0.24));
         opacity: 1;
     }
     100% {
-        stroke: #1e90ff;
-        filter: drop-shadow(0 0 2px rgba(30, 144, 255, 0.25));
+        stroke: #0f7a3a;
+        filter: drop-shadow(0 0 2px rgba(15, 122, 58, 0.18));
         opacity: 0.95;
     }
 }
