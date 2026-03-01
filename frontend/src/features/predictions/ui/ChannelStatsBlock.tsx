@@ -15,8 +15,32 @@ import {
     CloudOff,
     ChartNoAxesCombined,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
+
+const ROI_HEAD_EXCEPTIONAL_PRESETS = [
+    "roiHeadIconExceptionalV1",
+    "roiHeadIconExceptionalV2",
+    "roiHeadIconExceptionalV3",
+    "roiHeadIconExceptionalV4",
+    "roiHeadIconExceptionalV5",
+    "roiHeadIconExceptionalV6",
+] as const;
+
+type RoiHeadExceptionalPreset = (typeof ROI_HEAD_EXCEPTIONAL_PRESETS)[number];
+
+function pickRandomRoiHeadExceptionalPreset(exclude?: RoiHeadExceptionalPreset): RoiHeadExceptionalPreset {
+    const options = exclude
+        ? ROI_HEAD_EXCEPTIONAL_PRESETS.filter((preset) => preset !== exclude)
+        : ROI_HEAD_EXCEPTIONAL_PRESETS;
+    const randomIndex = Math.floor(Math.random() * options.length);
+    return options[randomIndex];
+}
+
+function getRandomRoiPresetSwitchDelay(): number {
+    return 9000 + Math.floor(Math.random() * 5000);
+}
 
 type StatItemProps = {
     icon: React.ReactNode;
@@ -334,6 +358,9 @@ function MaxDrawdownStat({
 
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, loading, error } = useChannelStats(slug);
+    const [roiExceptionalPreset, setRoiExceptionalPreset] = useState<RoiHeadExceptionalPreset>(() =>
+        pickRandomRoiHeadExceptionalPreset(),
+    );
 
     if (error && !stats) return <div className={styles.stateError}>{error}</div>;
 
@@ -348,6 +375,34 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
 
     const roiPercent = stats ? stats.roiPercent : 0;
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
+    const isExceptionalRoi = !loading && roiPercent >= 10;
+
+    useEffect(() => {
+        setRoiExceptionalPreset(pickRandomRoiHeadExceptionalPreset());
+    }, [slug]);
+
+    useEffect(() => {
+        if (!isExceptionalRoi) {
+            return;
+        }
+
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+        const scheduleNextSwitch = () => {
+            timeoutId = setTimeout(() => {
+                setRoiExceptionalPreset((currentPreset) => pickRandomRoiHeadExceptionalPreset(currentPreset));
+                scheduleNextSwitch();
+            }, getRandomRoiPresetSwitchDelay());
+        };
+
+        scheduleNextSwitch();
+
+        return () => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+        };
+    }, [isExceptionalRoi, slug]);
 
     const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
     const profitPercentAllTime = stats
@@ -379,7 +434,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
                 helpText="ROI (Return on Investment) — доходность на оборот: (общая прибыль / общий оборот ставок) × 100%. Показывает эффективность ставок на дистанции."
-                iconWrapClassName={!loading && roiPercent >= 10 ? styles.roiHeadIconExceptional : undefined}
+                iconWrapClassName={
+                    isExceptionalRoi
+                        ? `${styles.roiHeadIconExceptional} ${styles[roiExceptionalPreset as keyof typeof styles]}`
+                        : undefined
+                }
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
