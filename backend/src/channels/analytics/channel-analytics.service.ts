@@ -62,6 +62,8 @@ type ChannelStatsResponse = {
     count: number
   }
   averageOdds: number
+  averageStakePercentLast50: number
+  averageOddsLast50: number
   volatility: number
 }
 
@@ -346,7 +348,16 @@ export class ChannelAnalyticsService {
     const currentWindowFrom = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const previousWindowFrom = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
 
-    const [totalPredictions, settledPredictions, currentPredictions30d, previousPredictions30d, currentSettled30d, previousSettled30d, currentPredictionsDates30d] = await this.prisma.$transaction([
+    const [
+      totalPredictions,
+      settledPredictions,
+      settledPredictionsLast50,
+      currentPredictions30d,
+      previousPredictions30d,
+      currentSettled30d,
+      previousSettled30d,
+      currentPredictionsDates30d
+    ] = await this.prisma.$transaction([
       this.prisma.prediction.count({ where: { channelId: channel.id } }),
       this.prisma.prediction.findMany({
         where: {
@@ -361,6 +372,18 @@ export class ChannelAnalyticsService {
           createdAt: true
         },
         orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+      }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+        },
+        select: {
+          stake: true,
+          odds: true
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 50
       }),
       this.prisma.prediction.count({
         where: {
@@ -449,6 +472,15 @@ export class ChannelAnalyticsService {
     const averageStakePercent = settledPredictions.length > 0 ? this.round1(stakePercentSum / settledPredictions.length) : 0
     const roiPercent = turnover > 0 ? this.round1(((totalWinnings - turnover) / turnover) * 100) : 0
     const averageOdds = settledPredictions.length > 0 ? round2(totalOdds / settledPredictions.length) : 0
+    const stakePercentLast50Sum = settledPredictionsLast50.reduce(
+      (sum, prediction) =>
+        sum + (channel.startingBankroll !== 0 ? (prediction.stake / Math.abs(channel.startingBankroll)) * 100 : 0),
+      0
+    )
+    const oddsLast50Sum = settledPredictionsLast50.reduce((sum, prediction) => sum + prediction.odds, 0)
+    const averageStakePercentLast50 =
+      settledPredictionsLast50.length > 0 ? this.round1(stakePercentLast50Sum / settledPredictionsLast50.length) : 0
+    const averageOddsLast50 = settledPredictionsLast50.length > 0 ? round2(oddsLast50Sum / settledPredictionsLast50.length) : 0
     const turnoverPercent = channel.startingBankroll !== 0 ? this.round1((turnover / Math.abs(channel.startingBankroll)) * 100) : 0
 
     const currentTurnover30d = currentSettled30d.reduce((sum, prediction) => sum + prediction.stake, 0)
@@ -512,6 +544,8 @@ export class ChannelAnalyticsService {
         count: streakCount
       },
       averageOdds,
+      averageStakePercentLast50,
+      averageOddsLast50,
       volatility
     }
   }

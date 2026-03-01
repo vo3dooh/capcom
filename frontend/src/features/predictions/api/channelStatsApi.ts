@@ -23,6 +23,8 @@ export type ChannelStatsResponse = {
     count: number;
   };
   averageOdds: number;
+  averageStakePercentLast50: number;
+  averageOddsLast50: number;
   volatility: number;
 };
 
