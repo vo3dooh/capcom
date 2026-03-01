@@ -253,7 +253,7 @@ function PredictionsAndTurnoverStat({
                     <span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>
                     <span className={styles.activityStatusText}>{activity.label}</span>
                     <span className={styles.activityTooltip} role="tooltip">
-                       Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последние 30 дней и показывает, насколько стабильно публикуются прогнозы.
+                       Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последний месяц и показывает, насколько стабильно публикуются прогнозы.
                     </span>
                 </button>
             </div>
@@ -274,7 +274,7 @@ function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loadin
             }
             : roiPercent < 2
                 ? {
-                    label: "Слабая доходность",
+                    label: "Низкая доходность",
                     iconClassName: styles.roiIconGray,
                 }
                 : roiPercent < 5
@@ -288,7 +288,7 @@ function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loadin
                             iconClassName: styles.roiIconGreen,
                         }
                         : {
-                            label: "Пиковая доходность",
+                            label: "Высокая доходность",
                             iconClassName: `${styles.roiIconGreen} ${styles.roiIconExceptional}`,
                         };
 
@@ -518,7 +518,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 title="ROI"
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
-                helpText="ROI (Return on Investment) — доходность на оборот: (общая прибыль / общий оборот ставок) × 100%. Показывает эффективность ставок на дистанции."
+                helpText="ROI — показатель эффективности ставок. Он отражает, какой процент прибыли или убытка вы получаете от общего оборота ставок. Чем выше ROI, тем лучше результат на дистанции."
                 iconWrapClassName={isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
                     isExceptionalRoi ? (
