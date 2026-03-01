@@ -13,7 +13,7 @@ import {
     Cloud,
     CloudCheck,
     CloudOff,
-    Circle,
+    ChartNoAxesCombined,
 } from "lucide-react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
@@ -238,7 +238,7 @@ function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loadin
                             iconClassName: styles.roiIconGreen,
                         }
                         : {
-                            label: "Исключительная доходность",
+                            label: "Пиковая доходность",
                             iconClassName: `${styles.roiIconGreen} ${styles.roiIconExceptional}`,
                         };
 
@@ -249,7 +249,7 @@ function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loadin
             aria-label="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
         >
             <span className={`${styles.roiIcon} ${roiLevel.iconClassName}`}>
-                <Circle size={12} />
+                <ChartNoAxesCombined size={12} />
             </span>
             <span className={styles.roiStatusText}>{roiLevel.label}</span>
             <span className={styles.roiTooltip} role="tooltip">
@@ -377,7 +377,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 title="ROI"
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
-                helpText="Доходность: ((общая сумма выигрыша − сумма всех ставок) / сумма всех ставок) × 100. Учитывает возвратные ставки."
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
