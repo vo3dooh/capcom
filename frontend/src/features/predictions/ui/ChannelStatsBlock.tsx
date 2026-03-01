@@ -133,24 +133,24 @@ function PredictionsAndTurnoverStat({
         ? {
             label: "...",
             icon: <Cloud size={12} />,
-            className: styles.activityLoading,
+            iconClassName: styles.activityIconLoading,
         }
         : activeDays30d < 10
             ? {
                 label: "Низкая активность",
                 icon: <CloudOff size={12} />,
-                className: styles.activityLow,
+                iconClassName: styles.activityIconLow,
             }
             : activeDays30d < 20
                 ? {
                     label: "Средняя активность",
                     icon: <Cloud size={12} />,
-                    className: styles.activityMedium,
+                    iconClassName: styles.activityIconMedium,
                 }
                 : {
                     label: "Высокая активность",
                     icon: <CloudCheck size={12} />,
-                    className: styles.activityHigh,
+                    iconClassName: styles.activityIconHigh,
                 };
 
     return (
@@ -163,11 +163,17 @@ function PredictionsAndTurnoverStat({
             </div>
             <SplitValue left={totalPredictions} right={turnoverPercent} loading={loading} />
             <div className={styles.metaGroup}>
-                <div className={styles.meta}>За месяц</div>
-                <div className={`${styles.activityStatus} ${activity.className}`}>
-                    {activity.icon}
-                    <span>{activity.label}</span>
-                </div>
+                <button
+                    type="button"
+                    className={styles.activityStatusButton}
+                    aria-label="Уровень активности канала. Рассчитывается по активности канала за последние 30 дней."
+                >
+                    <span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>
+                    <span className={styles.activityStatusText}>{activity.label}</span>
+                    <span className={styles.activityTooltip} role="tooltip">
+                        Рассчитывается по активности канала за последние 30 дней.
+                    </span>
+                </button>
             </div>
         </div>
     );
