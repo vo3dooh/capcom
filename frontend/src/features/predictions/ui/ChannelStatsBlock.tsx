@@ -19,27 +19,47 @@ import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
 
-const ROI_HEAD_EXCEPTIONAL_PRESETS = [
-    "roiHeadIconExceptionalV1",
-    "roiHeadIconExceptionalV2",
-    "roiHeadIconExceptionalV3",
-    "roiHeadIconExceptionalV4",
-    "roiHeadIconExceptionalV5",
-    "roiHeadIconExceptionalV6",
+const ROI_HEAD_BG_PRESETS = [
+    "roiHeadBgPreset1",
+    "roiHeadBgPreset2",
+    "roiHeadBgPreset3",
+    "roiHeadBgPreset4",
+    "roiHeadBgPreset5",
+    "roiHeadBgPreset6",
+    "roiHeadBgPreset7",
+    "roiHeadBgPreset8",
 ] as const;
 
-type RoiHeadExceptionalPreset = (typeof ROI_HEAD_EXCEPTIONAL_PRESETS)[number];
+type RoiHeadBgPreset = (typeof ROI_HEAD_BG_PRESETS)[number];
 
-function pickRandomRoiHeadExceptionalPreset(exclude?: RoiHeadExceptionalPreset): RoiHeadExceptionalPreset {
-    const options = exclude
-        ? ROI_HEAD_EXCEPTIONAL_PRESETS.filter((preset) => preset !== exclude)
-        : ROI_HEAD_EXCEPTIONAL_PRESETS;
+type RoiHeadBgState = {
+    activeLayer: "A" | "B" | null;
+    presetA: RoiHeadBgPreset;
+    presetB: RoiHeadBgPreset;
+};
+
+function pickRandomRoiHeadBgPreset(exclude?: RoiHeadBgPreset): RoiHeadBgPreset {
+    const options = exclude ? ROI_HEAD_BG_PRESETS.filter((preset) => preset !== exclude) : ROI_HEAD_BG_PRESETS;
     const randomIndex = Math.floor(Math.random() * options.length);
     return options[randomIndex];
 }
 
+function getRandomRoiPresetSwitchInterval(): number {
+    return 10000 + Math.floor(Math.random() * 4001);
+}
+
 function getRandomRoiPresetSwitchDelay(): number {
-    return 9000 + Math.floor(Math.random() * 5000);
+    return 50 + Math.floor(Math.random() * 101);
+}
+
+function createRoiHeadBgState(): RoiHeadBgState {
+    const presetA = pickRandomRoiHeadBgPreset();
+    const presetB = pickRandomRoiHeadBgPreset(presetA);
+    return {
+        activeLayer: Math.random() < 0.5 ? "A" : "B",
+        presetA,
+        presetB,
+    };
 }
 
 type StatItemProps = {
@@ -49,6 +69,7 @@ type StatItemProps = {
     meta?: React.ReactNode;
     helpText?: string;
     iconWrapClassName?: string;
+    iconBackground?: React.ReactNode;
 };
 
 type HelpTipProps = {
@@ -66,12 +87,15 @@ function HelpTip({ text }: HelpTipProps) {
     );
 }
 
-function StatItem({ icon, title, value, meta, helpText, iconWrapClassName }: StatItemProps) {
+function StatItem({ icon, title, value, meta, helpText, iconWrapClassName, iconBackground }: StatItemProps) {
     return (
         <div className={styles.statItem}>
             {helpText ? <HelpTip text={helpText} /> : null}
             <div className={styles.statHead}>
-                <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>{icon}</div>
+                <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
+                    {iconBackground}
+                    {icon}
+                </div>
                 <div className={styles.title}>{title}</div>
             </div>
             <div className={styles.value}>{value}</div>
@@ -358,11 +382,7 @@ function MaxDrawdownStat({
 
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, loading, error } = useChannelStats(slug);
-    const [roiExceptionalPreset, setRoiExceptionalPreset] = useState<RoiHeadExceptionalPreset>(() =>
-        pickRandomRoiHeadExceptionalPreset(),
-    );
-
-    if (error && !stats) return <div className={styles.stateError}>{error}</div>;
+    const [roiHeadBgState, setRoiHeadBgState] = useState<RoiHeadBgState>(() => createRoiHeadBgState());
 
     const totalPredictions = stats ? stats.totalPredictions : 0;
     const turnoverPercent = stats ? `${stats.turnoverPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
@@ -378,28 +398,89 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const isExceptionalRoi = !loading && roiPercent >= 10;
 
     useEffect(() => {
-        setRoiExceptionalPreset(pickRandomRoiHeadExceptionalPreset());
-    }, [slug]);
+        let intervalTimeoutId: ReturnType<typeof setTimeout> | undefined;
+        let switchTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    useEffect(() => {
         if (!isExceptionalRoi) {
-            return;
+            const resetTimeoutId = setTimeout(() => {
+                setRoiHeadBgState((currentState) =>
+                    currentState.activeLayer === null
+                        ? currentState
+                        : {
+                            ...currentState,
+                            activeLayer: null,
+                        },
+                );
+            }, 0);
+
+            return () => {
+                clearTimeout(resetTimeoutId);
+                if (intervalTimeoutId) {
+                    clearTimeout(intervalTimeoutId);
+                }
+                if (switchTimeoutId) {
+                    clearTimeout(switchTimeoutId);
+                }
+            };
         }
 
-        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        const initialState = createRoiHeadBgState();
+        const initTimeoutId = setTimeout(() => {
+            setRoiHeadBgState(initialState);
+        }, 0);
 
         const scheduleNextSwitch = () => {
-            timeoutId = setTimeout(() => {
-                setRoiExceptionalPreset((currentPreset) => pickRandomRoiHeadExceptionalPreset(currentPreset));
-                scheduleNextSwitch();
-            }, getRandomRoiPresetSwitchDelay());
+            intervalTimeoutId = setTimeout(() => {
+                setRoiHeadBgState((currentState) => {
+                    if (currentState.activeLayer === null) {
+                        return currentState;
+                    }
+
+                    if (currentState.activeLayer === "A") {
+                        return {
+                            ...currentState,
+                            presetB: pickRandomRoiHeadBgPreset(currentState.presetA),
+                        };
+                    }
+
+                    return {
+                        ...currentState,
+                        presetA: pickRandomRoiHeadBgPreset(currentState.presetB),
+                    };
+                });
+
+                switchTimeoutId = setTimeout(() => {
+                    setRoiHeadBgState((currentState) => {
+                        if (currentState.activeLayer === "A") {
+                            return {
+                                ...currentState,
+                                activeLayer: "B",
+                            };
+                        }
+
+                        if (currentState.activeLayer === "B") {
+                            return {
+                                ...currentState,
+                                activeLayer: "A",
+                            };
+                        }
+
+                        return currentState;
+                    });
+                    scheduleNextSwitch();
+                }, getRandomRoiPresetSwitchDelay());
+            }, getRandomRoiPresetSwitchInterval());
         };
 
         scheduleNextSwitch();
 
         return () => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
+            clearTimeout(initTimeoutId);
+            if (intervalTimeoutId) {
+                clearTimeout(intervalTimeoutId);
+            }
+            if (switchTimeoutId) {
+                clearTimeout(switchTimeoutId);
             }
         };
     }, [isExceptionalRoi, slug]);
@@ -419,6 +500,9 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const losses = stats ? stats.outcomes.losses : 0;
     const voids = stats ? stats.outcomes.voids : 0;
 
+
+    if (error && !stats) return <div className={styles.stateError}>{error}</div>;
+
     return (
         <div className={styles.wrap}>
             <PredictionsAndTurnoverStat
@@ -429,15 +513,27 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             />
             <OutcomesStat wins={wins} losses={losses} voids={voids} loading={loading} />
             <StatItem
-                icon={<TrendingUp size={16} />}
+                icon={<TrendingUp size={16} className={styles.roiHeadIconGlyph} />}
                 title="ROI"
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
                 helpText="ROI (Return on Investment) — доходность на оборот: (общая прибыль / общий оборот ставок) × 100%. Показывает эффективность ставок на дистанции."
-                iconWrapClassName={
-                    isExceptionalRoi
-                        ? `${styles.roiHeadIconExceptional} ${styles[roiExceptionalPreset as keyof typeof styles]}`
-                        : undefined
+                iconWrapClassName={isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isExceptionalRoi ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
                 }
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />

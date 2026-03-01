@@ -38,246 +38,78 @@
 }
 
 .roiHeadIconExceptional {
+    position: relative;
+    overflow: hidden;
+}
+
+.roiHeadIconGlyph {
+    position: relative;
+    z-index: 1;
+}
+
+.roiHeadBgLayer {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 900ms ease-in-out;
+}
+
+.roiHeadBgActive {
+    opacity: 1;
+}
+
+.roiHeadBgInactive {
+    opacity: 0;
+}
+
+.roiHeadBgPreset1 {
     background:
-            linear-gradient(
-                    135deg,
-                    rgba(19, 103, 52, 0.28),
-                    rgba(22, 163, 74, 0.23),
-                    rgba(74, 222, 128, 0.19),
-                    rgba(29, 184, 88, 0.23),
-                    rgba(19, 103, 52, 0.28)
-            ),
-            radial-gradient(
-                    120% 120% at 30% 25%,
-                    rgba(110, 231, 147, 0.22),
-                    rgba(22, 163, 74, 0.09) 56%,
-                    rgba(17, 94, 43, 0.00) 76%
-            );
-    background-size: 280% 280%, 200% 200%;
-    background-position: 24% 46%, 30% 25%;
-    border-radius: 4px;
+            linear-gradient(132deg, rgba(17, 94, 43, 0.31), rgba(22, 163, 74, 0.24), rgba(74, 222, 128, 0.2), rgba(21, 128, 61, 0.26)),
+            radial-gradient(126% 124% at 22% 24%, rgba(134, 239, 172, 0.3), rgba(22, 163, 74, 0.14) 56%, rgba(17, 94, 43, 0) 78%);
 }
 
-.roiHeadIconExceptionalV1 {
-    background-image:
-            linear-gradient(
-                    120deg,
-                    rgba(19, 103, 52, 0.30),
-                    rgba(22, 163, 74, 0.23),
-                    rgba(74, 222, 128, 0.20),
-                    rgba(34, 197, 94, 0.24),
-                    rgba(19, 103, 52, 0.30)
-            ),
-            radial-gradient(
-                    120% 120% at 32% 24%,
-                    rgba(110, 231, 147, 0.22),
-                    rgba(22, 163, 74, 0.09) 58%,
-                    rgba(17, 94, 43, 0.00) 76%
-            );
-    animation: roiHeadNobleGreenFlowV1 6.7s ease-in-out infinite;
+.roiHeadBgPreset2 {
+    background:
+            linear-gradient(148deg, rgba(20, 83, 45, 0.3), rgba(22, 163, 74, 0.26), rgba(52, 211, 153, 0.2), rgba(17, 94, 43, 0.27)),
+            radial-gradient(132% 136% at 76% 20%, rgba(110, 231, 147, 0.29), rgba(22, 163, 74, 0.13) 54%, rgba(20, 83, 45, 0) 77%);
 }
 
-.roiHeadIconExceptionalV2 {
-    background-image:
-            linear-gradient(
-                    135deg,
-                    rgba(21, 112, 57, 0.28),
-                    rgba(22, 163, 74, 0.20),
-                    rgba(134, 239, 172, 0.18),
-                    rgba(21, 128, 61, 0.24),
-                    rgba(21, 112, 57, 0.28)
-            ),
-            radial-gradient(
-                    130% 130% at 74% 20%,
-                    rgba(134, 239, 172, 0.20),
-                    rgba(22, 163, 74, 0.09) 54%,
-                    rgba(20, 83, 45, 0.00) 76%
-            );
-    animation: roiHeadNobleGreenFlowV2 8.9s ease-in-out infinite;
+.roiHeadBgPreset3 {
+    background:
+            linear-gradient(118deg, rgba(17, 94, 43, 0.29), rgba(21, 128, 61, 0.25), rgba(74, 222, 128, 0.21), rgba(22, 163, 74, 0.28)),
+            radial-gradient(138% 122% at 66% 78%, rgba(134, 239, 172, 0.28), rgba(22, 163, 74, 0.12) 58%, rgba(17, 94, 43, 0) 80%);
 }
 
-.roiHeadIconExceptionalV3 {
-    background-image:
-            linear-gradient(
-                    150deg,
-                    rgba(18, 96, 49, 0.28),
-                    rgba(22, 163, 74, 0.24),
-                    rgba(74, 222, 128, 0.21),
-                    rgba(16, 185, 129, 0.20),
-                    rgba(18, 96, 49, 0.28)
-            ),
-            radial-gradient(
-                    140% 120% at 62% 78%,
-                    rgba(134, 239, 172, 0.22),
-                    rgba(22, 163, 74, 0.08) 60%,
-                    rgba(20, 83, 45, 0.00) 78%
-            );
-    animation: roiHeadNobleGreenFlowV3 11.3s ease-in-out infinite;
+.roiHeadBgPreset4 {
+    background:
+            linear-gradient(162deg, rgba(20, 83, 45, 0.31), rgba(22, 163, 74, 0.23), rgba(86, 245, 158, 0.18), rgba(21, 128, 61, 0.27)),
+            radial-gradient(128% 142% at 28% 74%, rgba(74, 222, 128, 0.3), rgba(22, 163, 74, 0.13) 57%, rgba(20, 83, 45, 0) 79%);
 }
 
-.roiHeadIconExceptionalV4 {
-    background-image:
-            linear-gradient(
-                    128deg,
-                    rgba(20, 107, 54, 0.29),
-                    rgba(34, 197, 94, 0.21),
-                    rgba(134, 239, 172, 0.19),
-                    rgba(22, 163, 74, 0.24),
-                    rgba(20, 107, 54, 0.29)
-            ),
-            radial-gradient(
-                    125% 140% at 24% 72%,
-                    rgba(110, 231, 147, 0.24),
-                    rgba(22, 163, 74, 0.08) 57%,
-                    rgba(17, 94, 43, 0.00) 79%
-            );
-    animation: roiHeadNobleGreenFlowV4 7.8s ease-in-out infinite;
+.roiHeadBgPreset5 {
+    background:
+            linear-gradient(126deg, rgba(17, 94, 43, 0.3), rgba(22, 163, 74, 0.25), rgba(110, 231, 147, 0.2), rgba(16, 185, 129, 0.22)),
+            radial-gradient(136% 126% at 80% 66%, rgba(134, 239, 172, 0.3), rgba(22, 163, 74, 0.12) 55%, rgba(17, 94, 43, 0) 77%);
 }
 
-.roiHeadIconExceptionalV5 {
-    background-image:
-            linear-gradient(
-                    142deg,
-                    rgba(19, 103, 52, 0.30),
-                    rgba(22, 163, 74, 0.22),
-                    rgba(74, 222, 128, 0.19),
-                    rgba(21, 128, 61, 0.23),
-                    rgba(19, 103, 52, 0.30)
-            ),
-            radial-gradient(
-                    135% 135% at 78% 68%,
-                    rgba(110, 231, 147, 0.23),
-                    rgba(22, 163, 74, 0.08) 59%,
-                    rgba(20, 83, 45, 0.00) 80%
-            );
-    animation: roiHeadNobleGreenFlowV5 9.6s ease-in-out infinite;
+.roiHeadBgPreset6 {
+    background:
+            linear-gradient(144deg, rgba(20, 83, 45, 0.3), rgba(22, 163, 74, 0.24), rgba(74, 222, 128, 0.19), rgba(34, 197, 94, 0.24)),
+            radial-gradient(134% 134% at 18% 32%, rgba(110, 231, 147, 0.3), rgba(22, 163, 74, 0.14) 53%, rgba(20, 83, 45, 0) 76%);
 }
 
-.roiHeadIconExceptionalV6 {
-    background-image:
-            linear-gradient(
-                    132deg,
-                    rgba(18, 96, 49, 0.30),
-                    rgba(34, 197, 94, 0.22),
-                    rgba(110, 231, 147, 0.20),
-                    rgba(22, 163, 74, 0.22),
-                    rgba(18, 96, 49, 0.30)
-            ),
-            radial-gradient(
-                    128% 128% at 20% 28%,
-                    rgba(134, 239, 172, 0.23),
-                    rgba(22, 163, 74, 0.09) 55%,
-                    rgba(17, 94, 43, 0.00) 77%
-            );
-    animation: roiHeadNobleGreenFlowV6 10.8s ease-in-out infinite;
+.roiHeadBgPreset7 {
+    background:
+            linear-gradient(154deg, rgba(17, 94, 43, 0.29), rgba(21, 128, 61, 0.24), rgba(52, 211, 153, 0.2), rgba(22, 163, 74, 0.27)),
+            radial-gradient(140% 128% at 58% 14%, rgba(134, 239, 172, 0.29), rgba(22, 163, 74, 0.13) 56%, rgba(17, 94, 43, 0) 79%);
 }
 
-@keyframes roiHeadNobleGreenFlowV1 {
-    0% {
-        background-position: 18% 42%, 32% 22%;
-    }
-    22% {
-        background-position: 66% 16%, 72% 20%;
-    }
-    49% {
-        background-position: 94% 54%, 84% 68%;
-    }
-    78% {
-        background-position: 54% 86%, 20% 82%;
-    }
-    100% {
-        background-position: 18% 42%, 32% 22%;
-    }
-}
-
-@keyframes roiHeadNobleGreenFlowV2 {
-    0% {
-        background-position: 70% 14%, 78% 18%;
-    }
-    26% {
-        background-position: 34% 40%, 58% 42%;
-    }
-    56% {
-        background-position: 8% 74%, 16% 80%;
-    }
-    83% {
-        background-position: 52% 92%, 46% 84%;
-    }
-    100% {
-        background-position: 70% 14%, 78% 18%;
-    }
-}
-
-@keyframes roiHeadNobleGreenFlowV3 {
-    0% {
-        background-position: 62% 84%, 58% 78%;
-    }
-    19% {
-        background-position: 24% 68%, 20% 66%;
-    }
-    47% {
-        background-position: 16% 28%, 20% 18%;
-    }
-    73% {
-        background-position: 62% 12%, 70% 14%;
-    }
-    100% {
-        background-position: 62% 84%, 58% 78%;
-    }
-}
-
-@keyframes roiHeadNobleGreenFlowV4 {
-    0% {
-        background-position: 28% 76%, 24% 72%;
-    }
-    24% {
-        background-position: 14% 38%, 18% 34%;
-    }
-    52% {
-        background-position: 48% 18%, 56% 16%;
-    }
-    81% {
-        background-position: 90% 44%, 86% 54%;
-    }
-    100% {
-        background-position: 28% 76%, 24% 72%;
-    }
-}
-
-@keyframes roiHeadNobleGreenFlowV5 {
-    0% {
-        background-position: 80% 66%, 76% 70%;
-    }
-    21% {
-        background-position: 54% 86%, 58% 84%;
-    }
-    50% {
-        background-position: 20% 72%, 24% 66%;
-    }
-    74% {
-        background-position: 12% 30%, 18% 24%;
-    }
-    100% {
-        background-position: 80% 66%, 76% 70%;
-    }
-}
-
-@keyframes roiHeadNobleGreenFlowV6 {
-    0% {
-        background-position: 22% 22%, 24% 26%;
-    }
-    20% {
-        background-position: 54% 12%, 58% 20%;
-    }
-    44% {
-        background-position: 88% 34%, 80% 42%;
-    }
-    71% {
-        background-position: 76% 78%, 64% 74%;
-    }
-    100% {
-        background-position: 22% 22%, 24% 26%;
-    }
+.roiHeadBgPreset8 {
+    background:
+            linear-gradient(136deg, rgba(20, 83, 45, 0.31), rgba(22, 163, 74, 0.25), rgba(74, 222, 128, 0.2), rgba(21, 128, 61, 0.26)),
+            radial-gradient(126% 140% at 42% 86%, rgba(110, 231, 147, 0.29), rgba(22, 163, 74, 0.12) 57%, rgba(20, 83, 45, 0) 80%);
 }
 
 .title {
@@ -657,6 +489,20 @@
 .helpButton:focus-visible .helpTooltip {
     opacity: 1;
     visibility: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .roiHeadBgLayer {
+        transition: none;
+    }
+
+    .roiHeadBgInactive {
+        opacity: 0;
+    }
+
+    .roiHeadBgActive {
+        opacity: 1;
+    }
 }
 
 @media (max-width: 1180px) {
