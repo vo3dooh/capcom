@@ -43,6 +43,7 @@ type ChannelStatsResponse = {
   startingBankroll: number
   totalPredictions: number
   turnoverPercent: number
+  activeDays30d: number
   deltaPredictions30d: number
   deltaTurnoverPercent30d: number
   totalStake: number
@@ -345,7 +346,7 @@ export class ChannelAnalyticsService {
     const currentWindowFrom = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const previousWindowFrom = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
 
-    const [totalPredictions, settledPredictions, currentPredictions30d, previousPredictions30d, currentSettled30d, previousSettled30d] = await this.prisma.$transaction([
+    const [totalPredictions, settledPredictions, currentPredictions30d, previousPredictions30d, currentSettled30d, previousSettled30d, currentPredictionsDates30d] = await this.prisma.$transaction([
       this.prisma.prediction.count({ where: { channelId: channel.id } }),
       this.prisma.prediction.findMany({
         where: {
@@ -391,6 +392,15 @@ export class ChannelAnalyticsService {
         },
         select: {
           stake: true
+        }
+      }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: currentWindowFrom, lt: now }
+        },
+        select: {
+          createdAt: true
         }
       })
     ])
@@ -451,6 +461,8 @@ export class ChannelAnalyticsService {
     const deltaPredictions30d = currentPredictions30d - previousPredictions30d
     const deltaTurnoverPercent30d = this.round1(currentTurnoverPercent30d - previousTurnoverPercent30d)
 
+    const activeDays30d = new Set(currentPredictionsDates30d.map((prediction) => isoDayKey(startOfUtcDay(prediction.createdAt)))).size
+
     const meanProfit = profits.length > 0 ? profits.reduce((acc, p) => acc + p, 0) / profits.length : 0
     const variance =
       profits.length > 0 ? profits.reduce((acc, p) => acc + (p - meanProfit) ** 2, 0) / profits.length : 0
@@ -481,6 +493,7 @@ export class ChannelAnalyticsService {
       startingBankroll: channel.startingBankroll,
       totalPredictions,
       turnoverPercent,
+      activeDays30d,
       deltaPredictions30d,
       deltaTurnoverPercent30d,
       totalStake: round2(turnover),
