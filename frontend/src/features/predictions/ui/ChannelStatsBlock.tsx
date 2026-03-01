@@ -9,7 +9,7 @@ import {
     PlusCircle,
     MinusCircle,
     RotateCcw,
-    HelpCircle,
+    BadgeInfo,
     Cloud,
     CloudCheck,
     CloudOff,
@@ -33,7 +33,7 @@ type HelpTipProps = {
 function HelpTip({ text }: HelpTipProps) {
     return (
         <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${text}`}>
-            <HelpCircle size={14} />
+            <BadgeInfo size={14} />
             <span className={styles.helpTooltip} role="tooltip">
                 {text}
             </span>
@@ -377,6 +377,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 title="ROI"
                 value={roi}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
+                helpText="ROI (Return on Investment) — доходность на оборот: (общая прибыль / общий оборот ставок) × 100%. Показывает эффективность ставок на дистанции."
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
