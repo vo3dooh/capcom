@@ -65,6 +65,17 @@ function OutcomesStat({
     voids: number;
     loading: boolean;
 }) {
+    const total = wins + losses + voids;
+    const winsPct = total > 0 ? (wins / total) * 100 : 0;
+    const lossesPct = total > 0 ? (losses / total) * 100 : 0;
+    const voidsPct = total > 0 ? (voids / total) * 100 : 0;
+
+    const isNeutralBar = loading || total === 0;
+    const neutralSegmentWidth = isNeutralBar ? 100 : 0;
+    const firstSegmentWidth = isNeutralBar ? 0 : winsPct;
+    const secondSegmentWidth = isNeutralBar ? 0 : lossesPct;
+    const thirdSegmentWidth = isNeutralBar ? 0 : voidsPct;
+
     return (
         <div className={styles.statItem}>
             <div className={styles.statHead}>
@@ -95,7 +106,27 @@ function OutcomesStat({
                 </div>
             </div>
 
-            <div className={styles.meta}>Только рассчитанные</div>
+            <div className={styles.outcomesBarWrap}>
+                <svg
+                    className={styles.outcomesBar}
+                    width="100%"
+                    height="8"
+                    viewBox="0 0 100 8"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                >
+                    <rect x="0" y="0" width={neutralSegmentWidth} height="8" className={styles.outcomesBarNeutral} />
+                    <rect x="0" y="0" width={firstSegmentWidth} height="8" className={styles.outcomesBarWin} />
+                    <rect x={firstSegmentWidth} y="0" width={secondSegmentWidth} height="8" className={styles.outcomesBarLoss} />
+                    <rect
+                        x={firstSegmentWidth + secondSegmentWidth}
+                        y="0"
+                        width={thirdSegmentWidth}
+                        height="8"
+                        className={styles.outcomesBarVoid}
+                    />
+                </svg>
+            </div>
         </div>
     );
 }
