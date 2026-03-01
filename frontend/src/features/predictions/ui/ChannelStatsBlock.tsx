@@ -202,7 +202,7 @@ function PredictionsAndTurnoverStat({
                     <span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>
                     <span className={styles.activityStatusText}>{activity.label}</span>
                     <span className={styles.activityTooltip} role="tooltip">
-                        Рассчитывается по активности канала за последние 30 дней.
+                       Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последние 30 дней и показывает, насколько стабильно публикуются прогнозы.
                     </span>
                 </button>
             </div>
