@@ -2,10 +2,11 @@ import {
     BarChart3,
     Percent,
     Activity,
+    ChartBarStacked,
+    PieChart,
     TrendingUp,
     Wallet,
     ShieldAlert,
-    Sigma,
     PlusCircle,
     MinusCircle,
     RotateCcw,
@@ -130,7 +131,7 @@ function OutcomesStat({
         <div className={styles.statItem}>
             <div className={styles.statHead}>
                 <div className={styles.iconWrap}>
-                    <Sigma size={16} />
+                    <ChartBarStacked size={16} />
                 </div>
                 <div className={styles.title}>Статистика исходов</div>
             </div>
@@ -321,7 +322,7 @@ function StakeAndOddsStat({
         <div className={styles.statItem}>
             <div className={styles.statHead}>
                 <div className={styles.iconWrap}>
-                    <Activity size={16} />
+                    <PieChart size={16} />
                 </div>
                 <div className={styles.title}>Средний % ставки и коэффициент</div>
             </div>
