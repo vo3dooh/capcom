@@ -349,7 +349,7 @@ function TotalProfitStat({
                 <div className={styles.title}>Общая прибыль</div>
             </div>
             <SplitValue left={profitMoney} right={profitPercent} loading={loading} />
-            <div className={styles.meta}>$ | %</div>
+            <div className={styles.meta}>Начальный банкролл 1000$</div>
         </div>
     );
 }
