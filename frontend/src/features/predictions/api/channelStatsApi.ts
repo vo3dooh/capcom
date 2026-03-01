@@ -4,6 +4,7 @@ export type ChannelStatsResponse = {
   startingBankroll: number;
   totalPredictions: number;
   turnoverPercent: number;
+  activeDays30d: number;
   deltaPredictions30d: number;
   deltaTurnoverPercent30d: number;
   totalStake: number;

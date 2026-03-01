@@ -73,6 +73,35 @@
     margin-top: 2px;
 }
 
+.metaTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.activityStatus {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.activityLow {
+    color: rgba(239, 68, 68, 1);
+}
+
+.activityMedium {
+    color: rgba(249, 115, 22, 1);
+}
+
+.activityHigh {
+    color: rgba(22, 163, 74, 1);
+}
+
 .metaDeltas {
     display: flex;
     align-items: center;
