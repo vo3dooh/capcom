@@ -71,13 +71,7 @@
 
 .metaGroup {
     margin-top: 2px;
-}
-
-.metaTopRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    min-height: 28px;
 }
 
 .activityStatus {
@@ -88,6 +82,11 @@
     line-height: 12px;
     font-weight: 600;
     white-space: nowrap;
+    min-height: 14px;
+}
+
+.activityLoading {
+    color: rgba(100, 116, 139, 1);
 }
 
 .activityLow {
@@ -100,37 +99,6 @@
 
 .activityHigh {
     color: rgba(22, 163, 74, 1);
-}
-
-.metaDeltas {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    line-height: 14px;
-    color: rgba(100, 116, 139, 1);
-    min-height: 14px;
-}
-
-.metaDeltaItem {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    min-width: 0;
-}
-
-.metaDeltaDivider {
-    width: 1px;
-    height: 12px;
-    background: rgba(226, 232, 240, 1);
-}
-
-.metaDeltaPositive {
-    color: #16a34a;
-}
-
-.metaDeltaNegative {
-    color: rgba(239, 68, 68, 1);
 }
 
 .stateError {

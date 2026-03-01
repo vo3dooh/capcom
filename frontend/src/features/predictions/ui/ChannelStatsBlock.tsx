@@ -10,8 +10,6 @@ import {
     MinusCircle,
     RotateCcw,
     HelpCircle,
-    ArrowUp,
-    ArrowDown,
     Cloud,
     CloudCheck,
     CloudOff,
@@ -120,73 +118,40 @@ function SplitValue({
     );
 }
 
-function DeltaMetaValue({
-                            value,
-                            trend,
-                            loading,
-                        }: {
-    value: string;
-    trend: number;
-    loading: boolean;
-}) {
-    if (loading) return <span className={styles.metaDeltaItem}>...</span>;
-
-    if (trend > 0) {
-        return (
-            <span className={`${styles.metaDeltaItem} ${styles.metaDeltaPositive}`}>
-                <ArrowUp size={10} />
-                {value}
-            </span>
-        );
-    }
-
-    if (trend < 0) {
-        return (
-            <span className={`${styles.metaDeltaItem} ${styles.metaDeltaNegative}`}>
-                <ArrowDown size={10} />
-                {value}
-            </span>
-        );
-    }
-
-    return <span className={styles.metaDeltaItem}>{value}</span>;
-}
-
 function PredictionsAndTurnoverStat({
                                         totalPredictions,
                                         turnoverPercent,
                                         activeDays30d,
-                                        deltaPredictions30d,
-                                        deltaTurnoverPercent30d,
                                         loading,
                                     }: {
     totalPredictions: number;
     turnoverPercent: string;
     activeDays30d: number;
-    deltaPredictions30d: number;
-    deltaTurnoverPercent30d: number;
     loading: boolean;
 }) {
-    const deltaPredictionsValue = `${deltaPredictions30d > 0 ? "+" : ""}${deltaPredictions30d}`;
-    const deltaTurnoverValue = `${deltaTurnoverPercent30d > 0 ? "+" : ""}${deltaTurnoverPercent30d.toFixed(1)}%`;
-
-    const activity = activeDays30d < 10
+    const activity = loading
         ? {
-            label: "Низкая активность",
-            icon: <CloudOff size={12} />,
-            className: styles.activityLow,
+            label: "...",
+            icon: <Cloud size={12} />,
+            className: styles.activityLoading,
         }
-        : activeDays30d <= 20
+        : activeDays30d < 10
             ? {
-                label: "Средняя активность",
-                icon: <Cloud size={12} />,
-                className: styles.activityMedium,
+                label: "Низкая активность",
+                icon: <CloudOff size={12} />,
+                className: styles.activityLow,
             }
-            : {
-                label: "Высокая активность",
-                icon: <CloudCheck size={12} />,
-                className: styles.activityHigh,
-            };
+            : activeDays30d < 20
+                ? {
+                    label: "Средняя активность",
+                    icon: <Cloud size={12} />,
+                    className: styles.activityMedium,
+                }
+                : {
+                    label: "Высокая активность",
+                    icon: <CloudCheck size={12} />,
+                    className: styles.activityHigh,
+                };
 
     return (
         <div className={styles.statItem}>
@@ -198,17 +163,10 @@ function PredictionsAndTurnoverStat({
             </div>
             <SplitValue left={totalPredictions} right={turnoverPercent} loading={loading} />
             <div className={styles.metaGroup}>
-                <div className={styles.metaTopRow}>
-                    <div className={styles.meta}>За месяц</div>
-                    <div className={`${styles.activityStatus} ${activity.className}`}>
-                        {activity.icon}
-                        <span>{activity.label}</span>
-                    </div>
-                </div>
-                <div className={styles.metaDeltas}>
-                    <DeltaMetaValue value={deltaPredictionsValue} trend={deltaPredictions30d} loading={loading} />
-                    <span className={styles.metaDeltaDivider} />
-                    <DeltaMetaValue value={deltaTurnoverValue} trend={deltaTurnoverPercent30d} loading={loading} />
+                <div className={styles.meta}>За месяц</div>
+                <div className={`${styles.activityStatus} ${activity.className}`}>
+                    {activity.icon}
+                    <span>{activity.label}</span>
                 </div>
             </div>
         </div>
@@ -294,8 +252,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
 
     const totalPredictions = stats ? stats.totalPredictions : 0;
     const turnoverPercent = stats ? `${stats.turnoverPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
-    const deltaPredictions30d = stats ? stats.deltaPredictions30d : 0;
-    const deltaTurnoverPercent30d = stats ? stats.deltaTurnoverPercent30d : 0;
     const activeDays30d = stats ? stats.activeDays30d : 0;
 
     const hitRate = stats ? `${stats.hitRatePercent.toFixed(1)}%` : loading ? "..." : "0.0%";
@@ -326,8 +282,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 totalPredictions={totalPredictions}
                 turnoverPercent={turnoverPercent}
                 activeDays30d={activeDays30d}
-                deltaPredictions30d={deltaPredictions30d}
-                deltaTurnoverPercent30d={deltaTurnoverPercent30d}
                 loading={loading}
             />
             <OutcomesStat wins={wins} losses={losses} voids={voids} loading={loading} />
