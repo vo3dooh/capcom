@@ -6,7 +6,44 @@ export type PlannedProfitStats = {
   kMonths: number;
   kEvents: number;
   kRisk: number;
+  trustLevel: string;
+  trustTone: 'danger' | 'warning' | 'success';
+  isTrustHighlighted: boolean;
 };
+
+type PlannedProfitTrustInfo = Pick<PlannedProfitStats, 'trustLevel' | 'trustTone' | 'isTrustHighlighted'>;
+
+function resolvePlannedProfitTrustInfo(modifier: number): PlannedProfitTrustInfo {
+  if (modifier < 0.5) {
+    return {
+      trustLevel: 'Низкое доверие',
+      trustTone: 'danger',
+      isTrustHighlighted: false,
+    };
+  }
+
+  if (modifier < 0.8) {
+    return {
+      trustLevel: 'Среднее доверие',
+      trustTone: 'warning',
+      isTrustHighlighted: false,
+    };
+  }
+
+  if (modifier < 1.1) {
+    return {
+      trustLevel: 'Высокое доверие',
+      trustTone: 'success',
+      isTrustHighlighted: false,
+    };
+  }
+
+  return {
+    trustLevel: 'Максимальное доверие',
+    trustTone: 'success',
+    isTrustHighlighted: true,
+  };
+}
 
 function resolveMonthsModifier(closedMonthsCount: number): number {
   if (closedMonthsCount <= 0) return 0;
@@ -57,6 +94,7 @@ export function calculatePlannedProfitStats(stats: ChannelStatsResponse): Planne
   const modifier = kMonths * kEvents * kRisk;
   const baseProfit = stats.closedMonthsCount > 0 ? stats.profit12ClosedPercent / stats.closedMonthsCount : 0;
   const plannedProfitPercent = baseProfit * modifier;
+  const trustInfo = resolvePlannedProfitTrustInfo(modifier);
 
   return {
     plannedProfitPercent,
@@ -64,5 +102,8 @@ export function calculatePlannedProfitStats(stats: ChannelStatsResponse): Planne
     kMonths,
     kEvents,
     kRisk,
+    trustLevel: trustInfo.trustLevel,
+    trustTone: trustInfo.trustTone,
+    isTrustHighlighted: trustInfo.isTrustHighlighted,
   };
 }

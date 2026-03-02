@@ -19,6 +19,7 @@ import {
     CloudOff,
     ChartNoAxesCombined,
     Goal,
+    Scale,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -421,6 +422,57 @@ function TotalProfitStat({
     );
 }
 
+function PlannedProfitStat({
+                               plannedProfit,
+                               plannedProfitMeta,
+                               trustLabel,
+                               trustToneClassName,
+                               isTrustHighlighted,
+                               roiHeadBgState,
+                           }: {
+    plannedProfit: string;
+    plannedProfitMeta: string;
+    trustLabel: string;
+    trustToneClassName: string;
+    isTrustHighlighted: boolean;
+    roiHeadBgState: RoiHeadBgState;
+}) {
+    return (
+        <div className={styles.statItem}>
+            <div className={styles.statHead}>
+                <div className={`${styles.iconWrap} ${isTrustHighlighted ? styles.roiHeadIconExceptional : ""}`.trim()}>
+                    {isTrustHighlighted ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null}
+                    <Goal size={16} className={styles.roiHeadIconGlyph} />
+                </div>
+                <div className={styles.title}>Планируемая прибыль</div>
+            </div>
+            <div className={styles.value}>{plannedProfit}</div>
+            <div className={styles.meta}>{plannedProfitMeta}</div>
+            <div className={styles.metaGroup}>
+                <span className={styles.roiStatusButton}>
+                    <span className={`${styles.roiIcon} ${trustToneClassName}`}>
+                        <Scale size={12} />
+                    </span>
+                    <span className={`${styles.roiStatusText} ${trustToneClassName}`}>{trustLabel}</span>
+                </span>
+            </div>
+        </div>
+    );
+}
+
 function MaxDrawdownStat({
                              drawdownMoney,
                              drawdownPercent,
@@ -570,6 +622,21 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const plannedProfitMeta = plannedProfitStats
         ? `Mod ${plannedProfitStats.modifier.toFixed(2)} · K_m ${plannedProfitStats.kMonths.toFixed(2)} · K_e ${plannedProfitStats.kEvents.toFixed(2)} · K_r ${plannedProfitStats.kRisk.toFixed(2)}`
         : "Mod 0.00";
+    const plannedProfitTrust = plannedProfitStats
+        ? {
+            label: plannedProfitStats.trustLevel,
+            toneClassName:
+                plannedProfitStats.trustTone === "danger"
+                    ? styles.trustToneDanger
+                    : plannedProfitStats.trustTone === "warning"
+                        ? styles.trustToneWarning
+                        : styles.trustToneSuccess,
+        }
+        : {
+            label: "...",
+            toneClassName: styles.trustToneNeutral,
+        };
+    const isPlannedProfitTrustHighlighted = Boolean(plannedProfitStats?.isTrustHighlighted);
 
     const wins = stats ? stats.outcomes.wins : 0;
     const losses = stats ? stats.outcomes.losses : 0;
@@ -659,11 +726,13 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 meta="Разброс результата"
                 helpText="Разброс результата: чем выше значение, тем сильнее колебания прибыли/убытка."
             />
-            <StatItem
-                icon={<Goal size={16} />}
-                title="Планируемая прибыль"
-                value={plannedProfit}
-                meta={plannedProfitMeta}
+            <PlannedProfitStat
+                plannedProfit={plannedProfit}
+                plannedProfitMeta={plannedProfitMeta}
+                trustLabel={plannedProfitTrust.label}
+                trustToneClassName={plannedProfitTrust.toneClassName}
+                isTrustHighlighted={isPlannedProfitTrustHighlighted}
+                roiHeadBgState={roiHeadBgState}
             />
         </div>
     );

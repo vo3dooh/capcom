@@ -386,6 +386,23 @@
     color: rgba(22, 163, 74, 1);
 }
 
+
+.trustToneDanger {
+    color: rgba(239, 68, 68, 1);
+}
+
+.trustToneWarning {
+    color: rgba(249, 115, 22, 1);
+}
+
+.trustToneSuccess {
+    color: rgba(22, 163, 74, 1);
+}
+
+.trustToneNeutral {
+    color: rgba(100, 116, 139, 1);
+}
+
 .roiIconExceptional {
     width: 12px;
     height: 12px;
