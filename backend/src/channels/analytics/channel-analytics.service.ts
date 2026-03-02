@@ -64,6 +64,8 @@ type ChannelStatsResponse = {
   averageOdds: number
   averageStakePercentLast50: number
   averageOddsLast50: number
+  averageStakePercentBeforeLast50: number
+  averageOddsBeforeLast50: number
   volatility: number
 }
 
@@ -481,6 +483,22 @@ export class ChannelAnalyticsService {
     const averageStakePercentLast50 =
       settledPredictionsLast50.length > 0 ? this.round1(stakePercentLast50Sum / settledPredictionsLast50.length) : 0
     const averageOddsLast50 = settledPredictionsLast50.length > 0 ? round2(oddsLast50Sum / settledPredictionsLast50.length) : 0
+    const settledPredictionsBeforeLast50 = settledPredictions.slice(
+      0,
+      Math.max(0, settledPredictions.length - settledPredictionsLast50.length)
+    )
+    const stakePercentBeforeLast50Sum = settledPredictionsBeforeLast50.reduce(
+      (sum, prediction) =>
+        sum + (channel.startingBankroll !== 0 ? (prediction.stake / Math.abs(channel.startingBankroll)) * 100 : 0),
+      0
+    )
+    const oddsBeforeLast50Sum = settledPredictionsBeforeLast50.reduce((sum, prediction) => sum + prediction.odds, 0)
+    const averageStakePercentBeforeLast50 =
+      settledPredictionsBeforeLast50.length > 0
+        ? this.round1(stakePercentBeforeLast50Sum / settledPredictionsBeforeLast50.length)
+        : 0
+    const averageOddsBeforeLast50 =
+      settledPredictionsBeforeLast50.length > 0 ? round2(oddsBeforeLast50Sum / settledPredictionsBeforeLast50.length) : 0
     const turnoverPercent = channel.startingBankroll !== 0 ? this.round1((turnover / Math.abs(channel.startingBankroll)) * 100) : 0
 
     const currentTurnover30d = currentSettled30d.reduce((sum, prediction) => sum + prediction.stake, 0)
@@ -546,6 +564,8 @@ export class ChannelAnalyticsService {
       averageOdds,
       averageStakePercentLast50,
       averageOddsLast50,
+      averageStakePercentBeforeLast50,
+      averageOddsBeforeLast50,
       volatility
     }
   }

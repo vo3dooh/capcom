@@ -318,12 +318,14 @@ function StakeAndOddsStat({
                               loading,
                               deltaStake,
                               deltaOdds,
+                              showChanges,
                           }: {
     stakePercent: string;
     odds: string;
     loading: boolean;
     deltaStake: number;
     deltaOdds: number;
+    showChanges: boolean;
 }) {
     const combinedDelta = Math.abs(deltaStake) + Math.abs(deltaOdds);
 
@@ -339,9 +341,6 @@ function StakeAndOddsStat({
     const oddsChangeClassName =
         deltaOdds > 0 ? styles.changePositive : deltaOdds < 0 ? styles.changeNegative : styles.changeNeutral;
 
-    const StakeArrowIcon = deltaStake > 0 ? ArrowUp : ArrowDown;
-    const OddsArrowIcon = deltaOdds > 0 ? ArrowUp : ArrowDown;
-
     const stakeDeltaText = `${Math.abs(deltaStake).toFixed(1)}%`;
     const oddsDeltaText = Math.abs(deltaOdds).toFixed(2);
 
@@ -354,28 +353,32 @@ function StakeAndOddsStat({
                 <div className={styles.title}>Средний % ставки и коэффициент</div>
             </div>
             <SplitValue left={stakePercent} right={odds} loading={loading} />
-            <button
-                type="button"
-                className={styles.changesMetaButton}
-                aria-label="Изменения среднего процента ставки и коэффициента"
-            >
-                <span className={`${styles.changesTrendIcon} ${trendIconClassName}`}>
-                    <TrendingUpDown size={14} />
-                </span>
-                <span className={styles.changesMetaTitle}>Изменения</span>
-                <span className={`${styles.changePart} ${stakeChangeClassName}`}>
-                    <StakeArrowIcon size={12} />
-                    <span>{loading ? '...' : stakeDeltaText}</span>
-                </span>
-                <span className={styles.changesMetaSeparator}>|</span>
-                <span className={`${styles.changePart} ${oddsChangeClassName}`}>
-                    <OddsArrowIcon size={12} />
-                    <span>{loading ? '...' : oddsDeltaText}</span>
-                </span>
-                <span className={styles.changesTooltip} role="tooltip">
-                    Показывает, как изменились средний % ставки и средний коэффициент по сравнению с предыдущими 50 прогнозами.
-                </span>
-            </button>
+            {showChanges ? (
+                <button
+                    type="button"
+                    className={styles.changesMetaButton}
+                    aria-label="Изменения среднего процента ставки и коэффициента"
+                >
+                    <span className={`${styles.changesTrendIcon} ${trendIconClassName}`}>
+                        <TrendingUpDown size={14} />
+                    </span>
+                    <span className={styles.changesMetaTitle}>Изменения</span>
+                    <span className={`${styles.changePart} ${stakeChangeClassName}`}>
+                        {deltaStake > 0 ? <ArrowUp size={12} /> : null}
+                        {deltaStake < 0 ? <ArrowDown size={12} /> : null}
+                        <span>{loading ? '...' : stakeDeltaText}</span>
+                    </span>
+                    <span className={styles.changesMetaSeparator}>|</span>
+                    <span className={`${styles.changePart} ${oddsChangeClassName}`}>
+                        {deltaOdds > 0 ? <ArrowUp size={12} /> : null}
+                        {deltaOdds < 0 ? <ArrowDown size={12} /> : null}
+                        <span>{loading ? '...' : oddsDeltaText}</span>
+                    </span>
+                    <span className={styles.changesTooltip} role="tooltip">
+                        Показывает, как изменились общие средние значения после добавления последних 50 прогнозов.
+                    </span>
+                </button>
+            ) : null}
         </div>
     );
 }
@@ -441,8 +444,10 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
 
     const avgStake = stats ? `${stats.averageStakePercent.toFixed(1)}%` : "0.0%";
     const avgOdds = stats ? stats.averageOdds.toFixed(2) : "0.00";
-    const deltaStake = stats ? stats.averageStakePercent - stats.averageStakePercentLast50 : 0;
-    const deltaOdds = stats ? stats.averageOdds - stats.averageOddsLast50 : 0;
+    const showStakeAndOddsChanges = Boolean(stats && stats.totalPredictions >= 50);
+    const deltaStake =
+        stats && showStakeAndOddsChanges ? stats.averageStakePercent - stats.averageStakePercentBeforeLast50 : 0;
+    const deltaOdds = stats && showStakeAndOddsChanges ? stats.averageOdds - stats.averageOddsBeforeLast50 : 0;
 
     const roiPercent = stats ? stats.roiPercent : 0;
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
@@ -589,7 +594,14 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
 
-            <StakeAndOddsStat stakePercent={avgStake} odds={avgOdds} loading={loading} deltaStake={deltaStake} deltaOdds={deltaOdds} />
+            <StakeAndOddsStat
+                stakePercent={avgStake}
+                odds={avgOdds}
+                loading={loading}
+                deltaStake={deltaStake}
+                deltaOdds={deltaOdds}
+                showChanges={showStakeAndOddsChanges}
+            />
             <StatItem icon={<Percent size={16} />} title="Проходимость" value={hitRate} meta="W / (W+L)" />
             <MaxDrawdownStat
                 drawdownMoney={maxDrawdownMoney}
