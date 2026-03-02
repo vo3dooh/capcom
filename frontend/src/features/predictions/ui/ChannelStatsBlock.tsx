@@ -368,7 +368,7 @@ function StakeAndOddsStat({
                         {deltaStake < 0 ? <ArrowDown size={12} /> : null}
                         <span>{loading ? '...' : stakeDeltaText}</span>
                     </span>
-                    <span className={styles.changesMetaSeparator}>|</span>
+                    <div className={styles.outcomesDivider} />
                     <span className={`${styles.changePart} ${oddsChangeClassName}`}>
                         {deltaOdds > 0 ? <ArrowUp size={12} /> : null}
                         {deltaOdds < 0 ? <ArrowDown size={12} /> : null}

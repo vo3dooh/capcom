@@ -9,6 +9,7 @@
     position: relative;
     padding: 10px 10px 9px 10px;
     min-width: 0;
+    max-height: 93px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     background: #ffffff;
     border-radius: 10px;
@@ -201,11 +202,10 @@
     stroke: currentColor;
 }
 
-.changesMetaSeparator {
-    font-size: 11px;
-    line-height: 14px;
-    font-weight: 600;
-    color: rgba(15, 23, 42, 0.46);
+.outcomesDivider {
+    width: 1px;
+    height: 14px;
+    background: rgba(226, 232, 240, 1);
 }
 
 .changePositive {
