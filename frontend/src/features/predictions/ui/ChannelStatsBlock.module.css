@@ -524,6 +524,48 @@
     color: rgba(249, 115, 22, 1);
 }
 
+.outcomesHitRateTextGreen {
+    color: rgba(22, 163, 74, 1);
+}
+
+
+.plannedProfitMetaGroup {
+    margin-top: 2px;
+    min-height: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.plannedProfitMetaGroup .meta {
+    margin-top: 0;
+}
+
+.plannedProfitConfidenceLine {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 14px;
+}
+
+.plannedProfitConfidenceText {
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.plannedProfitConfidenceRed {
+    color: rgba(239, 68, 68, 1);
+}
+
+.plannedProfitConfidenceOrange {
+    color: rgba(249, 115, 22, 1);
+}
+
+.plannedProfitConfidenceGreen {
+    color: rgba(22, 163, 74, 1);
+}
 .splitValue {
     display: flex;
     align-items: center;
