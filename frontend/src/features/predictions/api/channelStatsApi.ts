@@ -29,6 +29,10 @@ export type ChannelStatsResponse = {
   averageOddsBeforeLast50: number;
   volatility: number;
   winRateBeforeLast100: number;
+  profit12ClosedPercent: number;
+  closedMonthsCount: number;
+  totalPredictions12Closed: number;
+  maxDrawdownPercent12Closed: number;
 };
 
 export async function fetchChannelStats(slug: string): Promise<ChannelStatsResponse> {

@@ -68,6 +68,10 @@ type ChannelStatsResponse = {
   averageOddsBeforeLast50: number
   volatility: number
   winRateBeforeLast100: number
+  profit12ClosedPercent: number
+  closedMonthsCount: number
+  totalPredictions12Closed: number
+  maxDrawdownPercent12Closed: number
 }
 
 function round2(x: number): number {
@@ -350,6 +354,10 @@ export class ChannelAnalyticsService {
     const now = new Date()
     const currentWindowFrom = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const previousWindowFrom = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+    const currentMonthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0))
+    const twelveClosedMonthsStart = new Date(
+      Date.UTC(currentMonthStart.getUTCFullYear(), currentMonthStart.getUTCMonth() - 12, 1, 0, 0, 0, 0)
+    )
 
     const [
       totalPredictions,
@@ -359,7 +367,9 @@ export class ChannelAnalyticsService {
       previousPredictions30d,
       currentSettled30d,
       previousSettled30d,
-      currentPredictionsDates30d
+      currentPredictionsDates30d,
+      settledPredictions12Closed,
+      totalPredictions12Closed
     ] = await this.prisma.$transaction([
       this.prisma.prediction.count({ where: { channelId: channel.id } }),
       this.prisma.prediction.findMany({
@@ -427,6 +437,26 @@ export class ChannelAnalyticsService {
         },
         select: {
           createdAt: true
+        }
+      }),
+      this.prisma.prediction.findMany({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: twelveClosedMonthsStart, lt: currentMonthStart },
+          result: { in: [PredictionStatus.win, PredictionStatus.loss, PredictionStatus.void] }
+        },
+        select: {
+          createdAt: true,
+          result: true,
+          stake: true,
+          odds: true
+        },
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+      }),
+      this.prisma.prediction.count({
+        where: {
+          channelId: channel.id,
+          createdAt: { gte: twelveClosedMonthsStart, lt: currentMonthStart }
         }
       })
     ])
@@ -524,6 +554,28 @@ export class ChannelAnalyticsService {
       profits.length > 0 ? profits.reduce((acc, p) => acc + (p - meanProfit) ** 2, 0) / profits.length : 0
     const volatility = round2(Math.sqrt(variance))
 
+    let profit12Closed = 0
+    let runningProfit12Closed = 0
+    let runningPeak12Closed = 0
+    let maxDrawdown12Closed = 0
+    const settledMonths12Closed = new Set<string>()
+
+    for (const prediction of settledPredictions12Closed) {
+      const monthKey = `${prediction.createdAt.getUTCFullYear()}-${String(prediction.createdAt.getUTCMonth() + 1).padStart(2, '0')}`
+      settledMonths12Closed.add(monthKey)
+      const profit = calcProfit(prediction.result, prediction.stake, prediction.odds)
+      profit12Closed += profit
+      runningProfit12Closed += profit
+      runningPeak12Closed = Math.max(runningPeak12Closed, runningProfit12Closed)
+      maxDrawdown12Closed = Math.max(maxDrawdown12Closed, runningPeak12Closed - runningProfit12Closed)
+    }
+
+    const closedMonthsCount = settledMonths12Closed.size
+    const profit12ClosedPercent =
+      channel.startingBankroll !== 0 ? round2((profit12Closed / Math.abs(channel.startingBankroll)) * 100) : 0
+    const maxDrawdownPercent12Closed =
+      channel.startingBankroll !== 0 ? round2((maxDrawdown12Closed / Math.abs(channel.startingBankroll)) * 100) : 0
+
     let streakType: ChannelStatsStreakType = 'none'
     let streakCount = 0
 
@@ -573,7 +625,11 @@ export class ChannelAnalyticsService {
       averageStakePercentBeforeLast50,
       averageOddsBeforeLast50,
       volatility,
-      winRateBeforeLast100
+      winRateBeforeLast100,
+      profit12ClosedPercent,
+      closedMonthsCount,
+      totalPredictions12Closed,
+      maxDrawdownPercent12Closed
     }
   }
 }
