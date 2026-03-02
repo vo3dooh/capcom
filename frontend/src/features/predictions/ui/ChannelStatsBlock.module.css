@@ -170,7 +170,23 @@
     shape-rendering: geometricPrecision;
 }
 
+.fillRed {
+    fill: #dc2626;
+}
+
+.fillOrange {
+    fill: #f59e0b;
+}
+
+.fillGreen {
+    fill: #16a34a;
+}
+
 .deltaOverlay {
+    shape-rendering: geometricPrecision;
+}
+
+.fillMarker {
     shape-rendering: geometricPrecision;
 }
 
