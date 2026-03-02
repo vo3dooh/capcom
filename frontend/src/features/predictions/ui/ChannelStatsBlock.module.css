@@ -152,7 +152,7 @@
     margin-top: 2px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     position: relative;
     min-height: 14px;
     padding: 0;
@@ -169,6 +169,7 @@
     font-weight: 600;
     white-space: nowrap;
     color: rgba(15, 23, 42, 0.46);
+    padding: 0 2px;
 }
 
 .changesTrendIcon {
@@ -189,7 +190,6 @@
 .changePart {
     display: inline-flex;
     align-items: center;
-    gap: 1px;
     font-size: 11px;
     line-height: 14px;
     font-weight: 600;
@@ -197,15 +197,23 @@
 }
 
 .changePart svg {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     stroke: currentColor;
 }
 
 .outcomesDivider {
     width: 1px;
+    height: 16px;
+    background: rgba(226, 232, 240, 1);
+}
+
+.outcomesDividermini {
+    width: 1px;
     height: 14px;
     background: rgba(226, 232, 240, 1);
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
 .changePositive {

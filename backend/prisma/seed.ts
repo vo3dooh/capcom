@@ -115,6 +115,20 @@ async function recomputeChannelStatsAndBankroll(channelId: string) {
   })
 }
 
+function buildEvenlySpacedDatesUtc(params: { start: Date; end: Date; count: number }): Date[] {
+  const { start, end, count } = params
+  const out: Date[] = []
+  if (count <= 0) return out
+  if (count === 1) return [start]
+
+  const spanMs = Math.max(1, end.getTime() - start.getTime())
+  for (let i = 0; i < count; i += 1) {
+    const t = i / (count - 1)
+    out.push(new Date(start.getTime() + Math.floor(spanMs * t)))
+  }
+  return out
+}
+
 async function seedChannelPredictions(params: { slug: string; count: number }) {
   const { slug, count } = params
 
@@ -172,7 +186,6 @@ async function seedChannelPredictions(params: { slug: string; count: number }) {
     select: { id: true }
   })
 
-  // Диапазон: 2025-01-01 .. сегодня (UTC)
   const start = new Date(Date.UTC(2025, 0, 1, 12, 0, 0))
   const today = startOfUtcDay(new Date())
   const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12, 0, 0))
@@ -190,6 +203,17 @@ async function seedChannelPredictions(params: { slug: string; count: number }) {
     PredictionStatus.loss,
     PredictionStatus.void
   ]
+
+  const highOutcomes: PredictionStatus[] = [
+    PredictionStatus.win,
+    PredictionStatus.win,
+    PredictionStatus.loss,
+    PredictionStatus.void
+  ]
+
+  const highStart = new Date(Date.UTC(2026, 0, 1, 12, 0, 0))
+  const highEnd = new Date(Date.UTC(2026, 1, 28, 12, 0, 0))
+  const highDates = buildEvenlySpacedDatesUtc({ start: highStart, end: highEnd, count: 26 })
 
   await prisma.$transaction(async (tx) => {
     for (let i = 0; i < count; i += 1) {
@@ -241,11 +265,60 @@ async function seedChannelPredictions(params: { slug: string; count: number }) {
         })
       }
     }
+
+    for (let i = 0; i < highDates.length; i += 1) {
+      const createdAt = highDates[i]
+      const settledAt = createdAt
+
+      const stake = round2(rand(60, 150))
+      const odds = round2(rand(3, 5))
+      const result = pick(highOutcomes)
+
+      const event = await tx.event.create({
+        data: {
+          sportId: sport.id,
+          leagueId: league.id,
+          homeCompetitorId: home.id,
+          awayCompetitorId: away.id,
+          startTime: createdAt
+        },
+        select: { id: true }
+      })
+
+      await tx.prediction.create({
+        data: {
+          channelId: channel.id,
+          authorId: author.id,
+          eventId: event.id,
+          odds,
+          stake,
+          market: pick(markets),
+          selection: pick(selections),
+          result,
+          createdAt,
+          settledAt
+        }
+      })
+
+      const profit = calcProfit(result, stake, odds)
+
+      if (result === PredictionStatus.win || result === PredictionStatus.loss) {
+        await tx.channelBankrollLog.create({
+          data: {
+            channelId: channel.id,
+            amount: profit,
+            type: result === PredictionStatus.win ? BankrollChangeType.bet_win : BankrollChangeType.bet_loss,
+            note: 'seed',
+            createdAt: settledAt
+          }
+        })
+      }
+    }
   })
 
   await recomputeChannelStatsAndBankroll(channel.id)
 
-  process.stdout.write(`Seeded ${count} predictions for channel "${slug}".\n`)
+  process.stdout.write(`Seeded ${count} predictions + 26 high-odds predictions (Jan-Feb 2026) for channel "${slug}".\n`)
 }
 
 async function main() {

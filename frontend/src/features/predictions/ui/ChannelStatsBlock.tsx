@@ -364,16 +364,16 @@ function StakeAndOddsStat({
                 <span className={`${styles.changesTrendIcon} ${trendIconClassName}`}>
                     <TrendingUpDown size={14} />
                 </span>
-                <span className={styles.changesMetaTitle}>Изменения</span>
+                <span className={styles.changesMetaTitle}>Динамика</span>
                 <span className={`${styles.changePart} ${stakeChangeClassName}`}>
-                    {effectiveDeltaStake > 0 ? <ArrowUp size={12} /> : null}
-                    {effectiveDeltaStake < 0 ? <ArrowDown size={12} /> : null}
+                    {effectiveDeltaStake > 0 ? <ArrowUp size={10} /> : null}
+                    {effectiveDeltaStake < 0 ? <ArrowDown size={10} /> : null}
                     <span>{loading ? '...' : stakeDeltaText}</span>
                 </span>
-                <div className={styles.outcomesDivider} />
+                <div className={styles.outcomesDividermini} />
                 <span className={`${styles.changePart} ${oddsChangeClassName}`}>
-                    {effectiveDeltaOdds > 0 ? <ArrowUp size={12} /> : null}
-                    {effectiveDeltaOdds < 0 ? <ArrowDown size={12} /> : null}
+                    {effectiveDeltaOdds > 0 ? <ArrowUp size={10} /> : null}
+                    {effectiveDeltaOdds < 0 ? <ArrowDown size={10} /> : null}
                     <span>{loading ? '...' : oddsDeltaText}</span>
                 </span>
                 <span className={styles.changesTooltip} role="tooltip">
