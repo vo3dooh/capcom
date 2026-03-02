@@ -133,31 +133,27 @@ function OutcomesStat({
         ? {
             label: "...",
             iconClassName: styles.roiIconGray,
-            textClassName: styles.outcomesHitRateText,
         }
         : winRate < 50
             ? {
                 label: "Низкая проходимость",
                 iconClassName: styles.roiIconRed,
-                textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextRed}`,
             }
             : winRate < 55
                 ? {
                     label: "Средняя проходимость",
                     iconClassName: styles.outcomesHitRateIconOrange,
-                    textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextOrange}`,
                 }
                 : winRate < 60 || totalBets <= 100
                     ? {
                         label: "Хорошая проходимость",
                         iconClassName: styles.roiIconGreen,
-                        textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextGreen}`,
                     }
                     : {
                         label: "Высокая проходимость",
                         iconClassName: styles.roiIconGreen,
-                        textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextGreen}`,
                     };
+    const winRateLabel = `${winRate.toFixed(1).replace(".", ",")}%`;
 
     return (
         <div className={styles.statItem}>
@@ -172,30 +168,39 @@ function OutcomesStat({
             <div className={`${styles.value} ${styles.outcomesValue}`}>
                 <div className={styles.outcomeItem}>
                     <PlusCircle size={12} className={styles.winIcon} />
-                    <span className={styles.winValue}>{loading ? "..." : wins}</span>
+                    <span className={styles.outcomeValue}>{loading ? "..." : wins}</span>
                 </div>
 
                 <div className={styles.outcomesDivider} />
 
                 <div className={styles.outcomeItem}>
                     <MinusCircle size={12} className={styles.lossIcon} />
-                    <span className={styles.lossValue}>{loading ? "..." : losses}</span>
+                    <span className={styles.outcomeValue}>{loading ? "..." : losses}</span>
                 </div>
 
                 <div className={styles.outcomesDivider} />
 
                 <div className={styles.outcomeItem}>
                     <RotateCcw size={12} className={styles.voidIcon} />
-                    <span className={styles.voidValue}>{loading ? "..." : voids}</span>
+                    <span className={styles.outcomeValue}>{loading ? "..." : voids}</span>
                 </div>
             </div>
 
-            <div className={styles.outcomesHitRateMeta}>
+            <button
+                type="button"
+                className={styles.outcomesHitRateMeta}
+                aria-label="Уровень проходимости канала"
+            >
                 <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
                     <Percent size={12} />
                 </span>
-                <span className={hitRateLevel.textClassName}>{hitRateLevel.label}</span>
-            </div>
+                <span className={styles.outcomesHitRateText}>{hitRateLevel.label}</span>
+                {loading ? null : (
+                    <span className={styles.outcomesHitRateTooltip} role="tooltip">
+                        Проходимость прогнозов на канале — <strong>{winRateLabel}</strong>
+                    </span>
+                )}
+            </button>
         </div>
     );
 }
@@ -424,14 +429,12 @@ function TotalProfitStat({
 
 function PlannedProfitStat({
                                plannedProfit,
-                               plannedProfitMeta,
                                trustLabel,
                                trustToneClassName,
                                isTrustHighlighted,
                                roiHeadBgState,
                            }: {
     plannedProfit: string;
-    plannedProfitMeta: string;
     trustLabel: string;
     trustToneClassName: string;
     isTrustHighlighted: boolean;
@@ -460,14 +463,16 @@ function PlannedProfitStat({
                 <div className={styles.title}>Планируемая прибыль</div>
             </div>
             <div className={styles.value}>{plannedProfit}</div>
-            <div className={styles.meta}>{plannedProfitMeta}</div>
             <div className={styles.metaGroup}>
-                <span className={styles.roiStatusButton}>
+                <button type="button" className={styles.roiStatusButton} aria-label="Уровень доверия">
                     <span className={`${styles.roiIcon} ${trustToneClassName}`}>
                         <Scale size={12} />
                     </span>
-                    <span className={`${styles.roiStatusText} ${trustToneClassName}`}>{trustLabel}</span>
-                </span>
+                    <span className={styles.roiStatusText}>{trustLabel}</span>
+                    <span className={styles.roiTooltip} role="tooltip">
+                        Уровень доверия рассчитывается на основе комплексной оценки ключевых статистических параметров канала: объёма выборки, продолжительности активности, стабильности результатов и уровня риска. Показатель отражает степень надёжности представленной статистики.
+                    </span>
+                </button>
             </div>
         </div>
     );
@@ -619,9 +624,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const maxDrawdownPercent = stats && stats.startingBankroll > 0 ? `${((stats.maxDrawdown / stats.startingBankroll) * 100).toFixed(1)}%` : "0.0%";
     const volatility = stats ? stats.volatility.toFixed(2) : loading ? "..." : "0.00";
     const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
-    const plannedProfitMeta = plannedProfitStats
-        ? `Mod ${plannedProfitStats.modifier.toFixed(2)} · K_m ${plannedProfitStats.kMonths.toFixed(2)} · K_e ${plannedProfitStats.kEvents.toFixed(2)} · K_r ${plannedProfitStats.kRisk.toFixed(2)}`
-        : "Mod 0.00";
     const plannedProfitTrust = plannedProfitStats
         ? {
             label: plannedProfitStats.trustLevel,
@@ -728,7 +730,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             />
             <PlannedProfitStat
                 plannedProfit={plannedProfit}
-                plannedProfitMeta={plannedProfitMeta}
                 trustLabel={plannedProfitTrust.label}
                 trustToneClassName={plannedProfitTrust.toneClassName}
                 isTrustHighlighted={isPlannedProfitTrustHighlighted}
