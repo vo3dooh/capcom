@@ -113,28 +113,56 @@ function OutcomesStat({
                           losses,
                           voids,
                           loading,
+                          winRate,
+                          totalBets,
+                          iconWrapClassName,
+                          iconBackground,
                       }: {
     wins: number;
     losses: number;
     voids: number;
     loading: boolean;
+    winRate: number;
+    totalBets: number;
+    iconWrapClassName?: string;
+    iconBackground?: React.ReactNode;
 }) {
-    const total = wins + losses + voids;
-    const winsPct = total > 0 ? (wins / total) * 100 : 0;
-    const lossesPct = total > 0 ? (losses / total) * 100 : 0;
-    const voidsPct = total > 0 ? (voids / total) * 100 : 0;
-
-    const isNeutralBar = loading || total === 0;
-    const neutralSegmentWidth = isNeutralBar ? 100 : 0;
-    const firstSegmentWidth = isNeutralBar ? 0 : winsPct;
-    const secondSegmentWidth = isNeutralBar ? 0 : lossesPct;
-    const thirdSegmentWidth = isNeutralBar ? 0 : voidsPct;
+    const hitRateLevel = loading
+        ? {
+            label: "...",
+            iconClassName: styles.roiIconGray,
+            textClassName: styles.outcomesHitRateText,
+        }
+        : winRate < 50
+            ? {
+                label: "Низкая проходимость",
+                iconClassName: styles.roiIconRed,
+                textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextRed}`,
+            }
+            : winRate < 55
+                ? {
+                    label: "Средняя проходимость",
+                    iconClassName: styles.outcomesHitRateIconOrange,
+                    textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextOrange}`,
+                }
+                : winRate < 60 || totalBets <= 100
+                    ? {
+                        label: "Хорошая проходимость",
+                        iconClassName: styles.roiIconGreen,
+                        textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextGreen}`,
+                    }
+                    : {
+                        label: "Высокая проходимость",
+                        iconClassName: styles.roiIconGreen,
+                        textClassName: `${styles.outcomesHitRateText} ${styles.outcomesHitRateTextGreen}`,
+                    };
 
     return (
         <div className={styles.statItem}>
             <div className={styles.statHead}>
-                <div className={styles.iconWrap}>
-                    <ChartBarStacked size={16} />
+                <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
+                    {iconBackground}
+                    <ChartBarStacked size={16} className={styles.roiHeadIconGlyph} />
                 </div>
                 <div className={styles.title}>Статистика исходов</div>
             </div>
@@ -160,26 +188,11 @@ function OutcomesStat({
                 </div>
             </div>
 
-            <div className={styles.outcomesBarWrap}>
-                <svg
-                    className={styles.outcomesBar}
-                    width="100%"
-                    height="8"
-                    viewBox="0 0 100 8"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                >
-                    <rect x="0" y="0" width={neutralSegmentWidth} height="8" className={styles.outcomesBarNeutral} />
-                    <rect x="0" y="0" width={firstSegmentWidth} height="8" className={styles.outcomesBarWin} />
-                    <rect x={firstSegmentWidth} y="0" width={secondSegmentWidth} height="8" className={styles.outcomesBarLoss} />
-                    <rect
-                        x={firstSegmentWidth + secondSegmentWidth}
-                        y="0"
-                        width={thirdSegmentWidth}
-                        height="8"
-                        className={styles.outcomesBarVoid}
-                    />
-                </svg>
+            <div className={styles.outcomesHitRateMeta}>
+                <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
+                    <Percent size={12} />
+                </span>
+                <span className={hitRateLevel.textClassName}>{hitRateLevel.label}</span>
             </div>
         </div>
     );
@@ -433,91 +446,6 @@ function MaxDrawdownStat({
     );
 }
 
-function clampProgress(value: number): number {
-    if (value < 0) {
-        return 0;
-    }
-
-    if (value > 1) {
-        return 1;
-    }
-
-    return value;
-}
-
-function normalizeHitRatePosition(winRate: number): number {
-    if (winRate <= 45) {
-        return 0;
-    }
-
-    if (winRate <= 60) {
-        return ((winRate - 45) / 15) * 0.8;
-    }
-
-    if (winRate <= 100) {
-        return 0.8 + ((winRate - 60) / 40) * 0.2;
-    }
-
-    return 1;
-}
-
-function HitRateProgress({
-    currentWinRate,
-    winRateBeforeLast100,
-    totalPredictions,
-}: {
-    currentWinRate: number;
-    winRateBeforeLast100: number;
-    totalPredictions: number;
-}) {
-    const normalizedCurrent = clampProgress(normalizeHitRatePosition(currentWinRate));
-    const normalizedBefore = clampProgress(normalizeHitRatePosition(winRateBeforeLast100));
-    const segmentStart = Math.min(normalizedBefore, normalizedCurrent);
-    const segmentWidth = Math.abs(normalizedCurrent - normalizedBefore);
-    const deltaWinRate = currentWinRate - winRateBeforeLast100;
-    const showDelta = totalPredictions >= 150 && deltaWinRate !== 0;
-    const fillColorClassName =
-        currentWinRate < 50 ? styles.fillRed : currentWinRate < 55 ? styles.fillOrange : styles.fillGreen;
-    const markerVisible = normalizedCurrent > 0;
-
-    return (
-        <div className={styles.hitRateProgress} aria-hidden="true">
-            <svg className={styles.baseTrack} viewBox="0 0 100 4" role="presentation" preserveAspectRatio="none">
-                <defs>
-                    <pattern id="hitRateDeltaPositive" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                        <rect width="6" height="6" fill="#16a34a" />
-                        <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
-                    </pattern>
-                    <pattern id="hitRateDeltaNegative" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                        <rect width="6" height="6" fill="#dc2626" />
-                        <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
-                    </pattern>
-                </defs>
-
-                <rect x="0" y="0" width="100" height="4" rx="2" ry="2" className={styles.baseTrackFill} />
-
-                {normalizedCurrent > 0 ? (
-                    <path
-                        d={`M 2 0 H ${Math.max(2, normalizedCurrent * 100)} V 4 H 2 A 2 2 0 0 1 2 0 Z`}
-                        className={`${styles.mainFill} ${fillColorClassName}`}
-                    />
-                ) : null}
-
-                {showDelta && segmentWidth > 0 ? (
-                    <rect
-                        x={segmentStart * 100}
-                        y="0"
-                        width={segmentWidth * 100}
-                        height="4"
-                        className={styles.deltaOverlay}
-                        fill={deltaWinRate > 0 ? "url(#hitRateDeltaPositive)" : "url(#hitRateDeltaNegative)"}
-                    />
-                ) : null}
-            </svg>
-        </div>
-    );
-}
-
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, loading, error } = useChannelStats(slug);
     const [roiHeadBgState, setRoiHeadBgState] = useState<RoiHeadBgState>(() => createRoiHeadBgState());
@@ -526,7 +454,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const turnoverPercent = stats ? `${stats.turnoverPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
     const activeDays30d = stats ? stats.activeDays30d : 0;
 
-    const hitRate = stats ? `${stats.hitRatePercent.toFixed(1)}%` : loading ? "..." : "0.0%";
+    const hitRatePercent = stats ? stats.hitRatePercent : 0;
 
     const avgStake = stats ? `${stats.averageStakePercent.toFixed(1)}%` : "0.0%";
     const avgOdds = stats ? stats.averageOdds.toFixed(2) : "0.00";
@@ -641,6 +569,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const wins = stats ? stats.outcomes.wins : 0;
     const losses = stats ? stats.outcomes.losses : 0;
     const voids = stats ? stats.outcomes.voids : 0;
+    const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
 
 
     if (error && !stats) return <div className={styles.stateError}>{error}</div>;
@@ -653,7 +582,31 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 activeDays30d={activeDays30d}
                 loading={loading}
             />
-            <OutcomesStat wins={wins} losses={losses} voids={voids} loading={loading} />
+            <OutcomesStat
+                wins={wins}
+                losses={losses}
+                voids={voids}
+                loading={loading}
+                winRate={hitRatePercent}
+                totalBets={totalPredictions}
+                iconWrapClassName={isExceptionalHitRate ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isExceptionalHitRate ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
+                }
+            />
             <StatItem
                 icon={<TrendingUp size={16} className={styles.roiHeadIconGlyph} />}
                 title="ROI"
@@ -687,22 +640,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 deltaStake={deltaStake}
                 deltaOdds={deltaOdds}
                 totalPredictions={totalPredictions}
-            />
-            <StatItem
-                icon={<Percent size={16} />}
-                title="Проходимость"
-                value={hitRate}
-                meta={
-                    stats ? (
-                        <HitRateProgress
-                            currentWinRate={stats.hitRatePercent}
-                            winRateBeforeLast100={stats.winRateBeforeLast100}
-                            totalPredictions={stats.totalPredictions}
-                        />
-                    ) : (
-                        <HitRateProgress currentWinRate={0} winRateBeforeLast100={0} totalPredictions={0} />
-                    )
-                }
             />
             <MaxDrawdownStat
                 drawdownMoney={maxDrawdownMoney}
