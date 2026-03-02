@@ -482,7 +482,7 @@ function HitRateProgress({
 
     return (
         <div className={styles.hitRateProgress} aria-hidden="true">
-            <svg className={styles.baseTrack} viewBox="0 0 100 8" preserveAspectRatio="none" role="presentation">
+            <svg className={styles.baseTrack} viewBox="0 0 100 4" role="presentation" preserveAspectRatio="none">
                 <defs>
                     <pattern id="hitRateDeltaPositive" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                         <rect width="6" height="6" fill="#16a34a" />
@@ -493,24 +493,24 @@ function HitRateProgress({
                         <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
                     </pattern>
                 </defs>
-                <rect x="0" y="0" width="100" height="8" className={styles.baseTrackFill} />
-                <rect x="0" y="0" width={normalizedCurrent * 100} height="8" className={`${styles.mainFill} ${fillColorClassName}`} />
+
+                <rect x="0" y="0" width="100" height="4" rx="2" ry="2" className={styles.baseTrackFill} />
+
+                {normalizedCurrent > 0 ? (
+                    <path
+                        d={`M 2 0 H ${Math.max(2, normalizedCurrent * 100)} V 4 H 2 A 2 2 0 0 1 2 0 Z`}
+                        className={`${styles.mainFill} ${fillColorClassName}`}
+                    />
+                ) : null}
+
                 {showDelta && segmentWidth > 0 ? (
                     <rect
                         x={segmentStart * 100}
                         y="0"
                         width={segmentWidth * 100}
-                        height="8"
+                        height="4"
                         className={styles.deltaOverlay}
                         fill={deltaWinRate > 0 ? "url(#hitRateDeltaPositive)" : "url(#hitRateDeltaNegative)"}
-                    />
-                ) : null}
-                {markerVisible ? (
-                    <circle
-                        cx={normalizedCurrent * 100}
-                        cy="4"
-                        r="4"
-                        className={`${styles.fillMarker} ${fillColorClassName}`}
                     />
                 ) : null}
             </svg>
