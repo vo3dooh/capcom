@@ -18,6 +18,7 @@ import {
     CloudCheck,
     CloudOff,
     ChartNoAxesCombined,
+    Goal,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -447,7 +448,7 @@ function MaxDrawdownStat({
 }
 
 export function ChannelStatsBlock({ slug }: { slug: string }) {
-    const { stats, loading, error } = useChannelStats(slug);
+    const { stats, plannedProfitStats, loading, error } = useChannelStats(slug);
     const [roiHeadBgState, setRoiHeadBgState] = useState<RoiHeadBgState>(() => createRoiHeadBgState());
 
     const totalPredictions = stats ? stats.totalPredictions : 0;
@@ -565,6 +566,10 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
     const maxDrawdownPercent = stats && stats.startingBankroll > 0 ? `${((stats.maxDrawdown / stats.startingBankroll) * 100).toFixed(1)}%` : "0.0%";
     const volatility = stats ? stats.volatility.toFixed(2) : loading ? "..." : "0.00";
+    const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
+    const plannedProfitMeta = plannedProfitStats
+        ? `Mod ${plannedProfitStats.modifier.toFixed(2)} · K_m ${plannedProfitStats.kMonths.toFixed(2)} · K_e ${plannedProfitStats.kEvents.toFixed(2)} · K_r ${plannedProfitStats.kRisk.toFixed(2)}`
+        : "Mod 0.00";
 
     const wins = stats ? stats.outcomes.wins : 0;
     const losses = stats ? stats.outcomes.losses : 0;
@@ -653,6 +658,12 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 value={volatility}
                 meta="Разброс результата"
                 helpText="Разброс результата: чем выше значение, тем сильнее колебания прибыли/убытка."
+            />
+            <StatItem
+                icon={<Goal size={16} />}
+                title="Планируемая прибыль"
+                value={plannedProfit}
+                meta={plannedProfitMeta}
             />
         </div>
     );
