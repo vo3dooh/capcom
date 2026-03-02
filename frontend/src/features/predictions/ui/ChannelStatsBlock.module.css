@@ -374,6 +374,10 @@
     color: rgba(239, 68, 68, 1);
 }
 
+.outcomesHitRateIconOrange {
+    color: rgba(249, 115, 22, 1);
+}
+
 .roiIconGray {
     color: rgba(100, 116, 139, 1);
 }
@@ -503,18 +507,9 @@
     color: rgba(148, 163, 184, 1);
 }
 
-.winValue {
-    color: #16a34a;
+.outcomeValue {
+    color: rgba(15, 23, 42, 1);
 }
-
-.lossValue {
-    color: rgba(239, 68, 68, 1);
-}
-
-.voidValue {
-    color: rgba(100, 116, 139, 1);
-}
-
 
 .outcomesHitRateMeta {
     display: inline-flex;
@@ -527,6 +522,7 @@
     background: transparent;
     vertical-align: top;
     margin-top: 2px;
+    cursor: help;
 }
 
 .outcomesHitRateText {
@@ -537,12 +533,32 @@
     white-space: nowrap;
 }
 
-.outcomesHitRateTextOrange {
-    color: rgba(249, 115, 22, 1);
+.outcomesHitRateTooltip {
+    position: absolute;
+    top: 18px;
+    left: 0;
+    min-width: 180px;
+    max-width: 240px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    color: rgba(15, 23, 42, 1);
+    font-size: 11px;
+    line-height: 16px;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10;
 }
 
-.outcomesHitRateTextGreen {
-    color: rgba(22, 163, 74, 1);
+.outcomesHitRateMeta:hover .outcomesHitRateTooltip,
+.outcomesHitRateMeta:focus-visible .outcomesHitRateTooltip {
+    opacity: 1;
+    visibility: visible;
 }
 
 
