@@ -445,6 +445,22 @@ function clampProgress(value: number): number {
     return value;
 }
 
+function normalizeHitRatePosition(winRate: number): number {
+    if (winRate <= 45) {
+        return 0;
+    }
+
+    if (winRate <= 60) {
+        return ((winRate - 45) / 15) * 0.8;
+    }
+
+    if (winRate <= 100) {
+        return 0.8 + ((winRate - 60) / 40) * 0.2;
+    }
+
+    return 1;
+}
+
 function HitRateProgress({
     currentWinRate,
     winRateBeforeLast100,
@@ -454,22 +470,20 @@ function HitRateProgress({
     winRateBeforeLast100: number;
     totalPredictions: number;
 }) {
-    const normalizedCurrent = clampProgress((currentWinRate - 45) / 15);
-    const normalizedBefore = clampProgress((winRateBeforeLast100 - 45) / 15);
+    const normalizedCurrent = clampProgress(normalizeHitRatePosition(currentWinRate));
+    const normalizedBefore = clampProgress(normalizeHitRatePosition(winRateBeforeLast100));
     const segmentStart = Math.min(normalizedBefore, normalizedCurrent);
     const segmentWidth = Math.abs(normalizedCurrent - normalizedBefore);
     const deltaWinRate = currentWinRate - winRateBeforeLast100;
     const showDelta = totalPredictions >= 150 && deltaWinRate !== 0;
+    const fillColorClassName =
+        currentWinRate < 50 ? styles.fillRed : currentWinRate < 55 ? styles.fillOrange : styles.fillGreen;
+    const markerVisible = normalizedCurrent > 0;
 
     return (
         <div className={styles.hitRateProgress} aria-hidden="true">
             <svg className={styles.baseTrack} viewBox="0 0 100 8" preserveAspectRatio="none" role="presentation">
                 <defs>
-                    <linearGradient id="hitRateMainFill" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="#dc2626" />
-                        <stop offset="50%" stopColor="#f59e0b" />
-                        <stop offset="100%" stopColor="#16a34a" />
-                    </linearGradient>
                     <pattern id="hitRateDeltaPositive" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                         <rect width="6" height="6" fill="#16a34a" />
                         <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
@@ -480,7 +494,7 @@ function HitRateProgress({
                     </pattern>
                 </defs>
                 <rect x="0" y="0" width="100" height="8" className={styles.baseTrackFill} />
-                <rect x="0" y="0" width={normalizedCurrent * 100} height="8" fill="url(#hitRateMainFill)" className={styles.mainFill} />
+                <rect x="0" y="0" width={normalizedCurrent * 100} height="8" className={`${styles.mainFill} ${fillColorClassName}`} />
                 {showDelta && segmentWidth > 0 ? (
                     <rect
                         x={segmentStart * 100}
@@ -489,6 +503,14 @@ function HitRateProgress({
                         height="8"
                         className={styles.deltaOverlay}
                         fill={deltaWinRate > 0 ? "url(#hitRateDeltaPositive)" : "url(#hitRateDeltaNegative)"}
+                    />
+                ) : null}
+                {markerVisible ? (
+                    <circle
+                        cx={normalizedCurrent * 100}
+                        cy="4"
+                        r="4"
+                        className={`${styles.fillMarker} ${fillColorClassName}`}
                     />
                 ) : null}
             </svg>
