@@ -147,49 +147,6 @@
     min-height: 14px;
 }
 
-.hitRateProgress {
-    width: 100%;
-    height: 8px;
-    margin-top: 5px;
-    padding: 0 2px;
-}
-
-.baseTrack {
-    display: block;
-    width: 100%;
-    height: 4px;
-}
-
-.baseTrackFill {
-    fill: rgba(148, 163, 184, 0.24);
-}
-
-.mainFill {
-    shape-rendering: geometricPrecision;
-}
-
-.fillRed {
-    fill: #dc2626;
-}
-
-.fillOrange {
-    fill: #f59e0b;
-}
-
-.fillGreen {
-    fill: #16a34a;
-}
-
-.deltaOverlay {
-    shape-rendering: geometricPrecision;
-}
-
-.fillMarker {
-    stroke: rgba(255, 255, 255, 1);
-    stroke-width: 2;
-}
-
-
 .changesMetaButton {
     margin-top: 2px;
     display: inline-flex;
@@ -244,11 +201,6 @@
     stroke: currentColor;
 }
 
-.outcomesDivider {
-    width: 1px;
-    height: 16px;
-    background: rgba(226, 232, 240, 1);
-}
 
 .outcomesDividermini {
     width: 1px;
@@ -547,33 +499,36 @@
 }
 
 
-.outcomesBarWrap {
-    margin-top: 8px;
-    padding: 0 2px;
+.outcomesHitRateMeta {
+    margin-top: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 14px;
 }
 
-.outcomesBar {
-    display: block;
-    width: 100%;
-    height: 4px;
-    border-radius: 999px;
-    overflow: hidden;
+.outcomesHitRateIconOrange {
+    color: rgba(249, 115, 22, 1);
 }
 
-.outcomesBarWin {
-    fill: #16a34a;
+.outcomesHitRateText {
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    color: rgba(15, 23, 42, 0.46);
+    white-space: nowrap;
 }
 
-.outcomesBarLoss {
-    fill: rgba(239, 68, 68, 1);
+.outcomesHitRateTextRed {
+    color: rgba(239, 68, 68, 1);
 }
 
-.outcomesBarVoid {
-    fill: rgba(100, 116, 139, 1);
+.outcomesHitRateTextOrange {
+    color: rgba(249, 115, 22, 1);
 }
 
-.outcomesBarNeutral {
-    fill: rgba(226, 232, 240, 1);
+.outcomesHitRateTextGreen {
+    color: rgba(22, 163, 74, 1);
 }
 
 .splitValue {
