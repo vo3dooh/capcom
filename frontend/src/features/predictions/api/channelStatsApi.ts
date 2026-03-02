@@ -28,6 +28,7 @@ export type ChannelStatsResponse = {
   averageStakePercentBeforeLast50: number;
   averageOddsBeforeLast50: number;
   volatility: number;
+  winRateBeforeLast100: number;
 };
 
 export async function fetchChannelStats(slug: string): Promise<ChannelStatsResponse> {

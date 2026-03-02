@@ -147,6 +147,32 @@
     min-height: 14px;
 }
 
+.hitRateProgress {
+    width: 100%;
+    height: 8px;
+    margin-top: 3px;
+}
+
+.baseTrack {
+    display: block;
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.baseTrackFill {
+    fill: rgba(148, 163, 184, 0.24);
+}
+
+.mainFill {
+    shape-rendering: geometricPrecision;
+}
+
+.deltaOverlay {
+    shape-rendering: geometricPrecision;
+}
+
 
 .changesMetaButton {
     margin-top: 2px;
