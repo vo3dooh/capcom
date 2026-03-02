@@ -500,15 +500,16 @@
 
 
 .outcomesHitRateMeta {
-    margin-top: 2px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    position: relative;
     min-height: 14px;
-}
-
-.outcomesHitRateIconOrange {
-    color: rgba(249, 115, 22, 1);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    vertical-align: top;
+    margin-top: 2px;
 }
 
 .outcomesHitRateText {
@@ -519,16 +520,8 @@
     white-space: nowrap;
 }
 
-.outcomesHitRateTextRed {
-    color: rgba(239, 68, 68, 1);
-}
-
 .outcomesHitRateTextOrange {
     color: rgba(249, 115, 22, 1);
-}
-
-.outcomesHitRateTextGreen {
-    color: rgba(22, 163, 74, 1);
 }
 
 .splitValue {
