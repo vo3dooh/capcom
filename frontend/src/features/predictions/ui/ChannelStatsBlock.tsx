@@ -433,6 +433,69 @@ function MaxDrawdownStat({
     );
 }
 
+function clampProgress(value: number): number {
+    if (value < 0) {
+        return 0;
+    }
+
+    if (value > 1) {
+        return 1;
+    }
+
+    return value;
+}
+
+function HitRateProgress({
+    currentWinRate,
+    winRateBeforeLast100,
+    totalPredictions,
+}: {
+    currentWinRate: number;
+    winRateBeforeLast100: number;
+    totalPredictions: number;
+}) {
+    const normalizedCurrent = clampProgress((currentWinRate - 45) / 15);
+    const normalizedBefore = clampProgress((winRateBeforeLast100 - 45) / 15);
+    const segmentStart = Math.min(normalizedBefore, normalizedCurrent);
+    const segmentWidth = Math.abs(normalizedCurrent - normalizedBefore);
+    const deltaWinRate = currentWinRate - winRateBeforeLast100;
+    const showDelta = totalPredictions >= 150 && deltaWinRate !== 0;
+
+    return (
+        <div className={styles.hitRateProgress} aria-hidden="true">
+            <svg className={styles.baseTrack} viewBox="0 0 100 8" preserveAspectRatio="none" role="presentation">
+                <defs>
+                    <linearGradient id="hitRateMainFill" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#dc2626" />
+                        <stop offset="50%" stopColor="#f59e0b" />
+                        <stop offset="100%" stopColor="#16a34a" />
+                    </linearGradient>
+                    <pattern id="hitRateDeltaPositive" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect width="6" height="6" fill="#16a34a" />
+                        <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
+                    </pattern>
+                    <pattern id="hitRateDeltaNegative" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect width="6" height="6" fill="#dc2626" />
+                        <rect width="3" height="6" fill="rgba(255, 255, 255, 0.28)" />
+                    </pattern>
+                </defs>
+                <rect x="0" y="0" width="100" height="8" className={styles.baseTrackFill} />
+                <rect x="0" y="0" width={normalizedCurrent * 100} height="8" fill="url(#hitRateMainFill)" className={styles.mainFill} />
+                {showDelta && segmentWidth > 0 ? (
+                    <rect
+                        x={segmentStart * 100}
+                        y="0"
+                        width={segmentWidth * 100}
+                        height="8"
+                        className={styles.deltaOverlay}
+                        fill={deltaWinRate > 0 ? "url(#hitRateDeltaPositive)" : "url(#hitRateDeltaNegative)"}
+                    />
+                ) : null}
+            </svg>
+        </div>
+    );
+}
+
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, loading, error } = useChannelStats(slug);
     const [roiHeadBgState, setRoiHeadBgState] = useState<RoiHeadBgState>(() => createRoiHeadBgState());
@@ -603,7 +666,22 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 deltaOdds={deltaOdds}
                 totalPredictions={totalPredictions}
             />
-            <StatItem icon={<Percent size={16} />} title="Проходимость" value={hitRate} meta="W / (W+L)" />
+            <StatItem
+                icon={<Percent size={16} />}
+                title="Проходимость"
+                value={hitRate}
+                meta={
+                    stats ? (
+                        <HitRateProgress
+                            currentWinRate={stats.hitRatePercent}
+                            winRateBeforeLast100={stats.winRateBeforeLast100}
+                            totalPredictions={stats.totalPredictions}
+                        />
+                    ) : (
+                        <HitRateProgress currentWinRate={0} winRateBeforeLast100={0} totalPredictions={0} />
+                    )
+                }
+            />
             <MaxDrawdownStat
                 drawdownMoney={maxDrawdownMoney}
                 drawdownPercent={maxDrawdownPercent}

@@ -67,6 +67,7 @@ type ChannelStatsResponse = {
   averageStakePercentBeforeLast50: number
   averageOddsBeforeLast50: number
   volatility: number
+  winRateBeforeLast100: number
 }
 
 function round2(x: number): number {
@@ -471,6 +472,11 @@ export class ChannelAnalyticsService {
 
     const wl = wins + losses
     const hitRatePercent = wl > 0 ? this.round1((wins / wl) * 100) : 0
+    const settledPredictionsBeforeLast100 = settledPredictions.slice(0, Math.max(0, settledPredictions.length - 100))
+    const winsBeforeLast100 = settledPredictionsBeforeLast100.filter((prediction) => prediction.result === PredictionStatus.win).length
+    const lossesBeforeLast100 = settledPredictionsBeforeLast100.filter((prediction) => prediction.result === PredictionStatus.loss).length
+    const wlBeforeLast100 = winsBeforeLast100 + lossesBeforeLast100
+    const winRateBeforeLast100 = wlBeforeLast100 > 0 ? this.round1((winsBeforeLast100 / wlBeforeLast100) * 100) : 0
     const averageStakePercent = settledPredictions.length > 0 ? this.round1(stakePercentSum / settledPredictions.length) : 0
     const roiPercent = turnover > 0 ? this.round1(((totalWinnings - turnover) / turnover) * 100) : 0
     const averageOdds = settledPredictions.length > 0 ? round2(totalOdds / settledPredictions.length) : 0
@@ -566,7 +572,8 @@ export class ChannelAnalyticsService {
       averageOddsLast50,
       averageStakePercentBeforeLast50,
       averageOddsBeforeLast50,
-      volatility
+      volatility,
+      winRateBeforeLast100
     }
   }
 }
