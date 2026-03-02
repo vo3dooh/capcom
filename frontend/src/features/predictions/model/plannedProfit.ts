@@ -1,11 +1,23 @@
 import type { ChannelStatsResponse } from '../api/channelStatsApi';
 
+const LOW_CONFIDENCE_MOD_THRESHOLD = 0.5;
+const MEDIUM_CONFIDENCE_MOD_THRESHOLD = 0.8;
+const HIGH_CONFIDENCE_MOD_THRESHOLD = 1.1;
+
+export type PlannedProfitConfidenceLevel = 'low' | 'medium' | 'high' | 'maximum';
+
+export type PlannedProfitConfidence = {
+  level: PlannedProfitConfidenceLevel;
+  label: string;
+};
+
 export type PlannedProfitStats = {
   plannedProfitPercent: number;
   modifier: number;
   kMonths: number;
   kEvents: number;
   kRisk: number;
+  confidence: PlannedProfitConfidence;
 };
 
 function resolveMonthsModifier(closedMonthsCount: number): number {
@@ -50,6 +62,34 @@ function resolveRiskModifier(drawdownPercent: number): number {
   return 0.5;
 }
 
+function resolveConfidence(modifier: number): PlannedProfitConfidence {
+  if (modifier < LOW_CONFIDENCE_MOD_THRESHOLD) {
+    return {
+      level: 'low',
+      label: 'Низкое доверие',
+    };
+  }
+
+  if (modifier < MEDIUM_CONFIDENCE_MOD_THRESHOLD) {
+    return {
+      level: 'medium',
+      label: 'Среднее доверие',
+    };
+  }
+
+  if (modifier < HIGH_CONFIDENCE_MOD_THRESHOLD) {
+    return {
+      level: 'high',
+      label: 'Высокое доверие',
+    };
+  }
+
+  return {
+    level: 'maximum',
+    label: 'Максимальное доверие',
+  };
+}
+
 export function calculatePlannedProfitStats(stats: ChannelStatsResponse): PlannedProfitStats {
   const kMonths = resolveMonthsModifier(stats.closedMonthsCount);
   const kEvents = resolveEventsModifier(stats.totalPredictions12Closed);
@@ -57,6 +97,7 @@ export function calculatePlannedProfitStats(stats: ChannelStatsResponse): Planne
   const modifier = kMonths * kEvents * kRisk;
   const baseProfit = stats.closedMonthsCount > 0 ? stats.profit12ClosedPercent / stats.closedMonthsCount : 0;
   const plannedProfitPercent = baseProfit * modifier;
+  const confidence = resolveConfidence(modifier);
 
   return {
     plannedProfitPercent,
@@ -64,5 +105,6 @@ export function calculatePlannedProfitStats(stats: ChannelStatsResponse): Planne
     kMonths,
     kEvents,
     kRisk,
+    confidence,
   };
 }

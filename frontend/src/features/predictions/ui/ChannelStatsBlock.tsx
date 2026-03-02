@@ -19,6 +19,7 @@ import {
     CloudOff,
     ChartNoAxesCombined,
     Goal,
+    Scale,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -447,6 +448,30 @@ function MaxDrawdownStat({
     );
 }
 
+function PlannedProfitConfidenceIndicator({
+    label,
+    level,
+}: {
+    label: string;
+    level: "low" | "medium" | "high" | "maximum";
+}) {
+    const colorClassName =
+        level === "low"
+            ? styles.plannedProfitConfidenceRed
+            : level === "medium"
+                ? styles.plannedProfitConfidenceOrange
+                : styles.plannedProfitConfidenceGreen;
+
+    return (
+        <div className={styles.plannedProfitConfidenceLine}>
+            <span className={`${styles.roiIcon} ${colorClassName}`}>
+                <Scale size={12} />
+            </span>
+            <span className={`${styles.plannedProfitConfidenceText} ${colorClassName}`}>{label}</span>
+        </div>
+    );
+}
+
 export function ChannelStatsBlock({ slug }: { slug: string }) {
     const { stats, plannedProfitStats, loading, error } = useChannelStats(slug);
     const [roiHeadBgState, setRoiHeadBgState] = useState<RoiHeadBgState>(() => createRoiHeadBgState());
@@ -468,11 +493,19 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
     const isExceptionalRoi = !loading && roiPercent >= 10;
 
+    const wins = stats ? stats.outcomes.wins : 0;
+    const losses = stats ? stats.outcomes.losses : 0;
+    const voids = stats ? stats.outcomes.voids : 0;
+    const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
+
+    const isMaximumConfidence = !loading && plannedProfitStats?.confidence.level === "maximum";
+    const shouldAnimateHeadIcon = isExceptionalRoi || isExceptionalHitRate || isMaximumConfidence;
+
     useEffect(() => {
         let intervalTimeoutId: ReturnType<typeof setTimeout> | undefined;
         let switchTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
-        if (!isExceptionalRoi) {
+        if (!shouldAnimateHeadIcon) {
             const resetTimeoutId = setTimeout(() => {
                 setRoiHeadBgState((currentState) =>
                     currentState.activeLayer === null
@@ -554,7 +587,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 clearTimeout(switchTimeoutId);
             }
         };
-    }, [isExceptionalRoi, slug]);
+    }, [shouldAnimateHeadIcon, slug]);
 
     const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
     const profitPercentAllTime = stats
@@ -571,10 +604,8 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
         ? `Mod ${plannedProfitStats.modifier.toFixed(2)} · K_m ${plannedProfitStats.kMonths.toFixed(2)} · K_e ${plannedProfitStats.kEvents.toFixed(2)} · K_r ${plannedProfitStats.kRisk.toFixed(2)}`
         : "Mod 0.00";
 
-    const wins = stats ? stats.outcomes.wins : 0;
-    const losses = stats ? stats.outcomes.losses : 0;
-    const voids = stats ? stats.outcomes.voids : 0;
-    const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
+    const plannedProfitConfidenceLabel = plannedProfitStats ? plannedProfitStats.confidence.label : "...";
+    const plannedProfitConfidenceLevel = plannedProfitStats ? plannedProfitStats.confidence.level : "low";
 
 
     if (error && !stats) return <div className={styles.stateError}>{error}</div>;
@@ -663,7 +694,32 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<Goal size={16} />}
                 title="Планируемая прибыль"
                 value={plannedProfit}
-                meta={plannedProfitMeta}
+                meta={
+                    <div className={styles.plannedProfitMetaGroup}>
+                        <div className={styles.meta}>{plannedProfitMeta}</div>
+                        <PlannedProfitConfidenceIndicator
+                            label={plannedProfitConfidenceLabel}
+                            level={plannedProfitConfidenceLevel}
+                        />
+                    </div>
+                }
+                iconWrapClassName={isMaximumConfidence ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isMaximumConfidence ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
+                }
             />
         </div>
     );
