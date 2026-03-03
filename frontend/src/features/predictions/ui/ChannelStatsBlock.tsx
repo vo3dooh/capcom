@@ -19,11 +19,11 @@ import {
     CloudOff,
     ChartNoAxesCombined,
     Goal,
-    Scale,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
+import { TrustShieldIcon } from "../../../shared/ui/icons/TrustShieldIcon";
 
 const ROI_HEAD_BG_PRESETS = [
     "roiHeadBgPreset1",
@@ -466,7 +466,7 @@ function PlannedProfitStat({
             <div className={styles.metaGroup}>
                 <button type="button" className={styles.roiStatusButton} aria-label="Уровень доверия">
                     <span className={`${styles.roiIcon} ${trustToneClassName}`}>
-                        <Scale size={12} />
+                        <TrustShieldIcon className={styles.trustShieldIcon} />
                     </span>
                     <span className={styles.roiStatusText}>{trustLabel}</span>
                     <span className={styles.roiTooltip} role="tooltip">
