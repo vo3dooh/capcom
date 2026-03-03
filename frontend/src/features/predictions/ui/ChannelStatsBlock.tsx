@@ -324,17 +324,12 @@ function PredictionsAndTurnoverStat({
             </div>
             <SplitValue left={totalPredictions} right={turnoverPercent} loading={loading} />
             <div className={styles.metaGroup}>
-                <button
-                    type="button"
-                    className={styles.activityStatusButton}
-                    aria-label="Уровень активности канала. Рассчитывается по активности канала за последние 30 дней."
-                >
-                    <span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>
-                    <span className={styles.activityStatusText}>{activity.label}</span>
-                    <span className={styles.activityTooltip} role="tooltip">
-                       Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последний месяц и показывает, насколько стабильно публикуются прогнозы.
-                    </span>
-                </button>
+                <MetricStatusTip
+                    icon={<span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>}
+                    text={activity.label}
+                    tooltip="Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последний месяц и показывает, насколько стабильно публикуются прогнозы."
+                    ariaLabel="Уровень активности канала. Рассчитывается по активности канала за последние 30 дней."
+                />
             </div>
         </div>
     );
@@ -905,7 +900,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         text={volatilityLevel.label}
                         tooltip="Уровень стиля ставок отражает степень агрессивности стратегии на основе текущей волатильности. Он характеризует допустимый уровень риска и амплитуду возможных отклонений банкролла."
                         ariaLabel="Стиль волатильности канала"
-                        tooltipClassName={styles.volatilityMetricStatusTooltip}
                     />
                 }
                 helpText={
