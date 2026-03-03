@@ -400,11 +400,7 @@ function StakeAndOddsStat({
                 <span className={`${styles.changesTrendIcon} ${trendIconClassName}`}>
                     <TrendingUpDown size={14} />
                 </span>
-                {isChangesCalculated ? (
-                    <span className={styles.changesMetaTitle}>Динамика</span>
-                ) : (
-                    <span className={styles.changesMetaTitlePlaceholder} aria-hidden="true">Динамика</span>
-                )}
+                {isChangesCalculated ? <span className={styles.changesMetaTitle}>Динамика</span> : null}
                 {isChangesCalculated ? (
                     <>
                         <span className={`${styles.changePart} ${stakeChangeClassName}`}>
@@ -420,7 +416,7 @@ function StakeAndOddsStat({
                         </span>
                     </>
                 ) : (
-                    <span className={`${styles.changePart} ${styles.changeNeutral}`}>Недостаточно дистанции</span>
+                    <span className={`${styles.changePart} ${styles.roiStatusText}`}>Недостаточно дистанции</span>
                 )}
                 <span className={styles.changesTooltip} role="tooltip">
                     <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
