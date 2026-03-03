@@ -518,6 +518,11 @@
     z-index: 10;
 }
 
+
+.volatilityRoiTooltip {
+    min-width: 210px;
+}
+
 .roiStatusButton:hover .roiTooltip,
 .roiStatusButton:focus-visible .roiTooltip {
     opacity: 1;
