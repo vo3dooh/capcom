@@ -121,6 +121,7 @@ function OutcomesStat({
                           loading,
                           winRate,
                           totalBets,
+                          settledPredictions,
                           iconWrapClassName,
                           iconBackground,
                       }: {
@@ -130,6 +131,7 @@ function OutcomesStat({
     loading: boolean;
     winRate: number;
     totalBets: number;
+    settledPredictions: number;
     iconWrapClassName?: string;
     iconBackground?: React.ReactNode;
 }) {
@@ -138,6 +140,11 @@ function OutcomesStat({
             label: "...",
             iconClassName: styles.roiIconGray,
         }
+        : settledPredictions < 10
+            ? {
+                label: "Недостаточно дистанции",
+                iconClassName: styles.roiIconGray,
+            }
         : winRate < 50
             ? {
                 label: "Низкая проходимость",
@@ -288,12 +295,17 @@ function PredictionsAndTurnoverStat({
     );
 }
 
-function RoiLevelIndicator({ roiPercent, loading }: { roiPercent: number; loading: boolean }) {
+function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPercent: number; settledPredictions: number; loading: boolean }) {
     const roiLevel = loading
         ? {
             label: "...",
             iconClassName: styles.roiIconGray,
         }
+        : settledPredictions < 100
+            ? {
+                label: "Недостаточно дистанции",
+                iconClassName: styles.roiIconGray,
+            }
         : roiPercent < 0
             ? {
                 label: "Убыточная доходность",
@@ -753,6 +765,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const wins = stats ? stats.outcomes.wins : 0;
     const losses = stats ? stats.outcomes.losses : 0;
     const voids = stats ? stats.outcomes.voids : 0;
+    const settledPredictions = wins + losses + voids;
     const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
 
 
@@ -773,6 +786,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 loading={loading}
                 winRate={hitRatePercent}
                 totalBets={totalPredictions}
+                settledPredictions={settledPredictions}
                 iconWrapClassName={isExceptionalHitRate ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
                     isExceptionalHitRate ? (
@@ -795,7 +809,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<TrendingUp size={16} className={styles.roiHeadIconGlyph} />}
                 title="ROI"
                 value={roi}
-                meta={<RoiLevelIndicator roiPercent={roiPercent} loading={loading} />}
+                meta={<RoiLevelIndicator roiPercent={roiPercent} settledPredictions={settledPredictions} loading={loading} />}
                 helpText="ROI — показатель эффективности ставок. Он отражает, какой процент прибыли или убытка вы получаете от общего оборота ставок. Чем выше ROI, тем лучше результат на дистанции."
                 iconWrapClassName={isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
