@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsNumber, Min, MaxLength } from 'class-validator'
+import { IsEnum, IsOptional, IsString, IsNumber, Matches, Min, MaxLength } from 'class-validator'
 import { ChannelVisibility, ChannelJoinPolicy, ChannelPredictionsVisibility } from '@prisma/client'
 
 export class UpdateChannelSettingsDto {
@@ -6,6 +6,12 @@ export class UpdateChannelSettingsDto {
   @IsString()
   @MaxLength(100)
   name?: string
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-z0-9-]+$/)
+  @MaxLength(100)
+  slug?: string
 
   @IsOptional()
   @IsString()

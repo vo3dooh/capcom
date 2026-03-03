@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
 import { ChannelsService } from './channels.service'
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
@@ -43,5 +43,12 @@ export class ChannelsController {
   @Post(':slug/leave')
   leave(@Req() req: any, @Param('slug') slug: string) {
     return this.channelsService.leave(slug, req.user.id)
+  }
+
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':slug')
+  remove(@Req() req: any, @Param('slug') slug: string) {
+    return this.channelsService.remove(slug, req.user.id)
   }
 }

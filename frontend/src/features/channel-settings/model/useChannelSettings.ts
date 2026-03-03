@@ -1,36 +1,93 @@
-import { useMemo, useState } from "react";
-import { ChannelSettingsDto, patchChannelSettings } from "../api/channelSettingsApi";
+import { useCallback, useEffect, useState } from "react";
+import { ChannelSettingsDto, ChannelSettingsModel, deleteChannel, fetchChannelSettings, patchChannelSettings } from "../api/channelSettingsApi";
 import { HttpError } from "@/shared/api/http";
 
+const defaultForm: ChannelSettingsDto = {
+    name: "",
+    slug: "",
+    description: "",
+    avatarUrl: "",
+    coverUrl: "",
+    visibility: "public",
+    joinPolicy: "open",
+    predictionsVisibility: "public",
+};
+
+function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
+    return {
+        name: data.name,
+        slug: data.slug,
+        description: data.description ?? "",
+        avatarUrl: data.avatarUrl ?? "",
+        coverUrl: data.coverUrl ?? "",
+        visibility: data.visibility,
+        joinPolicy: data.joinPolicy,
+        predictionsVisibility: data.predictionsVisibility,
+    };
+}
+
 export function useChannelSettings(slug: string) {
+    const [form, setForm] = useState<ChannelSettingsDto>(defaultForm);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [ok, setOk] = useState(false);
 
-    const initial = useMemo(() => {
-        return {
-            visibility: "public" as const,
-            joinPolicy: "open" as const,
-            predictionsVisibility: "public" as const,
-        };
-    }, []);
+    const load = useCallback(() => {
+        setLoading(true);
+        setError(null);
+
+        fetchChannelSettings(slug)
+            .then((data) => setForm(toForm(data)))
+            .catch((e: unknown) => {
+                if (e instanceof HttpError) setError(e.message);
+                else setError("Не удалось загрузить настройки");
+            })
+            .finally(() => setLoading(false));
+    }, [slug]);
+
+    useEffect(() => {
+        load();
+    }, [load]);
 
     async function save(dto: ChannelSettingsDto) {
-        if (saving) return;
+        if (saving) return null;
         setSaving(true);
         setError(null);
         setOk(false);
 
         try {
-            await patchChannelSettings(slug, dto);
+            const updated = await patchChannelSettings(slug, dto);
+            setForm(toForm(updated));
             setOk(true);
+            return updated;
         } catch (e: unknown) {
             if (e instanceof HttpError) setError(e.message);
             else setError("Не удалось сохранить настройки");
+            return null;
         } finally {
             setSaving(false);
         }
     }
 
-    return { save, saving, error, ok, initial };
+    async function removeChannel() {
+        if (deleting) return false;
+        setDeleting(true);
+        setDeleteError(null);
+
+        try {
+            await deleteChannel(slug);
+            return true;
+        } catch (e: unknown) {
+            if (e instanceof HttpError) setDeleteError(e.message);
+            else setDeleteError("Не удалось удалить канал");
+            return false;
+        } finally {
+            setDeleting(false);
+        }
+    }
+
+    return { form, loading, save, saving, error, ok, deleting, deleteError, removeChannel };
 }

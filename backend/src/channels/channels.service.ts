@@ -1,5 +1,6 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
+import { Prisma } from '@prisma/client'
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
 
@@ -322,37 +323,76 @@ export class ChannelsService {
     return { success: true }
   }
 
+
+  async remove(slug: string, userId: string) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { slug },
+      select: { id: true, deletedAt: true }
+    })
+
+    if (!channel || channel.deletedAt) {
+      throw new NotFoundException('Channel not found')
+    }
+
+    const membership = await this.prisma.channelMember.findFirst({
+      where: {
+        channelId: channel.id,
+        userId,
+        status: 'active'
+      },
+      select: { role: true }
+    })
+
+    if (!membership || membership.role !== 'owner') {
+      throw new ForbiddenException('No permission to delete channel')
+    }
+
+    await this.prisma.channel.delete({
+      where: { id: channel.id }
+    })
+
+    return { success: true }
+  }
+
   async updateSettings(slug: string, userId: string, dto: UpdateChannelSettingsDto) {
     const channel = await this.requireChannelBySlug(slug)
     await this.requireEditorRole(channel.id, userId)
 
-    return this.prisma.channel.update({
-      where: { id: channel.id },
-      data: {
-        name: dto.name ?? undefined,
-        description: dto.description ?? undefined,
-        avatarUrl: dto.avatarUrl ?? undefined,
-        coverUrl: dto.coverUrl ?? undefined,
-        visibility: dto.visibility ?? undefined,
-        joinPolicy: dto.joinPolicy ?? undefined,
-        predictionsVisibility: dto.predictionsVisibility ?? undefined,
-        startingBankroll: dto.startingBankroll ?? undefined,
-        bankrollCurrency: dto.bankrollCurrency ?? undefined
-      },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            username: true,
-            handle: true,
-            avatarUrl: true
-          }
+    try {
+      return await this.prisma.channel.update({
+        where: { id: channel.id },
+        data: {
+          name: dto.name ?? undefined,
+          slug: dto.slug ?? undefined,
+          description: dto.description ?? undefined,
+          avatarUrl: dto.avatarUrl ?? undefined,
+          coverUrl: dto.coverUrl ?? undefined,
+          visibility: dto.visibility ?? undefined,
+          joinPolicy: dto.joinPolicy ?? undefined,
+          predictionsVisibility: dto.predictionsVisibility ?? undefined,
+          startingBankroll: dto.startingBankroll ?? undefined,
+          bankrollCurrency: dto.bankrollCurrency ?? undefined
         },
-        stats: true,
-        sports: {
-          include: { sport: true }
+        include: {
+          owner: {
+            select: {
+              id: true,
+              username: true,
+              handle: true,
+              avatarUrl: true
+            }
+          },
+          stats: true,
+          sports: {
+            include: { sport: true }
+          }
         }
+      })
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        throw new ConflictException('Slug is already taken')
       }
-    })
+      throw e
+    }
   }
 }
