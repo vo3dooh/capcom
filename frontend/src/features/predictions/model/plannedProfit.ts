@@ -93,7 +93,12 @@ export function calculatePlannedProfitStats(stats: ChannelStatsResponse): Planne
   const kRisk = resolveRiskModifier(stats.maxDrawdownPercent12Closed);
   const modifier = kMonths * kEvents * kRisk;
   const baseProfit = stats.closedMonthsCount > 0 ? stats.profit12ClosedPercent / stats.closedMonthsCount : 0;
-  const plannedProfitPercent = baseProfit * modifier;
+
+  const neutralModifier = kMonths * kEvents;
+  const neutralProfit = baseProfit * neutralModifier;
+  const neutralProfitCapped = baseProfit >= 0 ? Math.min(neutralProfit, baseProfit) : Math.max(neutralProfit, baseProfit);
+
+  const plannedProfitPercent = neutralProfitCapped * kRisk;
   const trustInfo = resolvePlannedProfitTrustInfo(modifier);
 
   return {
