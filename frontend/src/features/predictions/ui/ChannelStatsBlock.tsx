@@ -400,7 +400,11 @@ function StakeAndOddsStat({
                 <span className={`${styles.changesTrendIcon} ${trendIconClassName}`}>
                     <TrendingUpDown size={14} />
                 </span>
-                <span className={styles.changesMetaTitle}>Динамика</span>
+                {isChangesCalculated ? (
+                    <span className={styles.changesMetaTitle}>Динамика</span>
+                ) : (
+                    <span className={styles.changesMetaTitlePlaceholder} aria-hidden="true">Динамика</span>
+                )}
                 {isChangesCalculated ? (
                     <>
                         <span className={`${styles.changePart} ${stakeChangeClassName}`}>
@@ -419,15 +423,22 @@ function StakeAndOddsStat({
                     <span className={`${styles.changePart} ${styles.changeNeutral}`}>Недостаточно дистанции</span>
                 )}
                 <span className={styles.changesTooltip} role="tooltip">
-                    <span className={styles.changesTooltipLine}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
-                    <span className={styles.changesTooltipLine}>Он помогает понять, сохраняет ли прогнозист свой стиль ставок или меняет подход.</span>
-                    <span className={styles.changesTooltipLine}>
-                        <TrendingUpDown size={12} className={styles.changesTooltipIconNegative} />
-                        <span>Красный индикатор сигнализирует о корректировке стратегии или изменении степени агрессивности.</span>
+                    <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
+                    <span className={styles.changesTooltipParagraph}>Он помогает понять, сохраняет ли прогнозист свой стиль ставок или меняет подход.</span>
+                    <span className={styles.changesTooltipDivider} />
+                    <span className={styles.changesTooltipIndicatorBlock}>
+                        <span className={styles.changesTooltipIndicatorTitle}>
+                            <TrendingUpDown size={12} className={styles.changesTooltipIconNegative} />
+                            <span>Красный индикатор</span>
+                        </span>
+                        <span className={styles.changesTooltipParagraph}>Сигнализирует о корректировке стратегии или изменении степени агрессивности.</span>
                     </span>
-                    <span className={styles.changesTooltipLine}>
-                        <TrendingUpDown size={12} className={styles.changesTooltipIconPositive} />
-                        <span>Зелёный индикатор указывает на сохранение выбранной стратегии и стиля ставок.</span>
+                    <span className={styles.changesTooltipIndicatorBlock}>
+                        <span className={styles.changesTooltipIndicatorTitle}>
+                            <TrendingUpDown size={12} className={styles.changesTooltipIconPositive} />
+                            <span>Зелёный индикатор</span>
+                        </span>
+                        <span className={styles.changesTooltipParagraph}>Указывает на сохранение выбранной стратегии и стиля ставок.</span>
                     </span>
                 </span>
             </button>
