@@ -174,17 +174,17 @@ function OutcomesStat({
     const hitRateLevel = loading
         ? {
             label: "...",
-            iconClassName: styles.roiIconGray,
+            iconClassName: styles.metricIconGray,
         }
         : settledPredictions < 10
             ? {
                 label: "Недостаточно дистанции",
-                iconClassName: styles.roiIconGray,
+                iconClassName: styles.metricIconGray,
             }
         : winRate < 50
             ? {
                 label: "Низкая проходимость",
-                iconClassName: styles.roiIconRed,
+                iconClassName: styles.metricIconRed,
             }
             : winRate < 55
                 ? {
@@ -194,11 +194,11 @@ function OutcomesStat({
                 : winRate < 60 || totalBets <= 100
                     ? {
                         label: "Хорошая проходимость",
-                        iconClassName: styles.roiIconGreen,
+                        iconClassName: styles.metricIconGreen,
                     }
                     : {
                         label: "Высокая проходимость",
-                        iconClassName: styles.roiIconGreen,
+                        iconClassName: styles.metricIconGreen,
                     };
     const winRateLabel = `${winRate.toFixed(1).replace(".", ",")}%`;
 
@@ -235,7 +235,7 @@ function OutcomesStat({
 
             {loading || settledPredictions < 10 ? (
                 <div className={styles.outcomesHitRateMeta}>
-                    <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
+                    <span className={`${styles.metricIcon} ${hitRateLevel.iconClassName}`}>
                         <Percent size={12} />
                     </span>
                     <span className={styles.metricStatusText}>{hitRateLevel.label}</span>
@@ -243,7 +243,7 @@ function OutcomesStat({
             ) : (
                 <MetricStatusTip
                     icon={
-                        <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
+                        <span className={`${styles.metricIcon} ${hitRateLevel.iconClassName}`}>
                             <Percent size={12} />
                         </span>
                     }
@@ -294,24 +294,24 @@ function PredictionsAndTurnoverStat({
         ? {
             label: "...",
             icon: <Cloud size={12} />,
-            iconClassName: styles.activityIconLoading,
+            iconClassName: styles.metricIconLoading,
         }
         : activeDays30d < 10
             ? {
                 label: "Низкая активность",
                 icon: <CloudOff size={12} />,
-                iconClassName: styles.activityIconLow,
+                iconClassName: styles.metricIconLow,
             }
             : activeDays30d < 20
                 ? {
                     label: "Средняя активность",
                     icon: <Cloud size={12} />,
-                    iconClassName: styles.activityIconMedium,
+                    iconClassName: styles.metricIconMedium,
                 }
                 : {
                     label: "Высокая активность",
                     icon: <CloudCheck size={12} />,
-                    iconClassName: styles.activityIconHigh,
+                    iconClassName: styles.metricIconHigh,
                 };
 
     return (
@@ -325,7 +325,7 @@ function PredictionsAndTurnoverStat({
             <SplitValue left={totalPredictions} right={turnoverPercent} loading={loading} />
             <div className={styles.metaGroup}>
                 <MetricStatusTip
-                    icon={<span className={`${styles.activityIcon} ${activity.iconClassName}`}>{activity.icon}</span>}
+                    icon={<span className={`${styles.metricIcon} ${activity.iconClassName}`}>{activity.icon}</span>}
                     text={activity.label}
                     tooltip="Этот показатель отражает регулярность работы канала. Рассчитывается по числу активных дней за последний месяц и показывает, насколько стабильно публикуются прогнозы."
                     ariaLabel="Уровень активности канала. Рассчитывается по активности канала за последние 30 дней."
@@ -339,42 +339,42 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
     const roiLevel = loading
         ? {
             label: "...",
-            iconClassName: styles.roiIconGray,
+            iconClassName: styles.metricIconGray,
         }
         : settledPredictions < 100
             ? {
                 label: "Недостаточно дистанции",
-                iconClassName: styles.roiIconGray,
+                iconClassName: styles.metricIconGray,
             }
         : roiPercent < 0
             ? {
                 label: "Убыточная доходность",
-                iconClassName: styles.roiIconRed,
+                iconClassName: styles.metricIconRed,
             }
             : roiPercent < 2
                 ? {
                     label: "Низкая доходность",
-                    iconClassName: styles.roiIconGray,
+                    iconClassName: styles.metricIconGray,
                 }
                 : roiPercent < 5
                     ? {
                         label: "Уверенная доходность",
-                        iconClassName: styles.roiIconLightGreen,
+                        iconClassName: styles.metricIconLightGreen,
                     }
                     : roiPercent < 10
                         ? {
                             label: "Высокая доходность",
-                            iconClassName: styles.roiIconGreen,
+                            iconClassName: styles.metricIconGreen,
                         }
                         : {
                             label: "Высокая доходность",
-                            iconClassName: `${styles.roiIconGreen} ${styles.roiIconExceptional}`,
+                            iconClassName: `${styles.metricIconGreen} ${styles.metricIconExceptional}`,
                         };
 
     return (
         <MetricStatusTip
             icon={
-                <span className={`${styles.roiIcon} ${roiLevel.iconClassName}`}>
+                <span className={`${styles.metricIcon} ${roiLevel.iconClassName}`}>
                     <ChartNoAxesCombined size={12} />
                 </span>
             }
@@ -556,7 +556,7 @@ function PlannedProfitStat({
             <div className={styles.metaGroup}>
                 <MetricStatusTip
                     icon={
-                        <span className={`${styles.roiIcon} ${trustToneClassName}`}>
+                        <span className={`${styles.metricIcon} ${trustToneClassName}`}>
                             <TrustIcon size={12} className={styles.trustShieldIcon} />
                         </span>
                     }
@@ -602,7 +602,7 @@ function MaxDrawdownStat({
             <div className={styles.metaGroup}>
                 <MetricStatusTip
                     icon={
-                        <span className={`${styles.roiIcon} ${riskIconClassName}`}>
+                        <span className={`${styles.metricIcon} ${riskIconClassName}`}>
                             <Gauge size={12} />
                         </span>
                     }
@@ -741,12 +741,12 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const drawdownRiskLevel = settledPredictions < 100
         ? {
             label: "Высокий риск",
-            iconClassName: styles.roiIconGray,
+            iconClassName: styles.metricIconGray,
         }
         : ddPercentValue > 75
             ? {
                 label: "Критический риск",
-                iconClassName: styles.roiIconRed,
+                iconClassName: styles.metricIconRed,
             }
             : ddPercentValue >= 51
                 ? {
@@ -756,11 +756,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 : ddPercentValue >= 31
                     ? {
                         label: "Умеренный риск",
-                        iconClassName: styles.roiIconGreen,
+                        iconClassName: styles.metricIconGreen,
                     }
                     : {
                         label: "Низкий риск",
-                        iconClassName: styles.roiIconGreen,
+                        iconClassName: styles.metricIconGreen,
                     };
     const isLowRiskHighlighted = settledPredictions >= 100 && ddPercentValue <= 30;
     const volatilityValue = stats ? stats.volatility : 0;
@@ -768,22 +768,22 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const volatilityLevel = loading
         ? {
             label: "...",
-            iconClassName: styles.roiIconGray,
+            iconClassName: styles.metricIconGray,
         }
         : settledPredictions < 100
             ? {
                 label: "Недостаточно дистанции",
-                iconClassName: styles.roiIconGray,
+                iconClassName: styles.metricIconGray,
             }
             : volatilityValue <= 25
                 ? {
                     label: "Спокойный стиль",
-                    iconClassName: styles.roiIconGreen,
+                    iconClassName: styles.metricIconGreen,
                 }
                 : volatilityValue <= 50
                     ? {
                         label: "Динамичный стиль",
-                        iconClassName: styles.roiIconGreen,
+                        iconClassName: styles.metricIconGreen,
                     }
                     : volatilityValue <= 75
                         ? {
@@ -792,7 +792,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         }
                         : {
                             label: "Экстремальный стиль",
-                            iconClassName: styles.roiIconRed,
+                            iconClassName: styles.metricIconRed,
                         };
     const isVolatilityExceptional = settledPredictions >= 100 && volatilityValue <= 25;
     const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
@@ -893,7 +893,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 meta={
                     <MetricStatusTip
                         icon={
-                            <span className={`${styles.roiIcon} ${volatilityLevel.iconClassName}`}>
+                            <span className={`${styles.metricIcon} ${volatilityLevel.iconClassName}`}>
                                 <HeartPulse size={12} />
                             </span>
                         }
