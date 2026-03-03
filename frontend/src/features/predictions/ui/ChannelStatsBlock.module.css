@@ -689,7 +689,7 @@
     position: absolute;
     top: 18px;
     right: 0;
-    min-width: 180px;
+    min-width: 220px;
     max-width: 240px;
     padding: 8px;
     border-radius: 10px;
@@ -705,6 +705,15 @@
     visibility: hidden;
     pointer-events: none;
     z-index: 10;
+}
+
+
+.helpTooltipParagraph {
+    margin: 0;
+}
+
+.helpTooltipParagraph + .helpTooltipParagraph {
+    margin-top: 8px;
 }
 
 .helpButton:hover .helpTooltip,

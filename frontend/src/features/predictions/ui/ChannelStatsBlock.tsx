@@ -77,21 +77,22 @@ type StatItemProps = {
     title: string;
     value: string | number;
     meta?: React.ReactNode;
-    helpText?: string;
+    helpText?: React.ReactNode;
     iconWrapClassName?: string;
     iconBackground?: React.ReactNode;
 };
 
 type HelpTipProps = {
-    text: string;
+    content: React.ReactNode;
+    ariaLabelText: string;
 };
 
-function HelpTip({ text }: HelpTipProps) {
+function HelpTip({ content, ariaLabelText }: HelpTipProps) {
     return (
-        <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${text}`}>
+        <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${ariaLabelText}`}>
             <BadgeInfo size={14} />
             <span className={styles.helpTooltip} role="tooltip">
-                {text}
+                {content}
             </span>
         </button>
     );
@@ -100,7 +101,7 @@ function HelpTip({ text }: HelpTipProps) {
 function StatItem({ icon, title, value, meta, helpText, iconWrapClassName, iconBackground }: StatItemProps) {
     return (
         <div className={styles.statItem}>
-            {helpText ? <HelpTip text={helpText} /> : null}
+            {helpText ? <HelpTip content={helpText} ariaLabelText={title} /> : null}
             <div className={styles.statHead}>
                 <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
                     {iconBackground}
@@ -552,7 +553,7 @@ function MaxDrawdownStat({
 }) {
     return (
         <div className={styles.statItem}>
-            <HelpTip text={helpText} />
+            <HelpTip content={helpText} ariaLabelText="Максимальная просадка" />
             <div className={styles.statHead}>
                 <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
                     {iconBackground}
@@ -861,7 +862,19 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         </span>
                     </button>
                 }
-                helpText="Волатильность — отражение степени разброса прибыли относительно среднего значения и устойчивости стратегии к отклонениям. Чем выше показатель, тем выше вероятность резких изменений капитала — как в сторону роста, так и в сторону просадки. Низкая волатильность говорит о более ровной динамике и меньшей вероятности экстремальных колебаний. Метрика особенно важна при работе с крупным банкроллом и помогает оценить риск-профиль канала, потенциальную глубину просадок и сопоставить стратегию с вашим допустимым уровнем риска."
+                helpText={
+                    <>
+                        <p className={styles.helpTooltipParagraph}>
+                            Волатильность — отражение степени разброса прибыли относительно среднего значения и устойчивости стратегии к отклонениям.
+                        </p>
+                        <p className={styles.helpTooltipParagraph}>
+                            Чем выше показатель, тем выше вероятность резких изменений капитала — как в сторону роста, так и в сторону просадки. Низкая волатильность говорит о более ровной динамике и меньшей вероятности экстремальных колебаний.
+                        </p>
+                        <p className={styles.helpTooltipParagraph}>
+                            Метрика особенно важна при работе с крупным банкроллом и помогает оценить риск-профиль канала, потенциальную глубину просадок и сопоставить стратегию с вашим допустимым уровнем риска.
+                        </p>
+                    </>
+                }
                 iconWrapClassName={isVolatilityExceptional ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
                     isVolatilityExceptional ? (
