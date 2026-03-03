@@ -22,6 +22,7 @@ import {
     Shield,
     ShieldX,
     ShieldCheck,
+    Gauge,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -500,23 +501,42 @@ function MaxDrawdownStat({
                              drawdownPercent,
                              loading,
                              helpText,
+                             riskLabel,
+                             riskIconClassName,
+                             iconWrapClassName,
+                             iconBackground,
                          }: {
     drawdownMoney: string;
     drawdownPercent: string;
     loading: boolean;
     helpText: string;
+    riskLabel: string;
+    riskIconClassName: string;
+    iconWrapClassName?: string;
+    iconBackground?: React.ReactNode;
 }) {
     return (
         <div className={styles.statItem}>
             <HelpTip text={helpText} />
             <div className={styles.statHead}>
-                <div className={styles.iconWrap}>
-                    <ShieldAlert size={16} />
+                <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
+                    {iconBackground}
+                    <ShieldAlert size={16} className={styles.roiHeadIconGlyph} />
                 </div>
                 <div className={styles.title}>Максимальная просадка</div>
             </div>
             <SplitValue left={drawdownMoney} right={drawdownPercent} loading={loading} />
-            <div className={styles.meta}>$ | % от банкролла</div>
+            <div className={styles.metaGroup}>
+                <button type="button" className={styles.roiStatusButton} aria-label="Уровень риска">
+                    <span className={`${styles.roiIcon} ${riskIconClassName}`}>
+                        <Gauge size={12} />
+                    </span>
+                    <span className={styles.roiStatusText}>{riskLabel}</span>
+                    <span className={styles.roiTooltip} role="tooltip">
+                        Уровень риска рассчитывается по максимальной просадке и объёму выборки прогнозов.
+                    </span>
+                </button>
+            </div>
         </div>
     );
 }
@@ -638,7 +658,33 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             : "0.0%";
 
     const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
-    const maxDrawdownPercent = stats && stats.startingBankroll > 0 ? `${((stats.maxDrawdown / stats.startingBankroll) * 100).toFixed(1)}%` : "0.0%";
+    const ddPercentValue = stats && stats.startingBankroll > 0 ? (stats.maxDrawdown / stats.startingBankroll) * 100 : 0;
+    const maxDrawdownPercent = `${ddPercentValue.toFixed(1)}%`;
+    const drawdownRiskLevel = totalPredictions < 100
+        ? {
+            label: "Высокий риск",
+            iconClassName: styles.roiIconGray,
+        }
+        : ddPercentValue > 75
+            ? {
+                label: "Критический риск",
+                iconClassName: styles.roiIconRed,
+            }
+            : ddPercentValue >= 51
+                ? {
+                    label: "Повышенный риск",
+                    iconClassName: styles.outcomesHitRateIconOrange,
+                }
+                : ddPercentValue >= 31
+                    ? {
+                        label: "Умеренный риск",
+                        iconClassName: styles.roiIconGreen,
+                    }
+                    : {
+                        label: "Низкий риск",
+                        iconClassName: styles.roiIconGreen,
+                    };
+    const isLowRiskHighlighted = totalPredictions >= 100 && ddPercentValue <= 30;
     const volatility = stats ? stats.volatility.toFixed(2) : loading ? "..." : "0.00";
     const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
     const plannedProfitTrust = plannedProfitStats
@@ -737,6 +783,25 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 drawdownPercent={maxDrawdownPercent}
                 loading={loading}
                 helpText="Максимальное падение банкролла от локального пика до минимума за период."
+                riskLabel={drawdownRiskLevel.label}
+                riskIconClassName={drawdownRiskLevel.iconClassName}
+                iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isLowRiskHighlighted ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
+                }
             />
             <StatItem
                 icon={<Activity size={16} />}
