@@ -145,6 +145,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     min-height: 14px;
+    cursor: default;
 }
 
 .metaWithTooltip {
@@ -163,6 +164,7 @@
     background: transparent;
     vertical-align: top;
     color: rgba(15, 23, 42, 0.46);
+    cursor: default;
 }
 
 .tooltipBase {
@@ -189,6 +191,7 @@
     white-space: nowrap;
     color: rgba(15, 23, 42, 0.46);
     padding: 0 2px;
+    cursor: default;
 }
 
 .changesMetaTitlePlaceholder {
@@ -222,6 +225,7 @@
     line-height: 14px;
     font-weight: 600;
     white-space: nowrap;
+    cursor: default;
 }
 
 .changePart svg {
@@ -303,33 +307,36 @@
     max-height: 14px;
 }
 
-.activityIcon {
+.metricIcon {
     width: 12px;
     height: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
+    cursor: default;
 }
 
-.activityIcon svg {
+.metricIcon svg {
     width: 12px;
     height: 12px;
+    stroke: currentColor;
+    fill: none;
 }
 
-.activityIconLoading {
+.metricIconLoading {
     color: rgba(100, 116, 139, 1);
 }
 
-.activityIconLow {
+.metricIconLow {
     color: rgba(239, 68, 68, 1);
 }
 
-.activityIconMedium {
+.metricIconMedium {
     color: rgba(249, 115, 22, 1);
 }
 
-.activityIconHigh {
+.metricIconHigh {
     color: rgba(22, 163, 74, 1);
 }
 
@@ -343,6 +350,7 @@
     border: 0;
     background: transparent;
     vertical-align: top;
+    cursor: default;
 }
 
 .metricStatusText {
@@ -351,22 +359,7 @@
     font-weight: 600;
     color: rgba(15, 23, 42, 0.46);
     white-space: nowrap;
-}
-
-.roiIcon {
-    width: 12px;
-    height: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-}
-
-.roiIcon svg {
-    width: 12px;
-    height: 12px;
-    stroke: currentColor;
-    fill: none;
+    cursor: default;
 }
 
 .trustShieldIcon {
@@ -376,7 +369,7 @@
     stroke: none;
 }
 
-.roiIconRed {
+.metricIconRed {
     color: rgba(239, 68, 68, 1);
 }
 
@@ -384,15 +377,15 @@
     color: rgba(249, 115, 22, 1);
 }
 
-.roiIconGray {
+.metricIconGray {
     color: rgba(100, 116, 139, 1);
 }
 
-.roiIconLightGreen {
+.metricIconLightGreen {
     color: rgba(74, 222, 128, 1);
 }
 
-.roiIconGreen {
+.metricIconGreen {
     color: rgba(22, 163, 74, 1);
 }
 
@@ -413,7 +406,7 @@
     color: rgba(100, 116, 139, 1);
 }
 
-.roiIconExceptional {
+.metricIconExceptional {
     width: 12px;
     height: 12px;
     stroke: #0f7a3a;
@@ -515,6 +508,7 @@
     background: transparent;
     vertical-align: top;
     margin-top: 2px;
+    cursor: default;
 }
 
 
@@ -588,6 +582,7 @@
     padding: 0;
     border: 0;
     background: transparent;
+    cursor: default;
 }
 
 .helpButton svg {
