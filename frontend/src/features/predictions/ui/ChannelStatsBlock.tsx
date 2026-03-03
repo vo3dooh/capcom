@@ -88,12 +88,46 @@ type HelpTipProps = {
     ariaLabelText: string;
 };
 
+type MetricStatusTipProps = {
+    icon: React.ReactNode;
+    text: string;
+    tooltip: React.ReactNode;
+    ariaLabel: string;
+    buttonClassName?: string;
+    textClassName?: string;
+    tooltipClassName?: string;
+};
+
 function HelpTip({ content, ariaLabelText }: HelpTipProps) {
     return (
         <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${ariaLabelText}`}>
             <BadgeInfo size={14} />
             <span className={styles.helpTooltip} role="tooltip">
                 {content}
+            </span>
+        </button>
+    );
+}
+
+function MetricStatusTip({
+    icon,
+    text,
+    tooltip,
+    ariaLabel,
+    buttonClassName,
+    textClassName,
+    tooltipClassName,
+}: MetricStatusTipProps) {
+    return (
+        <button
+            type="button"
+            className={`${styles.metricStatusButton} ${buttonClassName ?? ""}`.trim()}
+            aria-label={ariaLabel}
+        >
+            {icon}
+            <span className={`${styles.metricStatusText} ${textClassName ?? ""}`.trim()}>{text}</span>
+            <span className={`${styles.metricStatusTooltip} ${tooltipClassName ?? ""}`.trim()} role="tooltip">
+                {tooltip}
             </span>
         </button>
     );
@@ -199,21 +233,30 @@ function OutcomesStat({
                 </div>
             </div>
 
-            <button
-                type="button"
-                className={styles.outcomesHitRateMeta}
-                aria-label="Уровень проходимости канала"
-            >
-                <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
-                    <Percent size={12} />
-                </span>
-                <span className={styles.outcomesHitRateText}>{hitRateLevel.label}</span>
-                {loading ? null : (
-                    <span className={styles.outcomesHitRateTooltip} role="tooltip">
-                        Проходимость прогнозов на канале — <strong>{winRateLabel}</strong>
+            {loading || settledPredictions < 10 ? (
+                <div className={styles.outcomesHitRateMeta}>
+                    <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
+                        <Percent size={12} />
                     </span>
-                )}
-            </button>
+                    <span className={styles.metricStatusText}>{hitRateLevel.label}</span>
+                </div>
+            ) : (
+                <MetricStatusTip
+                    icon={
+                        <span className={`${styles.roiIcon} ${hitRateLevel.iconClassName}`}>
+                            <Percent size={12} />
+                        </span>
+                    }
+                    text={hitRateLevel.label}
+                    tooltip={
+                        <>
+                            Проходимость прогнозов на канале — <strong>{winRateLabel}</strong>
+                        </>
+                    }
+                    ariaLabel="Уровень проходимости канала"
+                    buttonClassName={styles.outcomesHitRateMeta}
+                />
+            )}
         </div>
     );
 }
@@ -334,19 +377,16 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
                         };
 
     return (
-        <button
-            type="button"
-            className={styles.roiStatusButton}
-            aria-label="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
-        >
-            <span className={`${styles.roiIcon} ${roiLevel.iconClassName}`}>
-                <ChartNoAxesCombined size={12} />
-            </span>
-            <span className={styles.roiStatusText}>{roiLevel.label}</span>
-            <span className={styles.roiTooltip} role="tooltip">
-                Уровень доходности рассчитывается по ROI за выбранный период. Чем выше ROI, тем выше уровень.
-            </span>
-        </button>
+        <MetricStatusTip
+            icon={
+                <span className={`${styles.roiIcon} ${roiLevel.iconClassName}`}>
+                    <ChartNoAxesCombined size={12} />
+                </span>
+            }
+            text={roiLevel.label}
+            tooltip="Уровень доходности рассчитывается по ROI за выбранный период. Чем выше ROI, тем выше уровень."
+            ariaLabel="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
+        />
     );
 }
 
@@ -356,16 +396,16 @@ function StakeAndOddsStat({
                               loading,
                               deltaStake,
                               deltaOdds,
-                              totalPredictions,
+                              settledPredictions,
                           }: {
     stakePercent: string;
     odds: string;
     loading: boolean;
     deltaStake: number;
     deltaOdds: number;
-    totalPredictions: number;
+    settledPredictions: number;
 }) {
-    const isChangesCalculated = totalPredictions >= 100;
+    const isChangesCalculated = settledPredictions >= 100;
     const effectiveDeltaStake = isChangesCalculated ? deltaStake : 0;
     const effectiveDeltaOdds = isChangesCalculated ? deltaOdds : 0;
     const combinedDelta = Math.abs(effectiveDeltaStake) + Math.abs(effectiveDeltaOdds);
@@ -418,7 +458,7 @@ function StakeAndOddsStat({
                         </span>
                     </>
                 ) : (
-                    <span className={`${styles.changePart} ${styles.roiStatusText}`}>Недостаточно дистанции</span>
+                    <span className={`${styles.changePart} ${styles.metricStatusText}`}>Недостаточно дистанции</span>
                 )}
                 <span className={styles.changesTooltip} role="tooltip">
                     <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
@@ -519,15 +559,16 @@ function PlannedProfitStat({
             </div>
             <div className={styles.value}>{plannedProfit}</div>
             <div className={styles.metaGroup}>
-                <button type="button" className={styles.roiStatusButton} aria-label="Уровень доверия">
-                    <span className={`${styles.roiIcon} ${trustToneClassName}`}>
-                        <TrustIcon size={12} className={styles.trustShieldIcon} />
-                    </span>
-                    <span className={styles.roiStatusText}>{trustLabel}</span>
-                    <span className={styles.roiTooltip} role="tooltip">
-                        Уровень доверия рассчитывается на основе комплексной оценки ключевых статистических параметров канала: объёма выборки, продолжительности активности, стабильности результатов и уровня риска. Показатель отражает степень надёжности представленной статистики.
-                    </span>
-                </button>
+                <MetricStatusTip
+                    icon={
+                        <span className={`${styles.roiIcon} ${trustToneClassName}`}>
+                            <TrustIcon size={12} className={styles.trustShieldIcon} />
+                        </span>
+                    }
+                    text={trustLabel}
+                    tooltip="Уровень доверия рассчитывается на основе комплексной оценки ключевых статистических параметров канала: объёма выборки, продолжительности активности, стабильности результатов и уровня риска. Показатель отражает степень надёжности представленной статистики."
+                    ariaLabel="Уровень доверия"
+                />
             </div>
         </div>
     );
@@ -564,15 +605,16 @@ function MaxDrawdownStat({
             </div>
             <SplitValue left={drawdownMoney} right={drawdownPercent} loading={loading} />
             <div className={styles.metaGroup}>
-                <button type="button" className={styles.roiStatusButton} aria-label="Уровень риска">
-                    <span className={`${styles.roiIcon} ${riskIconClassName}`}>
-                        <Gauge size={12} />
-                    </span>
-                    <span className={styles.roiStatusText}>{riskLabel}</span>
-                    <span className={styles.roiTooltip} role="tooltip">
-                        Уровень риска рассчитывается по максимальной просадке и объёму выборки прогнозов.
-                    </span>
-                </button>
+                <MetricStatusTip
+                    icon={
+                        <span className={`${styles.roiIcon} ${riskIconClassName}`}>
+                            <Gauge size={12} />
+                        </span>
+                    }
+                    text={riskLabel}
+                    tooltip="Уровень риска рассчитывается по максимальной просадке и объёму выборки прогнозов."
+                    ariaLabel="Уровень риска"
+                />
             </div>
         </div>
     );
@@ -587,6 +629,10 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const activeDays30d = stats ? stats.activeDays30d : 0;
 
     const hitRatePercent = stats ? stats.hitRatePercent : 0;
+    const wins = stats ? stats.outcomes.wins : 0;
+    const losses = stats ? stats.outcomes.losses : 0;
+    const voids = stats ? stats.outcomes.voids : 0;
+    const settledPredictions = wins + losses + voids;
 
     const avgStake = stats ? `${stats.averageStakePercent.toFixed(1)}%` : "0.0%";
     const avgOdds = stats ? stats.averageOdds.toFixed(2) : "0.00";
@@ -697,7 +743,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
     const ddPercentValue = stats && stats.startingBankroll > 0 ? (stats.maxDrawdown / stats.startingBankroll) * 100 : 0;
     const maxDrawdownPercent = `${ddPercentValue.toFixed(1)}%`;
-    const drawdownRiskLevel = totalPredictions < 100
+    const drawdownRiskLevel = settledPredictions < 100
         ? {
             label: "Высокий риск",
             iconClassName: styles.roiIconGray,
@@ -721,7 +767,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         label: "Низкий риск",
                         iconClassName: styles.roiIconGreen,
                     };
-    const isLowRiskHighlighted = totalPredictions >= 100 && ddPercentValue <= 30;
+    const isLowRiskHighlighted = settledPredictions >= 100 && ddPercentValue <= 30;
     const volatilityValue = stats ? stats.volatility : 0;
     const volatility = stats ? volatilityValue.toFixed(2) : loading ? "..." : "0.00";
     const volatilityLevel = loading
@@ -729,7 +775,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
             label: "...",
             iconClassName: styles.roiIconGray,
         }
-        : totalPredictions < 100
+        : settledPredictions < 100
             ? {
                 label: "Недостаточно дистанции",
                 iconClassName: styles.roiIconGray,
@@ -753,7 +799,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                             label: "Экстремальный стиль",
                             iconClassName: styles.roiIconRed,
                         };
-    const isVolatilityExceptional = totalPredictions >= 100 && volatilityValue <= 25;
+    const isVolatilityExceptional = settledPredictions >= 100 && volatilityValue <= 25;
     const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
     const plannedProfitTrust = plannedProfitStats
         ? {
@@ -771,10 +817,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
         };
     const isPlannedProfitTrustHighlighted = Boolean(plannedProfitStats?.isTrustHighlighted);
 
-    const wins = stats ? stats.outcomes.wins : 0;
-    const losses = stats ? stats.outcomes.losses : 0;
-    const voids = stats ? stats.outcomes.voids : 0;
-    const settledPredictions = wins + losses + voids;
     const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
 
 
@@ -846,7 +888,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 loading={loading}
                 deltaStake={deltaStake}
                 deltaOdds={deltaOdds}
-                totalPredictions={totalPredictions}
+                settledPredictions={settledPredictions}
             />
             <StatItem
                 icon={<Activity size={16} />}
@@ -854,15 +896,17 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 value={volatility}
                 metaClassName={styles.metaWithTooltip}
                 meta={
-                    <button type="button" className={styles.roiStatusButton} aria-label="Стиль волатильности канала">
-                        <span className={`${styles.roiIcon} ${volatilityLevel.iconClassName}`}>
-                            <HeartPulse size={12} />
-                        </span>
-                        <span className={styles.roiStatusText}>{volatilityLevel.label}</span>
-                        <span className={`${styles.roiTooltip} ${styles.volatilityRoiTooltip}`} role="tooltip">
-                            Уровень стиля ставок отражает степень агрессивности стратегии на основе текущей волатильности. Он характеризует допустимый уровень риска и амплитуду возможных отклонений банкролла.
-                        </span>
-                    </button>
+                    <MetricStatusTip
+                        icon={
+                            <span className={`${styles.roiIcon} ${volatilityLevel.iconClassName}`}>
+                                <HeartPulse size={12} />
+                            </span>
+                        }
+                        text={volatilityLevel.label}
+                        tooltip="Уровень стиля ставок отражает степень агрессивности стратегии на основе текущей волатильности. Он характеризует допустимый уровень риска и амплитуду возможных отклонений банкролла."
+                        ariaLabel="Стиль волатильности канала"
+                        tooltipClassName={styles.volatilityMetricStatusTooltip}
+                    />
                 }
                 helpText={
                     <>
