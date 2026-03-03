@@ -19,11 +19,13 @@ import {
     CloudOff,
     ChartNoAxesCombined,
     Goal,
+    Shield,
+    ShieldX,
+    ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
 import styles from "./ChannelStatsBlock.module.css";
-import { TrustShieldIcon } from "../../../shared/ui/icons/TrustShieldIcon";
 
 const ROI_HEAD_BG_PRESETS = [
     "roiHeadBgPreset1",
@@ -431,15 +433,30 @@ function PlannedProfitStat({
                                plannedProfit,
                                trustLabel,
                                trustToneClassName,
+                               trustTone,
                                isTrustHighlighted,
                                roiHeadBgState,
                            }: {
     plannedProfit: string;
     trustLabel: string;
     trustToneClassName: string;
+    trustTone?: "danger" | "warning" | "success";
     isTrustHighlighted: boolean;
     roiHeadBgState: RoiHeadBgState;
 }) {
+    const normalizedTrustLabel = trustLabel.toLowerCase();
+    const TrustIcon = trustTone
+        ? trustTone === "danger"
+            ? ShieldX
+            : trustTone === "warning"
+                ? Shield
+                : ShieldCheck
+        : normalizedTrustLabel.includes("низк")
+            ? ShieldX
+            : normalizedTrustLabel.includes("средн")
+                ? Shield
+                : ShieldCheck;
+
     return (
         <div className={styles.statItem}>
             <div className={styles.statHead}>
@@ -466,7 +483,7 @@ function PlannedProfitStat({
             <div className={styles.metaGroup}>
                 <button type="button" className={styles.roiStatusButton} aria-label="Уровень доверия">
                     <span className={`${styles.roiIcon} ${trustToneClassName}`}>
-                        <TrustShieldIcon className={styles.trustShieldIcon} />
+                        <TrustIcon size={12} className={styles.trustShieldIcon} />
                     </span>
                     <span className={styles.roiStatusText}>{trustLabel}</span>
                     <span className={styles.roiTooltip} role="tooltip">
@@ -732,6 +749,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 plannedProfit={plannedProfit}
                 trustLabel={plannedProfitTrust.label}
                 trustToneClassName={plannedProfitTrust.toneClassName}
+                trustTone={plannedProfitStats?.trustTone}
                 isTrustHighlighted={isPlannedProfitTrustHighlighted}
                 roiHeadBgState={roiHeadBgState}
             />
