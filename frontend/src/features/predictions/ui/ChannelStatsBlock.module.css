@@ -147,6 +147,10 @@
     min-height: 14px;
 }
 
+.metaWithTooltip {
+    overflow: visible;
+}
+
 .changesMetaButton {
     margin-top: 2px;
     display: inline-flex;
@@ -385,6 +389,7 @@
     border: 0;
     background: transparent;
     vertical-align: top;
+    cursor: help;
 }
 
 .roiStatusText {
