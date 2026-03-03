@@ -351,7 +351,7 @@ function StakeAndOddsStat({
     deltaOdds: number;
     totalPredictions: number;
 }) {
-    const isChangesCalculated = totalPredictions >= 50;
+    const isChangesCalculated = totalPredictions >= 100;
     const effectiveDeltaStake = isChangesCalculated ? deltaStake : 0;
     const effectiveDeltaOdds = isChangesCalculated ? deltaOdds : 0;
     const combinedDelta = Math.abs(effectiveDeltaStake) + Math.abs(effectiveDeltaOdds);
@@ -389,19 +389,34 @@ function StakeAndOddsStat({
                     <TrendingUpDown size={14} />
                 </span>
                 <span className={styles.changesMetaTitle}>Динамика</span>
-                <span className={`${styles.changePart} ${stakeChangeClassName}`}>
-                    {effectiveDeltaStake > 0 ? <ArrowUp size={10} /> : null}
-                    {effectiveDeltaStake < 0 ? <ArrowDown size={10} /> : null}
-                    <span>{loading ? '...' : stakeDeltaText}</span>
-                </span>
-                <div className={styles.outcomesDividermini} />
-                <span className={`${styles.changePart} ${oddsChangeClassName}`}>
-                    {effectiveDeltaOdds > 0 ? <ArrowUp size={10} /> : null}
-                    {effectiveDeltaOdds < 0 ? <ArrowDown size={10} /> : null}
-                    <span>{loading ? '...' : oddsDeltaText}</span>
-                </span>
+                {isChangesCalculated ? (
+                    <>
+                        <span className={`${styles.changePart} ${stakeChangeClassName}`}>
+                            {effectiveDeltaStake > 0 ? <ArrowUp size={10} /> : null}
+                            {effectiveDeltaStake < 0 ? <ArrowDown size={10} /> : null}
+                            <span>{loading ? "..." : stakeDeltaText}</span>
+                        </span>
+                        <div className={styles.outcomesDividermini} />
+                        <span className={`${styles.changePart} ${oddsChangeClassName}`}>
+                            {effectiveDeltaOdds > 0 ? <ArrowUp size={10} /> : null}
+                            {effectiveDeltaOdds < 0 ? <ArrowDown size={10} /> : null}
+                            <span>{loading ? "..." : oddsDeltaText}</span>
+                        </span>
+                    </>
+                ) : (
+                    <span className={`${styles.changePart} ${styles.changeNeutral}`}>Недостаточно дистанции</span>
+                )}
                 <span className={styles.changesTooltip} role="tooltip">
-                    Показывает, как изменились общие средние значения после добавления последних 50 прогнозов.
+                    <span className={styles.changesTooltipLine}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
+                    <span className={styles.changesTooltipLine}>Он помогает понять, сохраняет ли прогнозист свой стиль ставок или меняет подход.</span>
+                    <span className={styles.changesTooltipLine}>
+                        <TrendingUpDown size={12} className={styles.changesTooltipIconNegative} />
+                        <span>Красный индикатор сигнализирует о корректировке стратегии или изменении степени агрессивности.</span>
+                    </span>
+                    <span className={styles.changesTooltipLine}>
+                        <TrendingUpDown size={12} className={styles.changesTooltipIconPositive} />
+                        <span>Зелёный индикатор указывает на сохранение выбранной стратегии и стиля ставок.</span>
+                    </span>
                 </span>
             </button>
         </div>
@@ -810,31 +825,6 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 deltaOdds={deltaOdds}
                 totalPredictions={totalPredictions}
             />
-            <MaxDrawdownStat
-                drawdownMoney={maxDrawdownMoney}
-                drawdownPercent={maxDrawdownPercent}
-                loading={loading}
-                helpText="Максимальное падение банкролла от локального пика до минимума за период."
-                riskLabel={drawdownRiskLevel.label}
-                riskIconClassName={drawdownRiskLevel.iconClassName}
-                iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
-                iconBackground={
-                    isLowRiskHighlighted ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null
-                }
-            />
             <StatItem
                 icon={<Activity size={16} />}
                 title="Волатильность"
@@ -851,6 +841,31 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 iconWrapClassName={isVolatilityExceptional ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
                     isVolatilityExceptional ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
+                }
+            />
+            <MaxDrawdownStat
+                drawdownMoney={maxDrawdownMoney}
+                drawdownPercent={maxDrawdownPercent}
+                loading={loading}
+                helpText="Максимальное падение банкролла от локального пика до минимума за период."
+                riskLabel={drawdownRiskLevel.label}
+                riskIconClassName={drawdownRiskLevel.iconClassName}
+                iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isLowRiskHighlighted ? (
                         <>
                             <span
                                 className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
