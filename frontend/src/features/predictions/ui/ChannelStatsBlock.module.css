@@ -250,6 +250,22 @@
     visibility: visible;
 }
 
+.changesTooltipLine {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.changesTooltipIconNegative {
+    color: #dc2626;
+    flex: 0 0 auto;
+}
+
+.changesTooltipIconPositive {
+    color: #16a34a;
+    flex: 0 0 auto;
+}
+
 .metaGroup {
     margin-top: 2px;
     max-height: 14px;
