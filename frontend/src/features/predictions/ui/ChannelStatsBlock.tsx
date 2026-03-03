@@ -77,6 +77,7 @@ type StatItemProps = {
     title: string;
     value: string | number;
     meta?: React.ReactNode;
+    metaClassName?: string;
     helpText?: React.ReactNode;
     iconWrapClassName?: string;
     iconBackground?: React.ReactNode;
@@ -98,7 +99,7 @@ function HelpTip({ content, ariaLabelText }: HelpTipProps) {
     );
 }
 
-function StatItem({ icon, title, value, meta, helpText, iconWrapClassName, iconBackground }: StatItemProps) {
+function StatItem({ icon, title, value, meta, metaClassName, helpText, iconWrapClassName, iconBackground }: StatItemProps) {
     return (
         <div className={styles.statItem}>
             {helpText ? <HelpTip content={helpText} ariaLabelText={title} /> : null}
@@ -110,7 +111,7 @@ function StatItem({ icon, title, value, meta, helpText, iconWrapClassName, iconB
                 <div className={styles.title}>{title}</div>
             </div>
             <div className={styles.value}>{value}</div>
-            <div className={styles.meta}>{meta ?? " "}</div>
+            <div className={`${styles.meta} ${metaClassName ?? ""}`.trim()}>{meta ?? " "}</div>
         </div>
     );
 }
@@ -851,6 +852,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<Activity size={16} />}
                 title="Волатильность"
                 value={volatility}
+                metaClassName={styles.metaWithTooltip}
                 meta={
                     <button type="button" className={styles.roiStatusButton} aria-label="Стиль волатильности канала">
                         <span className={`${styles.roiIcon} ${volatilityLevel.iconClassName}`}>
