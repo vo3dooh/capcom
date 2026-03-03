@@ -171,6 +171,15 @@
     padding: 0 2px;
 }
 
+.changesMetaTitlePlaceholder {
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0 2px;
+    visibility: hidden;
+}
+
 .changesTrendIcon {
     width: 14px;
     height: 14px;
@@ -226,8 +235,8 @@
     position: absolute;
     top: 18px;
     left: 0;
-    min-width: 180px;
-    max-width: 260px;
+    min-width: 245px;
+    max-width: 280px;
     padding: 8px;
     border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, 0.06);
@@ -250,10 +259,26 @@
     visibility: visible;
 }
 
-.changesTooltipLine {
+.changesTooltipParagraph {
+    display: block;
+}
+
+.changesTooltipDivider {
+    display: block;
+    height: 1px;
+    margin: 6px 0;
+    background: #d1d5db;
+}
+
+.changesTooltipIndicatorBlock {
+    display: block;
+}
+
+.changesTooltipIndicatorTitle {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    font-weight: 600;
 }
 
 .changesTooltipIconNegative {
