@@ -23,6 +23,7 @@ import {
     ShieldX,
     ShieldCheck,
     Gauge,
+    HeartPulse,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -685,7 +686,38 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         iconClassName: styles.roiIconGreen,
                     };
     const isLowRiskHighlighted = totalPredictions >= 100 && ddPercentValue <= 30;
-    const volatility = stats ? stats.volatility.toFixed(2) : loading ? "..." : "0.00";
+    const volatilityValue = stats ? stats.volatility : 0;
+    const volatility = stats ? volatilityValue.toFixed(2) : loading ? "..." : "0.00";
+    const volatilityLevel = loading
+        ? {
+            label: "...",
+            iconClassName: styles.roiIconGray,
+        }
+        : totalPredictions < 100
+            ? {
+                label: "Недостаточно дистанции",
+                iconClassName: styles.roiIconGray,
+            }
+            : volatilityValue <= 25
+                ? {
+                    label: "Спокойный стиль",
+                    iconClassName: styles.roiIconGreen,
+                }
+                : volatilityValue <= 50
+                    ? {
+                        label: "Динамичный стиль",
+                        iconClassName: styles.roiIconGreen,
+                    }
+                    : volatilityValue <= 75
+                        ? {
+                            label: "Агрессивный стиль",
+                            iconClassName: styles.outcomesHitRateIconOrange,
+                        }
+                        : {
+                            label: "Экстремальный стиль",
+                            iconClassName: styles.roiIconRed,
+                        };
+    const isVolatilityExceptional = totalPredictions >= 100 && volatilityValue <= 25;
     const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
     const plannedProfitTrust = plannedProfitStats
         ? {
@@ -807,8 +839,32 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<Activity size={16} />}
                 title="Волатильность"
                 value={volatility}
-                meta="Разброс результата"
+                meta={
+                    <button type="button" className={styles.roiStatusButton} aria-label="Стиль волатильности канала">
+                        <span className={`${styles.roiIcon} ${volatilityLevel.iconClassName}`}>
+                            <HeartPulse size={12} />
+                        </span>
+                        <span className={styles.roiStatusText}>{volatilityLevel.label}</span>
+                    </button>
+                }
                 helpText="Разброс результата: чем выше значение, тем сильнее колебания прибыли/убытка."
+                iconWrapClassName={isVolatilityExceptional ? styles.roiHeadIconExceptional : undefined}
+                iconBackground={
+                    isVolatilityExceptional ? (
+                        <>
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                            <span
+                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
+                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
+                                }`}
+                            />
+                        </>
+                    ) : null
+                }
             />
             <PlannedProfitStat
                 plannedProfit={plannedProfit}
