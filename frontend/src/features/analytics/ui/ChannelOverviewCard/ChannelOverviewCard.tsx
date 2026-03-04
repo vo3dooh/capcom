@@ -405,6 +405,7 @@ export function ChannelOverviewCard(props: Props) {
     const chartStroke = isNegativeProfit ? '#dc2626' : '#2563eb';
 
     const showChart = !isLoading && chartData && chartData.length > 1;
+    const isEmptyState = !showChart && !isLoading;
 
     const [measureRef, measureWidth] = useElementWidth<HTMLDivElement>();
     const pxPerLabel = 70;
@@ -433,6 +434,18 @@ export function ChannelOverviewCard(props: Props) {
         return v;
     }, [rightHintValue, profitText]);
 
+    const chartWrapClassName = isEmptyState
+        ? 'overviewCard__chartWrap overviewCard__chartWrapGlow overviewCard__chartWrap--empty'
+        : isNegativeProfit
+            ? 'overviewCard__chartWrap overviewCard__chartWrapGlow overviewCard__chartWrapGlow--neg'
+            : 'overviewCard__chartWrap overviewCard__chartWrapGlow';
+
+    const kpiSuffixClassName = isEmptyState
+        ? 'overviewCard__kpiSuffix overviewCard__kpiSuffix--empty'
+        : isNegativeKpi
+            ? 'overviewCard__kpiSuffix overviewCard__kpiSuffix--neg'
+            : 'overviewCard__kpiSuffix';
+
     return (
         <div className={isNegativeProfit ? 'overviewCard overviewCard--negProfit' : 'overviewCard'}>
             <div className="overviewCard__top">
@@ -455,7 +468,7 @@ export function ChannelOverviewCard(props: Props) {
                 </div>
             </div>
 
-            <div className={isNegativeProfit ? 'overviewCard__chartWrap overviewCard__chartWrapGlow overviewCard__chartWrapGlow--neg' : 'overviewCard__chartWrap overviewCard__chartWrapGlow'}>
+            <div className={chartWrapClassName}>
                 <div className="overviewCard__chartClip">
                     {showChart ? (
                         <div className="overviewCard__chartStack">
@@ -524,9 +537,9 @@ export function ChannelOverviewCard(props: Props) {
 
             <div className="overviewCard__bottom">
                 <div className="overviewCard__kpi">
-                    <div className={isNegativeKpi ? 'overviewCard__kpiValue overviewCard__kpiValue--neg' : 'overviewCard__kpiValue'}>
+                    <div className="overviewCard__kpiValue">
                         {bottomValueText}
-                        {bottomValueSuffix ? <span className={isNegativeKpi ? 'overviewCard__kpiSuffix overviewCard__kpiSuffix--neg' : 'overviewCard__kpiSuffix'}>{bottomValueSuffix}</span> : null}
+                        {bottomValueSuffix ? <span className={kpiSuffixClassName}>{bottomValueSuffix}</span> : null}
                     </div>
                 </div>
 
