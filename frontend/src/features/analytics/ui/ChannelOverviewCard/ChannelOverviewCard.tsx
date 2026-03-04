@@ -451,7 +451,6 @@ export function ChannelOverviewCard(props: Props) {
             <div className="overviewCard__top">
                 <div className="overviewCard__titleRow">
                     <div className="overviewCard__title">{resolvedTitle}</div>
-                    <div className="overviewCard__icon" aria-hidden="true">i</div>
                 </div>
 
                 <div className="overviewCard__hints">
