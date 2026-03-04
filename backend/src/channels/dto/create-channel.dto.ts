@@ -12,11 +12,6 @@ export enum ChannelJoinPolicyDto {
   inviteOnly = 'inviteOnly'
 }
 
-export enum ChannelPredictionsVisibilityDto {
-  public = 'public',
-  membersOnly = 'membersOnly'
-}
-
 export class CreateChannelDto {
   @IsString()
   name!: string
@@ -44,10 +39,6 @@ export class CreateChannelDto {
   @IsOptional()
   @IsEnum(ChannelJoinPolicyDto)
   joinPolicy?: ChannelJoinPolicyDto
-
-  @IsOptional()
-  @IsEnum(ChannelPredictionsVisibilityDto)
-  predictionsVisibility?: ChannelPredictionsVisibilityDto
 
   @IsOptional()
   @IsNumber()

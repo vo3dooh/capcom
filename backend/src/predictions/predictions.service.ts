@@ -96,7 +96,6 @@ export class PredictionsService {
         id: true,
         deletedAt: true,
         visibility: true,
-        predictionsVisibility: true,
         ownerId: true,
       },
     });
@@ -504,9 +503,6 @@ export class PredictionsService {
       await this.requireMember(channel.id, userId);
     }
 
-    if (channel.predictionsVisibility === 'members') {
-      await this.requireMember(channel.id, userId);
-    }
 
     const take = Math.max(
       1,

@@ -3,6 +3,7 @@ import { ChannelsService } from './channels.service'
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard'
 
 @Controller('channels')
 export class ChannelsController {
@@ -21,10 +22,10 @@ export class ChannelsController {
     return this.channelsService.listPublic(takeNum, skipNum)
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get(':slug')
   getBySlug(@Req() req: any, @Param('slug') slug: string) {
-    return this.channelsService.getBySlug(slug, req.user.id)
+    return this.channelsService.getBySlug(slug, req.user?.id)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -44,7 +45,6 @@ export class ChannelsController {
   leave(@Req() req: any, @Param('slug') slug: string) {
     return this.channelsService.leave(slug, req.user.id)
   }
-
 
   @UseGuards(JwtAuthGuard)
   @Delete(':slug')
