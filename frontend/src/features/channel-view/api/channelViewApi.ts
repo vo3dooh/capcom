@@ -27,7 +27,7 @@ export type ChannelViewModel = {
 };
 
 export async function fetchChannel(slug: string) {
-    return http<ChannelViewModel>(`/channels/${slug}`);
+    return http<ChannelViewModel>(`/channels/${slug}`, { token: null });
 }
 
 export async function joinChannel(slug: string) {

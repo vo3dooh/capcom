@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard'
 import { PredictionsService } from './predictions.service'
 import { CreatePredictionDto } from './dto/create-prediction.dto'
 import { SettlePredictionDto } from './dto/settle-prediction.dto'
@@ -14,12 +15,12 @@ export class PredictionsController {
     return this.predictionsService.create(slug, req.user.id, dto)
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   @Get('channels/:slug/predictions')
   list(@Req() req: any, @Param('slug') slug: string, @Query('take') take?: string, @Query('skip') skip?: string) {
     const takeNum = take ? Number(take) : undefined
     const skipNum = skip ? Number(skip) : undefined
-    return this.predictionsService.list(slug, req.user.id, takeNum, skipNum)
+    return this.predictionsService.list(slug, req.user?.id, takeNum, skipNum)
   }
 
   @UseGuards(JwtAuthGuard)
