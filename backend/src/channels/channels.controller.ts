@@ -35,15 +35,27 @@ export class ChannelsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Post(':slug/subscribe')
+  subscribe(@Req() req: any, @Param('slug') slug: string) {
+    return this.channelsService.subscribe(slug, req.user.id)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':slug/unsubscribe')
+  unsubscribe(@Req() req: any, @Param('slug') slug: string) {
+    return this.channelsService.unsubscribe(slug, req.user.id)
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post(':slug/join')
   join(@Req() req: any, @Param('slug') slug: string) {
-    return this.channelsService.join(slug, req.user.id)
+    return this.channelsService.subscribe(slug, req.user.id)
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':slug/leave')
   leave(@Req() req: any, @Param('slug') slug: string) {
-    return this.channelsService.leave(slug, req.user.id)
+    return this.channelsService.unsubscribe(slug, req.user.id)
   }
 
   @UseGuards(JwtAuthGuard)

@@ -5,21 +5,25 @@ import { PredictionsFeed } from "@/features/predictions/ui/PredictionsFeed"
 import { ChannelStatsBlock } from "@/features/predictions/ui/ChannelStatsBlock"
 import { ChannelOverviewCardConnected } from "@/features/analytics/ui/ChannelOverviewCard"
 import { ChannelMonthlyStatsCardConnected } from "@/features/analytics/ui/ChannelMonthlyStatsCard"
+import { useAuthSession } from "@/features/auth/model/useAuthSession"
 import styles from "./ChannelView.module.css"
 
 export function ChannelView({ slug }: { slug: string }) {
-    const { data, loading, error, join, leave, actionLoading } = useChannelView(slug)
+    const { data, loading, error, subscribe, unsubscribe, actionLoading, actionError } = useChannelView(slug)
+    const auth = useAuthSession()
 
     if (loading) return <div className={styles.state}>Загрузка…</div>
     if (error) return <div className={styles.stateError}>{error}</div>
     if (!data) return <div className={styles.state}>Канал не найден</div>
 
-    const isOwner = data.myRole === "owner"
-    const canSeeSettings = data.myRole === "owner" || data.myRole === "editor" || data.myRole === "moderator"
+    const currentUser = auth.status === "authed" ? auth.user : null
+    const isOwner = currentUser?.id === data.owner.id
+    const canSeeSettings = isOwner || data.myRole === "editor" || data.myRole === "moderator"
     const canCreatePrediction = canSeeSettings
 
-    const showJoin = !data.isMember
-    const showLeave = data.isMember && !isOwner
+    const showSubscribeActions = !!currentUser && !isOwner
+    const showSubscribe = showSubscribeActions && !data.isMember
+    const showUnsubscribe = showSubscribeActions && data.isMember
 
     const ownerText = data.owner.username
         ? data.owner.username
@@ -83,29 +87,29 @@ export function ChannelView({ slug }: { slug: string }) {
 
                                         <div className={styles.actions}>
                                             <div className={styles.actionsPrimary}>
-                                                {showLeave ? (
+                                                {showUnsubscribe ? (
                                                     <button
                                                         className={styles.btn}
-                                                        onClick={leave}
+                                                        onClick={unsubscribe}
                                                         disabled={actionLoading}
                                                         type="button"
                                                     >
-                                                        Отписаться
+                                                        {actionLoading ? "Загрузка…" : "Отписаться"}
                                                     </button>
                                                 ) : null}
 
-                                                {showJoin ? (
+                                                {showSubscribe ? (
                                                     <button
                                                         className={styles.btnPrimary}
-                                                        onClick={join}
+                                                        onClick={subscribe}
                                                         disabled={actionLoading}
                                                         type="button"
                                                     >
-                                                        Подписаться
+                                                        {actionLoading ? "Загрузка…" : "Подписаться"}
                                                     </button>
                                                 ) : null}
                                             </div>
-
+                                            {actionError ? <div className={styles.stateError}>{actionError}</div> : null}
                                         </div>
                                     </div>
 

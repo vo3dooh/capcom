@@ -27,13 +27,13 @@ export type ChannelViewModel = {
 };
 
 export async function fetchChannel(slug: string) {
-    return http<ChannelViewModel>(`/channels/${slug}`, { token: null });
+    return http<ChannelViewModel>(`/channels/${slug}`);
 }
 
-export async function joinChannel(slug: string) {
-    return http<{ success: true }>(`/channels/${slug}/join`, { method: "POST" });
+export async function subscribeToChannel(slug: string) {
+    return http<{ success: true }>(`/channels/${slug}/subscribe`, { method: "POST" });
 }
 
-export async function leaveChannel(slug: string) {
-    return http<{ success: true }>(`/channels/${slug}/leave`, { method: "POST" });
+export async function unsubscribeFromChannel(slug: string) {
+    return http<{ success: true }>(`/channels/${slug}/unsubscribe`, { method: "POST" });
 }
