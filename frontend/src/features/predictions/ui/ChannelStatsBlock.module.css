@@ -358,6 +358,13 @@
     cursor: default;
 }
 
+.insufficientDistanceTip {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    min-height: 14px;
+}
+
 .metricStatusText {
     font-size: 11px;
     line-height: 14px;
@@ -464,6 +471,11 @@
 
 .metricStatusButton:hover .metricStatusTooltip,
 .metricStatusButton:focus-visible .metricStatusTooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.insufficientDistanceTip:hover .metricStatusTooltip {
     opacity: 1;
     visibility: visible;
 }
