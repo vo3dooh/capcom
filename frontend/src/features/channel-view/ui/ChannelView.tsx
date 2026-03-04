@@ -77,8 +77,8 @@ export function ChannelView({ slug }: { slug: string }) {
                                 <div className={styles.headerMain}>
                                     <div className={styles.headerTopRow}>
                                         <div className={styles.titleBlock}>
-                                            <div className={styles.title}>Capper Community Unprofitable</div>
-                                            <div className={styles.handle}>@capcomunprof</div>
+                                            <div className={styles.title}>{data.name}</div>
+                                            <div className={styles.handle}>@{data.slug}</div>
                                         </div>
 
                                         <div className={styles.actions}>
