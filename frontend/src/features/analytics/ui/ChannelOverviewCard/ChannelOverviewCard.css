@@ -1,4 +1,4 @@
-.ccOverview {
+.overviewCard {
     background: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 10px;
@@ -8,25 +8,25 @@
     overflow: hidden;
 }
 
-.ccOverview__top {
+.overviewCard__top {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.ccOverview__titleRow {
+.overviewCard__titleRow {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.ccOverview__title {
+.overviewCard__title {
     font-size: 13px;
     font-weight: 700;
     color: #0f172a;
 }
 
-.ccOverview__icon {
+.overviewCard__icon {
     width: 26px;
     height: 26px;
     border-radius: 999px;
@@ -39,38 +39,38 @@
     line-height: 1;
 }
 
-.ccOverview__hints {
+.overviewCard__hints {
     display: grid;
     grid-template-columns: 1fr 1px auto;
     gap: 12px;
     align-items: center;
 }
 
-.ccOverview__hint {
+.overviewCard__hint {
     display: flex;
     flex-direction: column;
     gap: 6px;
     min-width: 0;
 }
 
-.ccOverview__hint--right {
+.overviewCard__hintRight {
     align-items: flex-end;
     text-align: right;
 }
 
-.ccOverview__hintLabel {
+.overviewCard__hintLabel {
     font-size: 11px;
     font-weight: 600;
     color: rgba(15, 23, 42, 0.46);
 }
 
-.ccOverview__hintValue {
+.overviewCard__hintValue {
     font-size: 13px;
     font-weight: 600;
     color: #0f172a;
 }
 
-.ccOverview__hintSep {
+.overviewCard__hintSep {
     width: 1px;
     height: 24px;
     background: #e6edf8;
@@ -78,7 +78,7 @@
     justify-self: center;
 }
 
-.ccOverview__seg {
+.overviewCard__seg {
     display: inline-flex;
     gap: 3px;
     padding: 4px;
@@ -87,11 +87,11 @@
     justify-content: center;
 }
 
-.ccOverview__seg--two {
+.overviewCard__segTwo {
     grid-template-columns: 1fr 1fr;
 }
 
-.ccOverview__segBtn {
+.overviewCard__segBtn {
     height: 28px;
     padding: 0 6px;
     border-radius: 6px;
@@ -103,14 +103,14 @@
     font-weight: 600;
 }
 
-.ccOverview__segBtn--active {
+.overviewCard__segBtnActive {
     background: #ffffff;
     color: #0f172a;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     font-weight: 600;
 }
 
-.ccOverview__chartWrap {
+.overviewCard__chartWrap {
     margin-top: 10px;
     border-radius: 14px;
     background: #ffffff;
@@ -118,13 +118,18 @@
     isolation: isolate;
 }
 
-.ccOverview__chartWrap--glow {
+.overviewCard__chartWrapGlow {
     background: #ffffff;
     border: 1px dashed #e7eefb;
     overflow: visible;
 }
 
-    .ccOverview__chartWrap--glow::before {
+.overviewCard--negProfit .overviewCard__chartWrapGlow,
+.overviewCard__chartWrapGlow--neg {
+    border: 1px dashed #fecaca;
+}
+
+    .overviewCard__chartWrapGlow::before {
         content: "";
         position: absolute;
         inset: -80px -140px;
@@ -135,15 +140,20 @@
         filter: blur(18px);
         opacity: 1;
         transform: translate3d(4%, 0, 0);
-        animation: ccOverviewGlowDriftRight 6s ease-in-out infinite;
+        animation: overviewCardGlowDriftRight 6s ease-in-out infinite;
     }
 
-    .ccOverview__chartWrap--glow > * {
+    .overviewCard__chartWrapGlow > * {
         position: relative;
         z-index: 1;
     }
 
-@keyframes ccOverviewGlowDriftRight {
+    .overviewCard--negProfit .overviewCard__chartWrapGlow::before,
+    .overviewCard__chartWrapGlow--neg::before {
+        background: radial-gradient(600px 260px at 80% 78%, rgba(220, 38, 38, 0.18) 0%, rgba(220, 38, 38, 0.1) 35%, rgba(220, 38, 38, 0.04) 55%, rgba(220, 38, 38, 0.00) 72%);
+    }
+
+@keyframes overviewCardGlowDriftRight {
     0% {
         transform: translate3d(-6%, 0, 0);
         opacity: 0.92;
@@ -160,22 +170,22 @@
     }
 }
 
-.ccOverview__chartClip {
+.overviewCard__chartClip {
     border-radius: 14px;
     overflow: hidden;
 }
 
-.ccOverview__chartStack {
+.overviewCard__chartStack {
     display: flex;
     flex-direction: column;
 }
 
-.ccOverview__chartArea {
+.overviewCard__chartArea {
     height: 190px;
     width: 100%;
 }
 
-.ccOverview__xLabels {
+.overviewCard__xLabels {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -183,7 +193,7 @@
     gap: 10px;
 }
 
-.ccOverview__xLabel {
+.overviewCard__xLabel {
     font-size: 11px;
     color: #94a3b8;
     line-height: 14px;
@@ -192,7 +202,7 @@
     text-overflow: ellipsis;
 }
 
-.ccOverview__empty {
+.overviewCard__empty {
     height: 190px;
     display: flex;
     align-items: center;
@@ -208,7 +218,7 @@
     pointer-events: none;
 }
 
-.ccOverview__tt {
+.overviewCard__tt {
     position: relative;
     border-radius: 12px;
     padding: 10px 12px;
@@ -221,21 +231,21 @@
     transform: translateZ(0);
 }
 
-.ccOverview__ttDate,
-.ccOverview__ttValue,
-.ccOverview__ttDelta {
+.overviewCard__ttDate,
+.overviewCard__ttValue,
+.overviewCard__ttDelta {
     position: relative;
     z-index: 1;
 }
 
-.ccOverview__ttDate {
+.overviewCard__ttDate {
     font-size: 12px;
     color: #64748b;
     margin-bottom: 4px;
     line-height: 14px;
 }
 
-.ccOverview__ttValue {
+.overviewCard__ttValue {
     font-size: 16px;
     font-weight: 800;
     color: #0f172a;
@@ -244,22 +254,22 @@
     letter-spacing: -0.2px;
 }
 
-.ccOverview__ttDelta {
+.overviewCard__ttDelta {
     font-size: 12px;
     font-weight: 600;
     color: #64748b;
     line-height: 14px;
 }
 
-.ccOverview__ttDelta--pos {
+.overviewCard__ttDeltaPos {
     color: #16a34a;
 }
 
-.ccOverview__ttDelta--neg {
+.overviewCard__ttDeltaNeg {
     color: #dc2626;
 }
 
-.ccOverview__bottom {
+.overviewCard__bottom {
     margin-top: 10px;
     display: flex;
     align-items: flex-end;
@@ -267,31 +277,36 @@
     gap: 12px;
 }
 
-.ccOverview__kpiValue {
+.overviewCard__kpiValue {
     font-size: 26px;
     font-weight: 600;
     color: #0f172a;
 }
 
-.ccOverview__kpiSuffix {
+.overviewCard__kpiSuffix {
     font-size: 18px;
     font-weight: 900;
     margin-left: 6px;
     color: #2563eb;
 }
 
-.ccOverview__updated {
+.overviewCard__kpiValue--neg,
+.overviewCard__kpiSuffix--neg {
+    color: #dc2626;
+}
+
+.overviewCard__updated {
     text-align: right;
 }
 
-.ccOverview__updatedLabel {
+.overviewCard__updatedLabel {
     font-size: 11px;
     font-weight: 600;
     color: rgba(15, 23, 42, 0.46);
     padding-bottom: 4px;
 }
 
-.ccOverview__updatedValue {
+.overviewCard__updatedValue {
     font-size: 13px;
     font-weight: 600;
     color: #0f172a;

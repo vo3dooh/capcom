@@ -229,7 +229,7 @@ function formatLastUpdatedRu(text: string): string {
     return `${m} ${day}, ${hh}:${mm} UTC`;
 }
 
-function useElementWidth<T extends HTMLElement>(): [React.RefObject<T>, number] {
+function useElementWidth<T extends HTMLElement>(): [React.RefObject<T | null>, number] {
     const ref = useRef<T>(null);
     const [w, setW] = useState(0);
 
@@ -256,6 +256,16 @@ function isPercentString(s: string): boolean {
     return v.includes('%');
 }
 
+function isNegativeNumericText(s: string): boolean {
+    const value = (s || '').trim();
+    if (!value) return false;
+    if (value.startsWith('-')) return true;
+
+    const parsed = Number(value.replace(/[%$\s,]/g, ''));
+    if (!Number.isFinite(parsed)) return false;
+    return parsed < 0;
+}
+
 function PeriodControl(props: {
     value: OverviewPeriod;
     onChange: (p: OverviewPeriod) => void;
@@ -263,17 +273,17 @@ function PeriodControl(props: {
     const { value, onChange } = props;
 
     return (
-        <div className="ccOverview__seg ccOverview__seg--two">
+        <div className="overviewCard__seg overviewCard__segTwo">
             <button
                 type="button"
-                className={value === 'month' ? 'ccOverview__segBtn ccOverview__segBtn--active' : 'ccOverview__segBtn'}
+                className={value === 'month' ? 'overviewCard__segBtn overviewCard__segBtnActive' : 'overviewCard__segBtn'}
                 onClick={() => onChange('month')}
             >
                 Последние 30 дней
             </button>
             <button
                 type="button"
-                className={value === 'all' ? 'ccOverview__segBtn ccOverview__segBtn--active' : 'ccOverview__segBtn'}
+                className={value === 'all' ? 'overviewCard__segBtn overviewCard__segBtnActive' : 'overviewCard__segBtn'}
                 onClick={() => onChange('all')}
             >
                 За все время
@@ -311,15 +321,15 @@ function CustomTooltip(props: {
     const deltaText = delta === null ? '—' : deltaFormatter(delta);
     const deltaClass =
         delta === null
-            ? 'ccOverview__ttDelta'
+            ? 'overviewCard__ttDelta'
             : delta >= 0
-                ? 'ccOverview__ttDelta ccOverview__ttDelta--pos'
-                : 'ccOverview__ttDelta ccOverview__ttDelta--neg';
+                ? 'overviewCard__ttDelta overviewCard__ttDeltaPos'
+                : 'overviewCard__ttDelta overviewCard__ttDeltaNeg';
 
     return (
-        <div className="ccOverview__tt">
-            <div className="ccOverview__ttDate">{dateFormatter(ts)}</div>
-            <div className="ccOverview__ttValue">{valueFormatter(v)}</div>
+        <div className="overviewCard__tt">
+            <div className="overviewCard__ttDate">{dateFormatter(ts)}</div>
+            <div className="overviewCard__ttValue">{valueFormatter(v)}</div>
             <div className={deltaClass}>{deltaText}</div>
         </div>
     );
@@ -343,8 +353,8 @@ export function ChannelOverviewCard(props: Props) {
 
     const resolvedTitle = useMemo(() => {
         const t = (title || '').trim();
-        if (!t) return 'Показатели банка';
-        if (t.toLowerCase() === 'overview') return 'Показатели банка';
+        if (!t) return 'Показатели банкролла';
+        if (t.toLowerCase() === 'overview') return 'Показатели банкролла';
         return t;
     }, [title]);
 
@@ -390,6 +400,9 @@ export function ChannelOverviewCard(props: Props) {
 
     const profit = useMemo(() => computeProfit(data), [data]);
     const profitText = profit === null ? '—' : formatMoneyCompact(profit);
+    const isNegativeProfit = profit !== null && profit < 0;
+    const isNegativeKpi = isNegativeNumericText(bottomValueText);
+    const chartStroke = isNegativeProfit ? '#dc2626' : '#2563eb';
 
     const showChart = !isLoading && chartData && chartData.length > 1;
 
@@ -421,32 +434,32 @@ export function ChannelOverviewCard(props: Props) {
     }, [rightHintValue, profitText]);
 
     return (
-        <div className="ccOverview">
-            <div className="ccOverview__top">
-                <div className="ccOverview__titleRow">
-                    <div className="ccOverview__title">{resolvedTitle}</div>
-                    <div className="ccOverview__icon" aria-hidden="true">i</div>
+        <div className={isNegativeProfit ? 'overviewCard overviewCard--negProfit' : 'overviewCard'}>
+            <div className="overviewCard__top">
+                <div className="overviewCard__titleRow">
+                    <div className="overviewCard__title">{resolvedTitle}</div>
+                    <div className="overviewCard__icon" aria-hidden="true">i</div>
                 </div>
 
-                <div className="ccOverview__hints">
-                    <div className="ccOverview__hint">
-                        <div className="ccOverview__hintLabel">Прибыль</div>
-                        <div className="ccOverview__hintValue">{profitValue}</div>
+                <div className="overviewCard__hints">
+                    <div className="overviewCard__hint">
+                        <div className="overviewCard__hintLabel">Прибыль</div>
+                        <div className="overviewCard__hintValue">{profitValue}</div>
                     </div>
 
-                    <div className="ccOverview__hintSep" />
+                    <div className="overviewCard__hintSep" />
 
-                    <div className="ccOverview__hint ccOverview__hint--right">
+                    <div className="overviewCard__hint overviewCard__hintRight">
                         <PeriodControl value={period} onChange={onPeriodChange} />
                     </div>
                 </div>
             </div>
 
-            <div className="ccOverview__chartWrap ccOverview__chartWrap--glow">
-                <div className="ccOverview__chartClip">
+            <div className={isNegativeProfit ? 'overviewCard__chartWrap overviewCard__chartWrapGlow overviewCard__chartWrapGlow--neg' : 'overviewCard__chartWrap overviewCard__chartWrapGlow'}>
+                <div className="overviewCard__chartClip">
                     {showChart ? (
-                        <div className="ccOverview__chartStack">
-                            <div ref={measureRef} className="ccOverview__chartArea">
+                        <div className="overviewCard__chartStack">
+                            <div ref={measureRef} className="overviewCard__chartArea">
                                 <ResponsiveContainer width="100%" height={190}>
                                     <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                                         <CartesianGrid stroke="#e8edf6" strokeDasharray="3 6" vertical={false} />
@@ -478,14 +491,14 @@ export function ChannelOverviewCard(props: Props) {
                                         <Area
                                             type="monotone"
                                             dataKey="value"
-                                            stroke="#2563eb"
+                                            stroke={chartStroke}
                                             strokeWidth={2}
                                             fill="transparent"
                                             isAnimationActive={true}
                                             animationDuration={700}
                                             animationEasing="ease-out"
                                             dot={false}
-                                            activeDot={{ r: 5, strokeWidth: 2, stroke: '#2563eb', fill: '#ffffff' }}
+                                            activeDot={{ r: 5, strokeWidth: 2, stroke: chartStroke, fill: '#ffffff' }}
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
                                         />
@@ -493,33 +506,33 @@ export function ChannelOverviewCard(props: Props) {
                                 </ResponsiveContainer>
                             </div>
 
-                            <div className="ccOverview__xLabels" aria-hidden="true">
+                            <div className="overviewCard__xLabels" aria-hidden="true">
                                 {xLabels.map((l) => (
-                                    <div key={l.key} className="ccOverview__xLabel">
+                                    <div key={l.key} className="overviewCard__xLabel">
                                         {l.text}
                                     </div>
                                 ))}
                             </div>
                         </div>
                     ) : (
-                        <div className="ccOverview__empty">
+                        <div className="overviewCard__empty">
                             {isLoading ? 'Загрузка…' : 'Нет данных'}
                         </div>
                     )}
                 </div>
             </div>
 
-            <div className="ccOverview__bottom">
-                <div className="ccOverview__kpi">
-                    <div className="ccOverview__kpiValue">
+            <div className="overviewCard__bottom">
+                <div className="overviewCard__kpi">
+                    <div className={isNegativeKpi ? 'overviewCard__kpiValue overviewCard__kpiValue--neg' : 'overviewCard__kpiValue'}>
                         {bottomValueText}
-                        {bottomValueSuffix ? <span className="ccOverview__kpiSuffix">{bottomValueSuffix}</span> : null}
+                        {bottomValueSuffix ? <span className={isNegativeKpi ? 'overviewCard__kpiSuffix overviewCard__kpiSuffix--neg' : 'overviewCard__kpiSuffix'}>{bottomValueSuffix}</span> : null}
                     </div>
                 </div>
 
-                <div className="ccOverview__updated">
-                    <div className="ccOverview__updatedLabel">Последнее обновление</div>
-                    <div className="ccOverview__updatedValue">{resolvedLastUpdatedText}</div>
+                <div className="overviewCard__updated">
+                    <div className="overviewCard__updatedLabel">Последнее обновление</div>
+                    <div className="overviewCard__updatedValue">{resolvedLastUpdatedText}</div>
                 </div>
             </div>
         </div>
