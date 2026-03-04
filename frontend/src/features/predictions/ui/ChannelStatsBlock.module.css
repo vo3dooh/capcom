@@ -38,7 +38,17 @@
     box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
 }
 
+.iconWrap > svg {
+    position: relative;
+    z-index: 1;
+}
+
 .roiHeadIconExceptional {
+    position: relative;
+    overflow: hidden;
+}
+
+.roiHeadIconDanger {
     position: relative;
     overflow: hidden;
 }
@@ -111,6 +121,58 @@
     background:
             linear-gradient(136deg, rgba(20, 83, 45, 0.31), rgba(22, 163, 74, 0.25), rgba(74, 222, 128, 0.2), rgba(21, 128, 61, 0.26)),
             radial-gradient(126% 140% at 42% 86%, rgba(110, 231, 147, 0.29), rgba(22, 163, 74, 0.12) 57%, rgba(20, 83, 45, 0) 80%);
+}
+
+.roiHeadBgDangerLayer {
+    filter: saturate(1.08);
+}
+
+.roiHeadBgDangerPreset1 {
+    background:
+            linear-gradient(132deg, rgba(127, 29, 29, 0.31), rgba(220, 38, 38, 0.24), rgba(248, 113, 113, 0.2), rgba(153, 27, 27, 0.26)),
+            radial-gradient(126% 124% at 22% 24%, rgba(252, 165, 165, 0.3), rgba(220, 38, 38, 0.14) 56%, rgba(127, 29, 29, 0) 78%);
+}
+
+.roiHeadBgDangerPreset2 {
+    background:
+            linear-gradient(148deg, rgba(127, 29, 29, 0.3), rgba(220, 38, 38, 0.26), rgba(251, 146, 146, 0.2), rgba(153, 27, 27, 0.27)),
+            radial-gradient(132% 136% at 76% 20%, rgba(252, 165, 165, 0.29), rgba(220, 38, 38, 0.13) 54%, rgba(127, 29, 29, 0) 77%);
+}
+
+.roiHeadBgDangerPreset3 {
+    background:
+            linear-gradient(118deg, rgba(127, 29, 29, 0.29), rgba(185, 28, 28, 0.25), rgba(248, 113, 113, 0.21), rgba(220, 38, 38, 0.28)),
+            radial-gradient(138% 122% at 66% 78%, rgba(254, 202, 202, 0.28), rgba(220, 38, 38, 0.12) 58%, rgba(127, 29, 29, 0) 80%);
+}
+
+.roiHeadBgDangerPreset4 {
+    background:
+            linear-gradient(162deg, rgba(127, 29, 29, 0.31), rgba(220, 38, 38, 0.23), rgba(252, 129, 129, 0.18), rgba(153, 27, 27, 0.27)),
+            radial-gradient(128% 142% at 28% 74%, rgba(248, 113, 113, 0.3), rgba(220, 38, 38, 0.13) 57%, rgba(127, 29, 29, 0) 79%);
+}
+
+.roiHeadBgDangerPreset5 {
+    background:
+            linear-gradient(126deg, rgba(127, 29, 29, 0.3), rgba(220, 38, 38, 0.25), rgba(252, 165, 165, 0.2), rgba(239, 68, 68, 0.22)),
+            radial-gradient(136% 126% at 80% 66%, rgba(254, 202, 202, 0.3), rgba(220, 38, 38, 0.12) 55%, rgba(127, 29, 29, 0) 77%);
+}
+
+.roiHeadBgDangerPreset6 {
+    background:
+            linear-gradient(144deg, rgba(127, 29, 29, 0.3), rgba(220, 38, 38, 0.24), rgba(248, 113, 113, 0.19), rgba(239, 68, 68, 0.24)),
+            radial-gradient(134% 134% at 18% 32%, rgba(252, 165, 165, 0.3), rgba(220, 38, 38, 0.14) 53%, rgba(127, 29, 29, 0) 76%);
+}
+
+.roiHeadBgDangerPreset7 {
+    background:
+            linear-gradient(154deg, rgba(127, 29, 29, 0.29), rgba(185, 28, 28, 0.24), rgba(251, 146, 146, 0.2), rgba(220, 38, 38, 0.27)),
+            radial-gradient(140% 128% at 58% 14%, rgba(254, 202, 202, 0.29), rgba(220, 38, 38, 0.13) 56%, rgba(127, 29, 29, 0) 79%);
+}
+
+.roiHeadBgDangerPreset8 {
+    background:
+            linear-gradient(136deg, rgba(127, 29, 29, 0.31), rgba(220, 38, 38, 0.25), rgba(248, 113, 113, 0.2), rgba(153, 27, 27, 0.26)),
+            radial-gradient(126% 140% at 42% 86%, rgba(252, 165, 165, 0.29), rgba(220, 38, 38, 0.12) 57%, rgba(127, 29, 29, 0) 80%);
 }
 
 .title {
