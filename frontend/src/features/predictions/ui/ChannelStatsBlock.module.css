@@ -378,6 +378,10 @@
     color: rgba(239, 68, 68, 1);
 }
 
+.metricIconNoHistory {
+    color: #E53935;
+}
+
 .outcomesHitRateIconOrange {
     color: rgba(249, 115, 22, 1);
 }
