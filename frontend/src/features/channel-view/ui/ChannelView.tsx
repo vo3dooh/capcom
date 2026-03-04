@@ -134,11 +134,8 @@ export function ChannelView({ slug }: { slug: string }) {
 
                 <div className={styles.right}>
                     <div className={styles.sideStack}>
-                        <ChannelOverviewCardConnected slug={data.slug} />
-                        <ChannelMonthlyStatsCardConnected slug={data.slug} />
-
                         <div className={styles.card}>
-                            <div className={styles.sectionTitle}>Владелец</div>
+                            <div className={styles.sectionTitle}>Команда канала</div>
                             <div className={styles.ownerRow}>
                                 <div className={styles.ownerAvatar}>
                                     {data.owner.avatarUrl ? (
@@ -150,6 +147,9 @@ export function ChannelView({ slug }: { slug: string }) {
                                 <div className={styles.ownerText}>{ownerText}</div>
                             </div>
                         </div>
+
+                        <ChannelOverviewCardConnected slug={data.slug} />
+                        <ChannelMonthlyStatsCardConnected slug={data.slug} />
                     </div>
                 </div>
             </div>
