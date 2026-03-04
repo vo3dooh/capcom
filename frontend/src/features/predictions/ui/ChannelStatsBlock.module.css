@@ -306,6 +306,7 @@
 .metaGroup {
     margin-top: 2px;
     max-height: 14px;
+    min-width: 0;
 }
 
 .metricIcon {
@@ -355,6 +356,8 @@
     border: 0;
     background: transparent;
     vertical-align: top;
+    max-width: 100%;
+    min-width: 0;
     cursor: default;
 }
 
@@ -363,6 +366,8 @@
     align-items: center;
     position: relative;
     min-height: 14px;
+    max-width: 100%;
+    min-width: 0;
 }
 
 .metricStatusText {
@@ -370,7 +375,11 @@
     line-height: 14px;
     font-weight: 600;
     color: rgba(15, 23, 42, 0.46);
+    flex: 1 1 auto;
+    min-width: 0;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: default;
 }
 
@@ -531,6 +540,8 @@
     background: transparent;
     vertical-align: top;
     margin-top: 2px;
+    max-width: 100%;
+    min-width: 0;
     cursor: default;
 }
 
