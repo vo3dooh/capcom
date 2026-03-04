@@ -582,6 +582,7 @@ function MaxDrawdownStat({
                              loading,
                              helpText,
                              riskLabel,
+                             riskTooltip,
                              riskIconClassName,
                              iconWrapClassName,
                              iconBackground,
@@ -589,8 +590,9 @@ function MaxDrawdownStat({
     drawdownMoney: string;
     drawdownPercent: string;
     loading: boolean;
-    helpText: string;
+    helpText: React.ReactNode;
     riskLabel: string;
+    riskTooltip: React.ReactNode;
     riskIconClassName: string;
     iconWrapClassName?: string;
     iconBackground?: React.ReactNode;
@@ -614,7 +616,7 @@ function MaxDrawdownStat({
                         </span>
                     }
                     text={riskLabel}
-                    tooltip="Уровень риска рассчитывается по максимальной просадке и объёму выборки прогнозов."
+                    tooltip={riskTooltip}
                     ariaLabel="Уровень риска"
                 />
             </div>
@@ -745,10 +747,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
     const ddPercentValue = stats && stats.startingBankroll > 0 ? (stats.maxDrawdown / stats.startingBankroll) * 100 : 0;
     const maxDrawdownPercent = `${ddPercentValue.toFixed(1)}%`;
-    const drawdownRiskLevel = settledPredictions < 100
+    const hasInsufficientBetHistory = settledPredictions < 100;
+    const drawdownRiskLevel = hasInsufficientBetHistory
         ? {
             label: "Высокий риск",
-            iconClassName: styles.metricIconGray,
+            iconClassName: styles.metricIconNoHistory,
         }
         : ddPercentValue > 75
             ? {
@@ -764,12 +767,12 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                     ? {
                         label: "Умеренный риск",
                         iconClassName: styles.metricIconGreen,
-                    }
+                }
                     : {
                         label: "Низкий риск",
                         iconClassName: styles.metricIconGreen,
                     };
-    const isLowRiskHighlighted = settledPredictions >= 100 && ddPercentValue <= 30;
+    const isLowRiskHighlighted = !hasInsufficientBetHistory && ddPercentValue <= 30;
     const volatilityValue = stats ? stats.volatility : 0;
     const volatility = stats ? volatilityValue.toFixed(2) : loading ? "..." : "0.00";
     const volatilityLevel = loading
@@ -963,8 +966,23 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 drawdownMoney={maxDrawdownMoney}
                 drawdownPercent={maxDrawdownPercent}
                 loading={loading}
-                helpText="Максимальное падение банкролла от локального пика до минимума за период."
+                helpText={
+                    <>
+                        <p className={styles.helpTooltipParagraph}>
+                            Максимальная просадка показывает наибольшее снижение банкролла от локального пика до последующего минимума за всё время публикации прогнозов. Показатель отражает самый глубокий спад банкролла и позволяет оценить максимальный уровень временных потерь, которые могла испытывать стратегия.
+                        </p>
+
+                        <p className={styles.helpTooltipParagraph}>
+                            Важно учитывать, что даже при высокой просадке последующее восстановление банкролла и выход из глубокого спада могут указывать на устойчивость стратегии и способность автора адаптироваться к неблагоприятным сериям.
+                        </p>
+                    </>
+                }
                 riskLabel={drawdownRiskLevel.label}
+                riskTooltip={
+                    hasInsufficientBetHistory
+                        ? "Уровень риска установлен как высокий, поскольку канал пока не имеет достаточной истории ставок. При отсутствии накопленной статистики невозможно объективно оценить возможные просадки банкролла и стабильность результатов стратегии. По мере публикации новых прогнозов и формирования истории ставок показатель риска будет пересчитан на основе фактических данных."
+                        : "Уровень риска определяется на основе максимальной просадки банкролла и общего объёма опубликованных прогнозов. Более высокая просадка указывает на повышенную волатильность результатов и более агрессивный стиль управления банкроллом, тогда как меньшая просадка при достаточном количестве прогнозов свидетельствует о более стабильной стратегии. При этом способность канала восстановить банкролл после глубокой просадки также может говорить о долгосрочной устойчивости стратегии и в отдельных случаях снижать итоговую оценку уровня риска."
+                }
                 riskIconClassName={drawdownRiskLevel.iconClassName}
                 iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
