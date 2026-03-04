@@ -24,6 +24,7 @@ import {
     ShieldCheck,
     Gauge,
     HeartPulse,
+    TriangleAlert,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useChannelStats } from "../model/useChannelStats";
@@ -379,7 +380,23 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
                 </span>
             }
             text={roiLevel.label}
-            tooltip="Уровень доходности рассчитывается по ROI за выбранный период. Чем выше ROI, тем выше уровень."
+            tooltip={
+                <>
+                    <p className={styles.helpTooltipParagraph}>
+                        Уровень доходности отражает эффективность стратегии на основе показателя ROI. Он показывает, какую
+                        прибыль стратегия генерирует относительно общего оборота ставок.
+                    </p>
+                    <p className={styles.helpTooltipParagraph}>
+                        <TriangleAlert size={14} className={styles.metricIconRed} /> Мы настоятельно рекомендуем с осторожностью
+                        интерпретировать показатель ROI, если общее число прогнозов на канале меньше 500. На короткой дистанции
+                        результаты могут значительно искажаться из-за случайных серий выигрышей или проигрышей.
+                    </p>
+                    <p className={styles.helpTooltipParagraph}>
+                        Небольшая выборка не позволяет объективно оценить устойчивость стратегии. Чем больше дистанция
+                        прогнозов, тем точнее ROI отражает реальную доходность на длительном промежутке времени.
+                    </p>
+                </>
+            }
             ariaLabel="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
         />
     );
