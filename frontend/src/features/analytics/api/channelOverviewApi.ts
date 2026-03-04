@@ -27,6 +27,6 @@ export async function fetchChannelOverview(params: {
   // ВАЖНО: без "/api" — backend маппит "/channels/..."
   return http<ChannelOverviewResponse>(
     `/channels/${safeSlug}/analytics/overview?period=${safePeriod}`,
-    { method: 'GET' }
+    { method: 'GET', token: null }
   );
 }

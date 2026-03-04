@@ -69,7 +69,7 @@ export async function fetchChannelPredictions(slug: string, take?: number, skip?
     if (typeof skip === "number") qs.set("skip", String(skip));
     const suffix = qs.toString() ? `?${qs.toString()}` : "";
 
-    return http<PredictionsPage>(`/channels/${slug}/predictions${suffix}`);
+    return http<PredictionsPage>(`/channels/${slug}/predictions${suffix}`, { token: null });
 }
 
 export async function createPrediction(slug: string, dto: CreatePredictionDto) {

@@ -17,5 +17,6 @@ export async function fetchChannelMonthlyStats(slug: string): Promise<ChannelMon
   const safeSlug = encodeURIComponent(slug);
   return http<ChannelMonthlyStatsResponse>(`/channels/${safeSlug}/analytics/monthly-stats`, {
     method: 'GET',
+    token: null,
   });
 }

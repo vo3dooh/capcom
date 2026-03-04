@@ -1,11 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common'
-import { JwtAuthGuard } from '../../auth/jwt-auth.guard'
+import { Controller, Get, Param, Query } from '@nestjs/common'
 import { ChannelAnalyticsService } from './channel-analytics.service'
 
 type Period = 'month' | 'all'
 
 @Controller('channels/:slug/analytics')
-@UseGuards(JwtAuthGuard)
 export class ChannelAnalyticsController {
   constructor(private readonly service: ChannelAnalyticsService) {}
 

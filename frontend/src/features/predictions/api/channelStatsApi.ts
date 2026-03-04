@@ -37,5 +37,5 @@ export type ChannelStatsResponse = {
 
 export async function fetchChannelStats(slug: string): Promise<ChannelStatsResponse> {
   const safeSlug = encodeURIComponent(slug);
-  return http<ChannelStatsResponse>(`/channels/${safeSlug}/analytics/stats`, { method: 'GET' });
+  return http<ChannelStatsResponse>(`/channels/${safeSlug}/analytics/stats`, { method: 'GET', token: null });
 }

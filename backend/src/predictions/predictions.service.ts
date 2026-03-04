@@ -496,10 +496,11 @@ export class PredictionsService {
     });
   }
 
-  async list(slug: string, userId: string, takeRaw?: number, skipRaw?: number) {
+  async list(slug: string, userId?: string, takeRaw?: number, skipRaw?: number) {
     const channel = await this.requireChannel(slug);
 
     if (channel.visibility === 'private') {
+      if (!userId) throw new ForbiddenException('Private channel')
       await this.requireMember(channel.id, userId);
     }
 
