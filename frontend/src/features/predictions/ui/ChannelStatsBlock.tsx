@@ -383,17 +383,7 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
             tooltip={
                 <>
                     <p className={styles.helpTooltipParagraph}>
-                        Уровень доходности отражает эффективность стратегии на основе показателя ROI. Он показывает, какую
-                        прибыль стратегия генерирует относительно общего оборота ставок.
-                    </p>
-                    <p className={styles.helpTooltipParagraph}>
-                        <TriangleAlert size={14} className={styles.metricIconRed} /> Мы настоятельно рекомендуем с осторожностью
-                        интерпретировать показатель ROI, если общее число прогнозов на канале меньше 500. На короткой дистанции
-                        результаты могут значительно искажаться из-за случайных серий выигрышей или проигрышей.
-                    </p>
-                    <p className={styles.helpTooltipParagraph}>
-                        Небольшая выборка не позволяет объективно оценить устойчивость стратегии. Чем больше дистанция
-                        прогнозов, тем точнее ROI отражает реальную доходность на длительном промежутке времени.
+                        Уровень доходности отражает эффективность стратегии на основе значения ROI и помогает определить какую прибыль стратегия генерирует относительно общего оборота ставок.
                     </p>
                 </>
             }
@@ -872,8 +862,27 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 icon={<TrendingUp size={16} className={styles.roiHeadIconGlyph} />}
                 title="ROI"
                 value={roi}
+                metaClassName={styles.metaWithTooltip}
                 meta={<RoiLevelIndicator roiPercent={roiPercent} settledPredictions={settledPredictions} loading={loading} />}
-                helpText="ROI — показатель эффективности ставок. Он отражает, какой процент прибыли или убытка вы получаете от общего оборота ставок. Чем выше ROI, тем лучше результат на дистанции."
+                helpText={
+                    <>
+                        <p className={styles.helpTooltipParagraph}>
+                            ROI — показатель эффективности ставок. Он отражает, какой процент прибыли или убытка вы получаете
+                            от общего оборота ставок. Чем выше ROI, тем лучше результат на дистанции.
+                        </p>
+
+                        <p className={styles.helpTooltipParagraph}>
+                            <TriangleAlert size={14} className={`${styles.metricIconRed} ${styles.metricIconInline}`} /> Мы настоятельно рекомендуем с осторожностью
+                            интерпретировать показатель ROI, если общее число прогнозов на канале меньше 500. На короткой дистанции
+                            результаты могут значительно искажаться из-за случайных серий выигрышей или проигрышей.
+                        </p>
+
+                        <p className={styles.helpTooltipParagraph}>
+                            Небольшая выборка не позволяет объективно оценить устойчивость стратегии. Чем больше дистанция прогнозов,
+                            тем точнее ROI отражает реальную доходность на длительном промежутке времени.
+                        </p>
+                    </>
+                }
                 iconWrapClassName={isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
                     isExceptionalRoi ? (

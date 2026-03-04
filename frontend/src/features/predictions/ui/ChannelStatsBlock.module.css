@@ -318,6 +318,10 @@
     cursor: default;
 }
 
+.metricIconInline {
+    vertical-align: -3px;
+}
+
 .metricIcon svg {
     width: 12px;
     height: 12px;
