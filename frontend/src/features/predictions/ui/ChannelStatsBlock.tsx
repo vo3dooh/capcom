@@ -9,7 +9,6 @@ import {
     ArrowUp,
     ArrowDown,
     Wallet,
-    ShieldAlert,
     PlusCircle,
     MinusCircle,
     RotateCcw,
@@ -22,7 +21,7 @@ import {
     Shield,
     ShieldX,
     ShieldCheck,
-    Gauge,
+    Scale,
     HeartPulse,
     TriangleAlert,
 } from "lucide-react";
@@ -99,6 +98,16 @@ type MetricStatusTipProps = {
     tooltipClassName?: string;
 };
 
+const INSUFFICIENT_DISTANCE_TEXT = "Недостаточно дистанции";
+const INSUFFICIENT_DISTANCE_TOOLTIP =
+    "Канал находится на этапе становления, поэтому объём накопленной статистики пока недостаточен для корректного расчёта и отображения некоторых аналитических показателей. По мере публикации новых прогнозов и формирования истории ставок метрики будут автоматически пересчитаны на основе фактических данных.";
+
+type InsufficientDistanceTipProps = {
+    className?: string;
+    textClassName?: string;
+    tooltipClassName?: string;
+};
+
 function HelpTip({ content, ariaLabelText }: HelpTipProps) {
     return (
         <button type="button" className={styles.helpButton} aria-label={`Подсказка: ${ariaLabelText}`}>
@@ -131,6 +140,17 @@ function MetricStatusTip({
                 {tooltip}
             </span>
         </button>
+    );
+}
+
+function InsufficientDistanceTip({ className, textClassName, tooltipClassName }: InsufficientDistanceTipProps) {
+    return (
+        <span className={`${styles.insufficientDistanceTip} ${className ?? ""}`.trim()}>
+            <span className={`${styles.metricStatusText} ${textClassName ?? ""}`.trim()}>{INSUFFICIENT_DISTANCE_TEXT}</span>
+            <span className={`${styles.metricStatusTooltip} ${tooltipClassName ?? ""}`.trim()} role="tooltip">
+                {INSUFFICIENT_DISTANCE_TOOLTIP}
+            </span>
+        </span>
     );
 }
 
@@ -179,7 +199,7 @@ function OutcomesStat({
         }
         : settledPredictions < 10
             ? {
-                label: "Недостаточно дистанции",
+                label: INSUFFICIENT_DISTANCE_TEXT,
                 iconClassName: styles.metricIconGray,
             }
         : winRate < 50
@@ -239,7 +259,7 @@ function OutcomesStat({
                     <span className={`${styles.metricIcon} ${hitRateLevel.iconClassName}`}>
                         <Percent size={12} />
                     </span>
-                    <span className={styles.metricStatusText}>{hitRateLevel.label}</span>
+                    {loading ? <span className={styles.metricStatusText}>{hitRateLevel.label}</span> : <InsufficientDistanceTip />}
                 </div>
             ) : (
                 <MetricStatusTip
@@ -344,7 +364,7 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
         }
         : settledPredictions < 100
             ? {
-                label: "Недостаточно дистанции",
+                label: INSUFFICIENT_DISTANCE_TEXT,
                 iconClassName: styles.metricIconGray,
             }
         : roiPercent < 0
@@ -381,11 +401,15 @@ function RoiLevelIndicator({ roiPercent, settledPredictions, loading }: { roiPer
             }
             text={roiLevel.label}
             tooltip={
-                <>
-                    <p className={styles.helpTooltipParagraph}>
-                        Уровень доходности отражает эффективность стратегии на основе значения ROI и помогает определить какую прибыль стратегия генерирует относительно общего оборота ставок.
-                    </p>
-                </>
+                roiLevel.label === INSUFFICIENT_DISTANCE_TEXT ? (
+                    INSUFFICIENT_DISTANCE_TOOLTIP
+                ) : (
+                    <>
+                        <p className={styles.helpTooltipParagraph}>
+                            Уровень доходности отражает эффективность стратегии на основе значения ROI и помогает определить какую прибыль стратегия генерирует относительно общего оборота ставок.
+                        </p>
+                    </>
+                )
             }
             ariaLabel="Уровень доходности канала. Рассчитывается по ROI за выбранный период."
         />
@@ -460,7 +484,7 @@ function StakeAndOddsStat({
                         </span>
                     </>
                 ) : (
-                    <span className={`${styles.changePart} ${styles.metricStatusText}`}>Недостаточно дистанции</span>
+                    <InsufficientDistanceTip className={styles.changePart} textClassName={styles.changePart} />
                 )}
                 <span className={styles.changesTooltip} role="tooltip">
                     <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
@@ -603,7 +627,7 @@ function MaxDrawdownStat({
             <div className={styles.statHead}>
                 <div className={`${styles.iconWrap} ${iconWrapClassName ?? ""}`.trim()}>
                     {iconBackground}
-                    <ShieldAlert size={16} className={styles.roiHeadIconGlyph} />
+                    <Scale size={16} className={styles.roiHeadIconGlyph} />
                 </div>
                 <div className={styles.title}>Максимальная просадка</div>
             </div>
@@ -612,7 +636,7 @@ function MaxDrawdownStat({
                 <MetricStatusTip
                     icon={
                         <span className={`${styles.metricIcon} ${riskIconClassName}`}>
-                            <Gauge size={12} />
+                            <Scale size={12} />
                         </span>
                     }
                     text={riskLabel}
@@ -782,7 +806,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
         }
         : settledPredictions < 100
             ? {
-                label: "Недостаточно дистанции",
+                label: INSUFFICIENT_DISTANCE_TEXT,
                 iconClassName: styles.metricIconGray,
             }
             : volatilityValue <= 25
@@ -927,7 +951,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                             </span>
                         }
                         text={volatilityLevel.label}
-                        tooltip="Уровень стиля ставок отражает степень агрессивности стратегии на основе текущей волатильности. Он характеризует допустимый уровень риска и амплитуду возможных отклонений банкролла."
+                        tooltip={
+                            volatilityLevel.label === INSUFFICIENT_DISTANCE_TEXT
+                                ? INSUFFICIENT_DISTANCE_TOOLTIP
+                                : "Уровень стиля ставок отражает степень агрессивности стратегии на основе текущей волатильности. Он характеризует допустимый уровень риска и амплитуду возможных отклонений банкролла."
+                        }
                         ariaLabel="Стиль волатильности канала"
                     />
                 }
