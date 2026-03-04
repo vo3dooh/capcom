@@ -106,6 +106,7 @@ type InsufficientDistanceTipProps = {
     className?: string;
     textClassName?: string;
     tooltipClassName?: string;
+    disableTooltip?: boolean;
 };
 
 function HelpTip({ content, ariaLabelText }: HelpTipProps) {
@@ -143,13 +144,15 @@ function MetricStatusTip({
     );
 }
 
-function InsufficientDistanceTip({ className, textClassName, tooltipClassName }: InsufficientDistanceTipProps) {
+function InsufficientDistanceTip({ className, textClassName, tooltipClassName, disableTooltip }: InsufficientDistanceTipProps) {
     return (
         <span className={`${styles.insufficientDistanceTip} ${className ?? ""}`.trim()}>
             <span className={`${styles.metricStatusText} ${textClassName ?? ""}`.trim()}>{INSUFFICIENT_DISTANCE_TEXT}</span>
-            <span className={`${styles.metricStatusTooltip} ${tooltipClassName ?? ""}`.trim()} role="tooltip">
-                {INSUFFICIENT_DISTANCE_TOOLTIP}
-            </span>
+            {disableTooltip ? null : (
+                <span className={`${styles.metricStatusTooltip} ${tooltipClassName ?? ""}`.trim()} role="tooltip">
+                    {INSUFFICIENT_DISTANCE_TOOLTIP}
+                </span>
+            )}
         </span>
     );
 }
@@ -254,13 +257,25 @@ function OutcomesStat({
                 </div>
             </div>
 
-            {loading || settledPredictions < 10 ? (
+            {loading ? (
                 <div className={styles.outcomesHitRateMeta}>
                     <span className={`${styles.metricIcon} ${hitRateLevel.iconClassName}`}>
                         <Percent size={12} />
                     </span>
-                    {loading ? <span className={styles.metricStatusText}>{hitRateLevel.label}</span> : <InsufficientDistanceTip />}
+                    <span className={styles.metricStatusText}>{hitRateLevel.label}</span>
                 </div>
+            ) : settledPredictions < 10 ? (
+                <MetricStatusTip
+                    icon={
+                        <span className={`${styles.metricIcon} ${hitRateLevel.iconClassName}`}>
+                            <Percent size={12} />
+                        </span>
+                    }
+                    text={INSUFFICIENT_DISTANCE_TEXT}
+                    tooltip={INSUFFICIENT_DISTANCE_TOOLTIP}
+                    ariaLabel="Недостаточно дистанции для проходимости"
+                    buttonClassName={styles.outcomesHitRateMeta}
+                />
             ) : (
                 <MetricStatusTip
                     icon={
@@ -484,7 +499,7 @@ function StakeAndOddsStat({
                         </span>
                     </>
                 ) : (
-                    <InsufficientDistanceTip className={styles.changePart} textClassName={styles.changePart} />
+                    <InsufficientDistanceTip className={styles.changePart} textClassName={styles.changePart} disableTooltip />
                 )}
                 {isChangesCalculated ? (
                     <span className={styles.changesTooltip} role="tooltip">
