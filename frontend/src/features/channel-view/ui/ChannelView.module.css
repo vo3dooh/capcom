@@ -195,16 +195,20 @@
     gap: 10px;
 }
 
-.actionsIcons {
+.coverActions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 3;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .iconBtn {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
     background: #ffffff;
     display: inline-flex;
     align-items: center;

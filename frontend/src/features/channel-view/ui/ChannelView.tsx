@@ -39,6 +39,29 @@ export function ChannelView({ slug }: { slug: string }) {
                                 <div className={styles.coverFallback} />
                             )}
                             <div className={styles.coverShade} />
+                            <div className={styles.coverActions}>
+                                {canCreatePrediction ? (
+                                    <Link
+                                        to={`/channels/${data.slug}/predictions/new`}
+                                        className={styles.iconBtn}
+                                        aria-label="Создать прогноз"
+                                        title="Создать прогноз"
+                                    >
+                                        <Plus className={styles.icon} aria-hidden="true" />
+                                    </Link>
+                                ) : null}
+
+                                {canSeeSettings ? (
+                                    <Link
+                                        to={`/channels/${data.slug}/settings`}
+                                        className={styles.iconBtn}
+                                        aria-label="Настройки"
+                                        title="Настройки"
+                                    >
+                                        <Settings className={styles.icon} aria-hidden="true" />
+                                    </Link>
+                                ) : null}
+                            </div>
                         </div>
 
                         <div className={styles.headerBody}>
@@ -83,29 +106,6 @@ export function ChannelView({ slug }: { slug: string }) {
                                                 ) : null}
                                             </div>
 
-                                            <div className={styles.actionsIcons}>
-                                                {canCreatePrediction ? (
-                                                    <Link
-                                                        to={`/channels/${data.slug}/predictions/new`}
-                                                        className={styles.iconBtn}
-                                                        aria-label="Создать прогноз"
-                                                        title="Создать прогноз"
-                                                    >
-                                                        <Plus className={styles.icon} aria-hidden="true" />
-                                                    </Link>
-                                                ) : null}
-
-                                                {canSeeSettings ? (
-                                                    <Link
-                                                        to={`/channels/${data.slug}/settings`}
-                                                        className={styles.iconBtn}
-                                                        aria-label="Настройки"
-                                                        title="Настройки"
-                                                    >
-                                                        <Settings className={styles.icon} aria-hidden="true" />
-                                                    </Link>
-                                                ) : null}
-                                            </div>
                                         </div>
                                     </div>
 
