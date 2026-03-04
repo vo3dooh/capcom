@@ -458,6 +458,8 @@
     left: 0;
     min-width: 210px;
     max-width: 240px;
+    white-space: pre-line;
+    line-height: 1.4;
 }
 
 .metricStatusButton:hover .metricStatusTooltip,
