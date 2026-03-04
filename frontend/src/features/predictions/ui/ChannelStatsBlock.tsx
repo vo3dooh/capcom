@@ -486,25 +486,31 @@ function StakeAndOddsStat({
                 ) : (
                     <InsufficientDistanceTip className={styles.changePart} textClassName={styles.changePart} />
                 )}
-                <span className={styles.changesTooltip} role="tooltip">
-                    <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
-                    <span className={styles.changesTooltipParagraph}>Он помогает понять, сохраняет ли прогнозист свой стиль ставок или меняет подход.</span>
-                    <span className={styles.changesTooltipDivider} />
-                    <span className={styles.changesTooltipIndicatorBlock}>
-                        <span className={styles.changesTooltipIndicatorTitle}>
-                            <TrendingUpDown size={12} className={styles.changesTooltipIconNegative} />
-                            <span>Красный индикатор</span>
+                {isChangesCalculated ? (
+                    <span className={styles.changesTooltip} role="tooltip">
+                        <span className={styles.changesTooltipParagraph}>Показатель динамики отражает, как новые рассчитанные прогнозы повлияли на общие средние значения за весь период.</span>
+                        <span className={styles.changesTooltipParagraph}>Он помогает понять, сохраняет ли прогнозист свой стиль ставок или меняет подход.</span>
+                        <span className={styles.changesTooltipDivider} />
+                        <span className={styles.changesTooltipIndicatorBlock}>
+                            <span className={styles.changesTooltipIndicatorTitle}>
+                                <TrendingUpDown size={12} className={styles.changesTooltipIconNegative} />
+                                <span>Красный индикатор</span>
+                            </span>
+                            <span className={styles.changesTooltipParagraph}>Сигнализирует о корректировке стратегии или изменении степени агрессивности.</span>
                         </span>
-                        <span className={styles.changesTooltipParagraph}>Сигнализирует о корректировке стратегии или изменении степени агрессивности.</span>
-                    </span>
-                    <span className={styles.changesTooltipIndicatorBlock}>
-                        <span className={styles.changesTooltipIndicatorTitle}>
-                            <TrendingUpDown size={12} className={styles.changesTooltipIconPositive} />
-                            <span>Зелёный индикатор</span>
+                        <span className={styles.changesTooltipIndicatorBlock}>
+                            <span className={styles.changesTooltipIndicatorTitle}>
+                                <TrendingUpDown size={12} className={styles.changesTooltipIconPositive} />
+                                <span>Зелёный индикатор</span>
+                            </span>
+                            <span className={styles.changesTooltipParagraph}>Указывает на сохранение выбранной стратегии и стиля ставок.</span>
                         </span>
-                        <span className={styles.changesTooltipParagraph}>Указывает на сохранение выбранной стратегии и стиля ставок.</span>
                     </span>
-                </span>
+                ) : (
+                    <span className={styles.changesTooltip} role="tooltip">
+                        {INSUFFICIENT_DISTANCE_TOOLTIP}
+                    </span>
+                )}
             </button>
         </div>
     );
@@ -1009,7 +1015,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 riskTooltip={
                     hasInsufficientBetHistory
                     ? "Уровень риска установлен как высокий, поскольку канал пока не имеет достаточной истории ставок. При отсутствии накопленной статистики невозможно объективно оценить возможные просадки банкролла и стабильность результатов стратегии. По мере публикации новых прогнозов и формирования истории ставок показатель риска будет пересчитан на основе фактических данных."
-                    : "Уровень риска определяется на основе максимальной просадки банкролла и общего объёма опубликованных прогнозов. Чем выше уровень риска — тем выше вероятность потери банкролла.\n При этом способность канала восстановить банкролл после глубокой просадки также может говорить о долгосрочной устойчивости стратегии и в отдельных случаях снижать итоговую оценку уровня риска."
+                    : "Уровень риска определяется на основе максимальной просадки банкролла и общего объёма опубликованных прогнозов. Чем выше уровень риска — тем выше вероятность потери банкролла.\nПри этом способность канала восстановить банкролл после глубокой просадки также может говорить о долгосрочной устойчивости стратегии и в отдельных случаях снижать итоговую оценку уровня риска."
                 }
                 riskIconClassName={drawdownRiskLevel.iconClassName}
                 iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
