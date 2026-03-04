@@ -148,17 +148,23 @@
 }
 
 .title {
-    font-size: 26px;
+    font-size: 22px;
     line-height: 32px;
-    font-weight: 900;
+    font-weight: 800;
     color: #0f172a;
 }
 
 .handle {
     font-size: 13px;
     line-height: 18px;
-    font-weight: 800;
-    color: rgba(15, 23, 42, 0.60);
+    font-weight: 600;
+    color: rgba(71, 85, 105, 1);
+}
+
+.hr {
+    height: 1px;
+    background: rgba(20, 24, 28, 0.10);
+    margin: 4px 0;
 }
 
 .meta {
@@ -256,9 +262,6 @@
 }
 
 .aboutBlock {
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid rgba(15, 23, 42, 0.08);
     display: grid;
     gap: 6px;
 }
@@ -410,4 +413,3 @@
         flex-wrap: wrap;
     }
 }
-

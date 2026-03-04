@@ -54,8 +54,8 @@ export function ChannelView({ slug }: { slug: string }) {
                                 <div className={styles.headerMain}>
                                     <div className={styles.headerTopRow}>
                                         <div className={styles.titleBlock}>
-                                            <div className={styles.title}>{data.name}</div>
-                                            <div className={styles.handle}>@{data.slug}</div>
+                                            <div className={styles.title}>Capper Community Unprofitable</div>
+                                            <div className={styles.handle}>@capcomunprof</div>
                                         </div>
 
                                         <div className={styles.actions}>
@@ -109,19 +109,10 @@ export function ChannelView({ slug }: { slug: string }) {
                                         </div>
                                     </div>
 
-                                    <div className={styles.meta}>
-                                        <span className={styles.metaItem}>{data.membersCount} участников</span>
-                                        <span className={styles.metaDot}>•</span>
-                                        <span className={styles.metaItem}>
-                                            Прогнозы:{" "}
-                                            {data.predictionsVisibility === "public"
-                                                ? "для всех (авторизованных)"
-                                                : "только для подписчиков"}
-                                        </span>
-                                    </div>
+                                    <div className={styles.hr} />
 
                                     <div className={styles.aboutBlock}>
-                                        <div className={styles.aboutTitle}>О канале</div>
+                                        <div className={styles.aboutTitle}>Описание канала</div>
                                         <div className={styles.aboutText}>
                                             {data.description ? data.description : "Описание не задано"}
                                         </div>
