@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { ChannelViewModel, fetchChannel, joinChannel, leaveChannel } from "../api/channelViewApi";
+import {
+    ChannelViewModel,
+    fetchChannel,
+    subscribeToChannel,
+    unsubscribeFromChannel,
+} from "../api/channelViewApi";
 import { HttpError } from "@/shared/api/http";
 
 export function useChannelView(slug: string) {
@@ -7,6 +12,7 @@ export function useChannelView(slug: string) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [actionError, setActionError] = useState<string | null>(null);
 
     const reload = useCallback(() => {
         setLoading(true);
@@ -25,27 +31,43 @@ export function useChannelView(slug: string) {
         reload();
     }, [reload]);
 
-    const join = useCallback(async () => {
+    const subscribe = useCallback(async () => {
         if (actionLoading) return;
+        setActionError(null);
         setActionLoading(true);
         try {
-            await joinChannel(slug);
+            await subscribeToChannel(slug);
+            setData((prev) => {
+                if (!prev || prev.isMember) return prev;
+                return { ...prev, isMember: true, membersCount: prev.membersCount + 1 };
+            });
             reload();
+        } catch (e) {
+            if (e instanceof HttpError) setActionError(e.message);
+            else setActionError("Не удалось подписаться на канал");
         } finally {
             setActionLoading(false);
         }
     }, [slug, reload, actionLoading]);
 
-    const leave = useCallback(async () => {
+    const unsubscribe = useCallback(async () => {
         if (actionLoading) return;
+        setActionError(null);
         setActionLoading(true);
         try {
-            await leaveChannel(slug);
+            await unsubscribeFromChannel(slug);
+            setData((prev) => {
+                if (!prev || !prev.isMember) return prev;
+                return { ...prev, isMember: false, membersCount: Math.max(0, prev.membersCount - 1) };
+            });
             reload();
+        } catch (e) {
+            if (e instanceof HttpError) setActionError(e.message);
+            else setActionError("Не удалось отписаться от канала");
         } finally {
             setActionLoading(false);
         }
     }, [slug, reload, actionLoading]);
 
-    return { data, loading, error, join, leave, actionLoading, reload };
+    return { data, loading, error, subscribe, unsubscribe, actionLoading, actionError, reload };
 }

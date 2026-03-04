@@ -202,29 +202,35 @@ export class ChannelsService {
       throw new NotFoundException('Channel not found')
     }
 
-    let membership: { role: string } | null = null
+    let membership: { role: string; status: string } | null = null
 
     if (userId) {
       membership = await this.prisma.channelMember.findFirst({
         where: {
           channelId: channel.id,
-          userId,
-          status: 'active'
+          userId
         },
         select: {
-          role: true
+          role: true,
+          status: true
         }
       })
     }
 
+    if (channel.visibility === 'private' && membership?.status !== 'active') {
+      throw new NotFoundException('Channel not found')
+    }
+
+    const isMemberActive = membership?.status === 'active'
+
     return {
       ...channel,
-      isMember: !!membership,
-      myRole: membership ? membership.role : null
+      isMember: isMemberActive,
+      myRole: isMemberActive ? membership?.role ?? null : null
     }
   }
 
-  async join(slug: string, userId: string) {
+  async subscribe(slug: string, userId: string) {
     const channel = await this.prisma.channel.findUnique({
       where: { slug }
     })
@@ -237,6 +243,10 @@ export class ChannelsService {
       throw new ForbiddenException('Private channel')
     }
 
+    if (channel.ownerId === userId) {
+      throw new ConflictException('Owner cannot subscribe to own channel')
+    }
+
     const existing = await this.prisma.channelMember.findUnique({
       where: {
         userId_channelId: {
@@ -246,16 +256,44 @@ export class ChannelsService {
       }
     })
 
-    if (existing) {
+    if (existing?.status === 'active') {
       return { success: true }
     }
 
+    if (existing?.status === 'banned') {
+      throw new ForbiddenException('Banned user cannot subscribe')
+    }
+
     await this.prisma.$transaction(async (tx) => {
-      await tx.channelMember.create({
-        data: {
-          userId,
+      if (existing) {
+        await tx.channelMember.update({
+          where: {
+            userId_channelId: {
+              userId,
+              channelId: channel.id
+            }
+          },
+          data: {
+            status: 'active',
+            role: existing.role === 'owner' ? 'member' : existing.role,
+            leftAt: null
+          }
+        })
+      } else {
+        await tx.channelMember.create({
+          data: {
+            userId,
+            channelId: channel.id,
+            role: 'member',
+            status: 'active',
+            leftAt: null
+          }
+        })
+      }
+
+      const activeMembersCount = await tx.channelMember.count({
+        where: {
           channelId: channel.id,
-          role: 'member',
           status: 'active'
         }
       })
@@ -263,7 +301,7 @@ export class ChannelsService {
       await tx.channel.update({
         where: { id: channel.id },
         data: {
-          membersCount: { increment: 1 }
+          membersCount: activeMembersCount
         }
       })
     })
@@ -271,7 +309,7 @@ export class ChannelsService {
     return { success: true }
   }
 
-  async leave(slug: string, userId: string) {
+  async unsubscribe(slug: string, userId: string) {
     const channel = await this.prisma.channel.findUnique({
       where: { slug }
     })
@@ -289,28 +327,39 @@ export class ChannelsService {
       }
     })
 
-    if (!membership) {
+    if (!membership || membership.status === 'left') {
       return { success: true }
     }
 
     if (membership.role === 'owner') {
-      throw new ForbiddenException('Owner cannot leave')
+      throw new ConflictException('Owner cannot unsubscribe from own channel')
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.channelMember.delete({
+      await tx.channelMember.update({
         where: {
           userId_channelId: {
             userId,
             channelId: channel.id
           }
+        },
+        data: {
+          status: 'left',
+          leftAt: new Date()
+        }
+      })
+
+      const activeMembersCount = await tx.channelMember.count({
+        where: {
+          channelId: channel.id,
+          status: 'active'
         }
       })
 
       await tx.channel.update({
         where: { id: channel.id },
         data: {
-          membersCount: { decrement: 1 }
+          membersCount: activeMembersCount
         }
       })
     })
