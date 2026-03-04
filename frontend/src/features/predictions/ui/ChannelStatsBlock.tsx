@@ -48,6 +48,8 @@ type RoiHeadBgState = {
     presetB: RoiHeadBgPreset;
 };
 
+type RoiHeadHighlightTone = "success" | "danger";
+
 function pickRandomRoiHeadBgPreset(exclude?: RoiHeadBgPreset): RoiHeadBgPreset {
     const options = exclude ? ROI_HEAD_BG_PRESETS.filter((preset) => preset !== exclude) : ROI_HEAD_BG_PRESETS;
     const randomIndex = Math.floor(Math.random() * options.length);
@@ -70,6 +72,34 @@ function createRoiHeadBgState(): RoiHeadBgState {
         presetA,
         presetB,
     };
+}
+
+function getRoiHeadBgPresetClass(preset: RoiHeadBgPreset, tone: RoiHeadHighlightTone): string {
+    if (tone === "danger") {
+        const dangerPreset = preset.replace("roiHeadBgPreset", "roiHeadBgDangerPreset") as keyof typeof styles;
+        return styles[dangerPreset];
+    }
+
+    return styles[preset as keyof typeof styles];
+}
+
+function renderRoiHeadIconBackground(roiHeadBgState: RoiHeadBgState, tone: RoiHeadHighlightTone): React.ReactNode {
+    return (
+        <>
+            <span
+                className={`${styles.roiHeadBgLayer} ${tone === "danger" ? styles.roiHeadBgDangerLayer : ""} ${getRoiHeadBgPresetClass(
+                    roiHeadBgState.presetA,
+                    tone,
+                )} ${roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive}`.trim()}
+            />
+            <span
+                className={`${styles.roiHeadBgLayer} ${tone === "danger" ? styles.roiHeadBgDangerLayer : ""} ${getRoiHeadBgPresetClass(
+                    roiHeadBgState.presetB,
+                    tone,
+                )} ${roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive}`.trim()}
+            />
+        </>
+    );
 }
 
 type StatItemProps = {
@@ -559,14 +589,14 @@ function PlannedProfitStat({
                                trustLabel,
                                trustToneClassName,
                                trustTone,
-                               isTrustHighlighted,
+                               highlightTone,
                                roiHeadBgState,
                            }: {
     plannedProfit: string;
     trustLabel: string;
     trustToneClassName: string;
     trustTone?: "danger" | "warning" | "success";
-    isTrustHighlighted: boolean;
+    highlightTone?: RoiHeadHighlightTone;
     roiHeadBgState: RoiHeadBgState;
 }) {
     const normalizedTrustLabel = trustLabel.toLowerCase();
@@ -585,21 +615,16 @@ function PlannedProfitStat({
     return (
         <div className={styles.statItem}>
             <div className={styles.statHead}>
-                <div className={`${styles.iconWrap} ${isTrustHighlighted ? styles.roiHeadIconExceptional : ""}`.trim()}>
-                    {isTrustHighlighted ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null}
+                <div
+                    className={`${styles.iconWrap} ${
+                        highlightTone === "danger"
+                            ? styles.roiHeadIconDanger
+                            : highlightTone === "success"
+                                ? styles.roiHeadIconExceptional
+                                : ""
+                    }`.trim()}
+                >
+                    {highlightTone ? renderRoiHeadIconBackground(roiHeadBgState, highlightTone) : null}
                     <Goal size={16} className={styles.roiHeadIconGlyph} />
                 </div>
                 <div className={styles.title}>Планируемая прибыль</div>
@@ -694,11 +719,114 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
     const roi = stats ? `${stats.roiPercent.toFixed(1)}%` : loading ? "..." : "0.0%";
     const isExceptionalRoi = !loading && roiPercent >= 10;
 
+    const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
+    const profitPercentAllTime = stats
+        ? `${(stats.startingBankroll > 0 ? (stats.totalProfit / stats.startingBankroll) * 100 : 0).toFixed(1)}%`
+        : loading
+            ? "..."
+            : "0.0%";
+
+    const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
+    const ddPercentValue = stats && stats.startingBankroll > 0 ? (stats.maxDrawdown / stats.startingBankroll) * 100 : 0;
+    const maxDrawdownPercent = `${ddPercentValue.toFixed(1)}%`;
+    const hasInsufficientBetHistory = settledPredictions < 100;
+    const drawdownRiskLevel = hasInsufficientBetHistory
+        ? {
+            label: "Высокий риск",
+            iconClassName: styles.metricIconNoHistory,
+        }
+        : ddPercentValue > 75
+            ? {
+                label: "Критический риск",
+                iconClassName: styles.metricIconRed,
+            }
+            : ddPercentValue >= 51
+                ? {
+                    label: "Повышенный риск",
+                    iconClassName: styles.outcomesHitRateIconOrange,
+                }
+                : ddPercentValue >= 31
+                    ? {
+                        label: "Умеренный риск",
+                        iconClassName: styles.metricIconGreen,
+                }
+                    : {
+                        label: "Низкий риск",
+                        iconClassName: styles.metricIconGreen,
+                    };
+    const isLowRiskHighlighted = !hasInsufficientBetHistory && ddPercentValue <= 30;
+    const isDrawdownDangerHighlighted = !hasInsufficientBetHistory && ddPercentValue > 75;
+    const volatilityValue = stats ? stats.volatility : 0;
+    const volatility = stats ? volatilityValue.toFixed(2) : loading ? "..." : "0.00";
+    const volatilityLevel = loading
+        ? {
+            label: "...",
+            iconClassName: styles.metricIconGray,
+        }
+        : settledPredictions < 100
+            ? {
+                label: INSUFFICIENT_DISTANCE_TEXT,
+                iconClassName: styles.metricIconGray,
+            }
+            : volatilityValue <= 25
+                ? {
+                    label: "Спокойный стиль",
+                    iconClassName: styles.metricIconGreen,
+                }
+                : volatilityValue <= 50
+                    ? {
+                        label: "Динамичный стиль",
+                        iconClassName: styles.metricIconGreen,
+                    }
+                    : volatilityValue <= 75
+                        ? {
+                            label: "Агрессивный стиль",
+                            iconClassName: styles.outcomesHitRateIconOrange,
+                        }
+                        : {
+                            label: "Экстремальный стиль",
+                            iconClassName: styles.metricIconRed,
+                        };
+    const isVolatilityExceptional = settledPredictions >= 100 && volatilityValue <= 25;
+    const isVolatilityDangerHighlighted = settledPredictions >= 100 && volatilityValue > 75;
+    const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
+    const plannedProfitTrust = plannedProfitStats
+        ? {
+            label: plannedProfitStats.trustLevel,
+            toneClassName:
+                plannedProfitStats.trustTone === "danger"
+                    ? styles.trustToneDanger
+                    : plannedProfitStats.trustTone === "warning"
+                        ? styles.trustToneWarning
+                        : styles.trustToneSuccess,
+        }
+        : {
+            label: "...",
+            toneClassName: styles.trustToneNeutral,
+        };
+    const isPlannedProfitTrustHighlighted = Boolean(plannedProfitStats?.isTrustHighlighted);
+    const isPlannedProfitDangerHighlighted = Boolean(plannedProfitStats && plannedProfitStats.plannedProfitPercent < -5);
+
+    const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
+    const isDangerHitRate = !loading && settledPredictions >= 10 && hitRatePercent < 45;
+    const isDangerRoi = !loading && settledPredictions >= 100 && roiPercent < 0;
+    const hasAnimatedHeadHighlight =
+        isExceptionalHitRate ||
+        isDangerHitRate ||
+        isExceptionalRoi ||
+        isDangerRoi ||
+        isVolatilityExceptional ||
+        isVolatilityDangerHighlighted ||
+        isLowRiskHighlighted ||
+        isDrawdownDangerHighlighted ||
+        isPlannedProfitTrustHighlighted ||
+        isPlannedProfitDangerHighlighted;
+
     useEffect(() => {
         let intervalTimeoutId: ReturnType<typeof setTimeout> | undefined;
         let switchTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
-        if (!isExceptionalRoi) {
+        if (!hasAnimatedHeadHighlight) {
             const resetTimeoutId = setTimeout(() => {
                 setRoiHeadBgState((currentState) =>
                     currentState.activeLayer === null
@@ -780,94 +908,7 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 clearTimeout(switchTimeoutId);
             }
         };
-    }, [isExceptionalRoi, slug]);
-
-    const profitMoney = stats ? `${stats.totalProfit.toFixed(2)}$` : "0.00$";
-    const profitPercentAllTime = stats
-        ? `${(stats.startingBankroll > 0 ? (stats.totalProfit / stats.startingBankroll) * 100 : 0).toFixed(1)}%`
-        : loading
-            ? "..."
-            : "0.0%";
-
-    const maxDrawdownMoney = stats ? `${stats.maxDrawdown.toFixed(2)}$` : "0.00$";
-    const ddPercentValue = stats && stats.startingBankroll > 0 ? (stats.maxDrawdown / stats.startingBankroll) * 100 : 0;
-    const maxDrawdownPercent = `${ddPercentValue.toFixed(1)}%`;
-    const hasInsufficientBetHistory = settledPredictions < 100;
-    const drawdownRiskLevel = hasInsufficientBetHistory
-        ? {
-            label: "Высокий риск",
-            iconClassName: styles.metricIconNoHistory,
-        }
-        : ddPercentValue > 75
-            ? {
-                label: "Критический риск",
-                iconClassName: styles.metricIconRed,
-            }
-            : ddPercentValue >= 51
-                ? {
-                    label: "Повышенный риск",
-                    iconClassName: styles.outcomesHitRateIconOrange,
-                }
-                : ddPercentValue >= 31
-                    ? {
-                        label: "Умеренный риск",
-                        iconClassName: styles.metricIconGreen,
-                }
-                    : {
-                        label: "Низкий риск",
-                        iconClassName: styles.metricIconGreen,
-                    };
-    const isLowRiskHighlighted = !hasInsufficientBetHistory && ddPercentValue <= 30;
-    const volatilityValue = stats ? stats.volatility : 0;
-    const volatility = stats ? volatilityValue.toFixed(2) : loading ? "..." : "0.00";
-    const volatilityLevel = loading
-        ? {
-            label: "...",
-            iconClassName: styles.metricIconGray,
-        }
-        : settledPredictions < 100
-            ? {
-                label: INSUFFICIENT_DISTANCE_TEXT,
-                iconClassName: styles.metricIconGray,
-            }
-            : volatilityValue <= 25
-                ? {
-                    label: "Спокойный стиль",
-                    iconClassName: styles.metricIconGreen,
-                }
-                : volatilityValue <= 50
-                    ? {
-                        label: "Динамичный стиль",
-                        iconClassName: styles.metricIconGreen,
-                    }
-                    : volatilityValue <= 75
-                        ? {
-                            label: "Агрессивный стиль",
-                            iconClassName: styles.outcomesHitRateIconOrange,
-                        }
-                        : {
-                            label: "Экстремальный стиль",
-                            iconClassName: styles.metricIconRed,
-                        };
-    const isVolatilityExceptional = settledPredictions >= 100 && volatilityValue <= 25;
-    const plannedProfit = plannedProfitStats ? `${plannedProfitStats.plannedProfitPercent.toFixed(2)}%` : loading ? "..." : "0.00%";
-    const plannedProfitTrust = plannedProfitStats
-        ? {
-            label: plannedProfitStats.trustLevel,
-            toneClassName:
-                plannedProfitStats.trustTone === "danger"
-                    ? styles.trustToneDanger
-                    : plannedProfitStats.trustTone === "warning"
-                        ? styles.trustToneWarning
-                        : styles.trustToneSuccess,
-        }
-        : {
-            label: "...",
-            toneClassName: styles.trustToneNeutral,
-        };
-    const isPlannedProfitTrustHighlighted = Boolean(plannedProfitStats?.isTrustHighlighted);
-
-    const isExceptionalHitRate = !loading && hitRatePercent >= 60 && totalPredictions > 100;
+    }, [hasAnimatedHeadHighlight, slug]);
 
 
     if (error && !stats) return <div className={styles.stateError}>{error}</div>;
@@ -888,22 +929,13 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 winRate={hitRatePercent}
                 totalBets={totalPredictions}
                 settledPredictions={settledPredictions}
-                iconWrapClassName={isExceptionalHitRate ? styles.roiHeadIconExceptional : undefined}
+                iconWrapClassName={
+                    isDangerHitRate ? styles.roiHeadIconDanger : isExceptionalHitRate ? styles.roiHeadIconExceptional : undefined
+                }
                 iconBackground={
-                    isExceptionalHitRate ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null
+                    isDangerHitRate || isExceptionalHitRate
+                        ? renderRoiHeadIconBackground(roiHeadBgState, isDangerHitRate ? "danger" : "success")
+                        : null
                 }
             />
             <StatItem
@@ -931,22 +963,11 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         </p>
                     </>
                 }
-                iconWrapClassName={isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
+                iconWrapClassName={isDangerRoi ? styles.roiHeadIconDanger : isExceptionalRoi ? styles.roiHeadIconExceptional : undefined}
                 iconBackground={
-                    isExceptionalRoi ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null
+                    isDangerRoi || isExceptionalRoi
+                        ? renderRoiHeadIconBackground(roiHeadBgState, isDangerRoi ? "danger" : "success")
+                        : null
                 }
             />
             <TotalProfitStat profitMoney={profitMoney} profitPercent={profitPercentAllTime} loading={loading} />
@@ -993,22 +1014,20 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                         </p>
                     </>
                 }
-                iconWrapClassName={isVolatilityExceptional ? styles.roiHeadIconExceptional : undefined}
+                iconWrapClassName={
+                    isVolatilityDangerHighlighted
+                        ? styles.roiHeadIconDanger
+                        : isVolatilityExceptional
+                            ? styles.roiHeadIconExceptional
+                            : undefined
+                }
                 iconBackground={
-                    isVolatilityExceptional ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null
+                    isVolatilityDangerHighlighted || isVolatilityExceptional
+                        ? renderRoiHeadIconBackground(
+                            roiHeadBgState,
+                            isVolatilityDangerHighlighted ? "danger" : "success",
+                        )
+                        : null
                 }
             />
             <MaxDrawdownStat
@@ -1033,22 +1052,20 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                     : "Уровень риска определяется на основе максимальной просадки банкролла и общего объёма опубликованных прогнозов. Чем выше уровень риска — тем выше вероятность потери банкролла.\nПри этом способность канала восстановить банкролл после глубокой просадки также может говорить о долгосрочной устойчивости стратегии и в отдельных случаях снижать итоговую оценку уровня риска."
                 }
                 riskIconClassName={drawdownRiskLevel.iconClassName}
-                iconWrapClassName={isLowRiskHighlighted ? styles.roiHeadIconExceptional : undefined}
+                iconWrapClassName={
+                    isDrawdownDangerHighlighted
+                        ? styles.roiHeadIconDanger
+                        : isLowRiskHighlighted
+                            ? styles.roiHeadIconExceptional
+                            : undefined
+                }
                 iconBackground={
-                    isLowRiskHighlighted ? (
-                        <>
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetA as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "A" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                            <span
-                                className={`${styles.roiHeadBgLayer} ${styles[roiHeadBgState.presetB as keyof typeof styles]} ${
-                                    roiHeadBgState.activeLayer === "B" ? styles.roiHeadBgActive : styles.roiHeadBgInactive
-                                }`}
-                            />
-                        </>
-                    ) : null
+                    isDrawdownDangerHighlighted || isLowRiskHighlighted
+                        ? renderRoiHeadIconBackground(
+                            roiHeadBgState,
+                            isDrawdownDangerHighlighted ? "danger" : "success",
+                        )
+                        : null
                 }
             />
             <PlannedProfitStat
@@ -1056,7 +1073,9 @@ export function ChannelStatsBlock({ slug }: { slug: string }) {
                 trustLabel={plannedProfitTrust.label}
                 trustToneClassName={plannedProfitTrust.toneClassName}
                 trustTone={plannedProfitStats?.trustTone}
-                isTrustHighlighted={isPlannedProfitTrustHighlighted}
+                highlightTone={
+                    isPlannedProfitDangerHighlighted ? "danger" : isPlannedProfitTrustHighlighted ? "success" : undefined
+                }
                 roiHeadBgState={roiHeadBgState}
             />
         </div>
