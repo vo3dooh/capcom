@@ -10,8 +10,8 @@ export function ChannelSettingsPage() {
     return (
         <div className={styles.page}>
             <div className={styles.header}>
-                <h1 className={styles.title}>Channel settings</h1>
-                <div className={styles.subtitle}>Update visibility, join policy and predictions access</div>
+                <h1 className={styles.title}>Настройки канала</h1>
+                <div className={styles.subtitle}>Управляйте параметрами канала и сохраните изменения одной кнопкой.</div>
             </div>
             <ChannelSettings slug={slug} />
         </div>

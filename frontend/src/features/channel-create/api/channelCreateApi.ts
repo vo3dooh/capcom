@@ -8,7 +8,6 @@ export type CreateChannelDto = {
     coverUrl?: string | null;
     visibility?: "public" | "private" | "unlisted";
     joinPolicy?: "open" | "request" | "inviteOnly";
-    predictionsVisibility?: "public" | "members";
     startingBankroll?: number;
     bankrollCurrency?: string | null;
     sportIds?: string[];

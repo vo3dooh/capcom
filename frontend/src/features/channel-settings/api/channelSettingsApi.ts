@@ -8,7 +8,11 @@ export type ChannelSettingsModel = {
     coverUrl: string | null;
     visibility: "public" | "private" | "unlisted";
     joinPolicy: "open" | "request" | "inviteOnly";
-    predictionsVisibility: "public" | "members";
+    telegramUrl: string | null;
+    twitterUrl: string | null;
+    instagramUrl: string | null;
+    vkUrl: string | null;
+    websiteUrl: string | null;
 };
 
 export type ChannelSettingsDto = {
@@ -19,7 +23,11 @@ export type ChannelSettingsDto = {
     coverUrl: string;
     visibility: "public" | "private" | "unlisted";
     joinPolicy: "open" | "request" | "inviteOnly";
-    predictionsVisibility: "public" | "members";
+    telegramUrl: string;
+    twitterUrl: string;
+    instagramUrl: string;
+    vkUrl: string;
+    websiteUrl: string;
 };
 
 export async function fetchChannelSettings(slug: string) {

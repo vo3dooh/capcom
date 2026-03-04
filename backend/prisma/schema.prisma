@@ -137,6 +137,12 @@ model Channel {
   avatarUrl   String?
   coverUrl    String?
 
+  telegramUrl  String?
+  twitterUrl   String?
+  instagramUrl String?
+  vkUrl        String?
+  websiteUrl   String?
+
   visibility            ChannelVisibility            @default(public)
   predictionsVisibility ChannelPredictionsVisibility @default(public)
   joinPolicy            ChannelJoinPolicy            @default(open)

@@ -10,7 +10,11 @@ const defaultForm: ChannelSettingsDto = {
     coverUrl: "",
     visibility: "public",
     joinPolicy: "open",
-    predictionsVisibility: "public",
+    telegramUrl: "",
+    twitterUrl: "",
+    instagramUrl: "",
+    vkUrl: "",
+    websiteUrl: "",
 };
 
 function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
@@ -22,7 +26,11 @@ function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
         coverUrl: data.coverUrl ?? "",
         visibility: data.visibility,
         joinPolicy: data.joinPolicy,
-        predictionsVisibility: data.predictionsVisibility,
+        telegramUrl: data.telegramUrl ?? "",
+        twitterUrl: data.twitterUrl ?? "",
+        instagramUrl: data.instagramUrl ?? "",
+        vkUrl: data.vkUrl ?? "",
+        websiteUrl: data.websiteUrl ?? "",
     };
 }
 

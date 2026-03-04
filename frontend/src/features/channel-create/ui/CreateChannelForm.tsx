@@ -10,7 +10,6 @@ export function CreateChannelForm() {
     const [description, setDescription] = useState("");
     const [visibility, setVisibility] = useState<"public" | "private" | "unlisted">("public");
     const [joinPolicy, setJoinPolicy] = useState<"open" | "request" | "inviteOnly">("open");
-    const [predictionsVisibility, setPredictionsVisibility] = useState<"public" | "members">("public");
     const [startingBankroll, setStartingBankroll] = useState("1000");
     const [bankrollCurrency, setBankrollCurrency] = useState("");
 
@@ -26,7 +25,6 @@ export function CreateChannelForm() {
             description: description.trim().length ? description.trim() : null,
             visibility,
             joinPolicy,
-            predictionsVisibility,
             startingBankroll: bankroll,
             bankrollCurrency: bankrollCurrency.trim().length ? bankrollCurrency.trim() : null,
         });
@@ -84,18 +82,6 @@ export function CreateChannelForm() {
                         <option value="open">open</option>
                         <option value="request">request</option>
                         <option value="inviteOnly">inviteOnly</option>
-                    </select>
-                </div>
-
-                <div className={styles.field}>
-                    <label className={styles.label}>Доступ к прогнозам</label>
-                    <select
-                        className={styles.select}
-                        value={predictionsVisibility}
-                        onChange={(e) => setPredictionsVisibility(e.target.value as any)}
-                    >
-                        <option value="public">для всех (авторизованных)</option>
-                        <option value="members">только для подписчиков</option>
                     </select>
                 </div>
             </div>

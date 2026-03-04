@@ -82,7 +82,6 @@ export class ChannelsService {
           coverUrl: dto.coverUrl ?? null,
           visibility: (dto.visibility as any) ?? 'public',
           joinPolicy: (dto.joinPolicy as any) ?? 'open',
-          predictionsVisibility: (dto as any).predictionsVisibility ?? 'public',
           ownerId: userId,
           startingBankroll,
           currentBankroll: startingBankroll,
@@ -216,10 +215,6 @@ export class ChannelsService {
           role: true
         }
       })
-    }
-
-    if (channel.visibility === 'private' && !membership) {
-      throw new ForbiddenException('Access denied')
     }
 
     return {
@@ -369,7 +364,11 @@ export class ChannelsService {
           coverUrl: dto.coverUrl ?? undefined,
           visibility: dto.visibility ?? undefined,
           joinPolicy: dto.joinPolicy ?? undefined,
-          predictionsVisibility: dto.predictionsVisibility ?? undefined,
+          telegramUrl: dto.telegramUrl === '' ? null : dto.telegramUrl ?? undefined,
+          twitterUrl: dto.twitterUrl === '' ? null : dto.twitterUrl ?? undefined,
+          instagramUrl: dto.instagramUrl === '' ? null : dto.instagramUrl ?? undefined,
+          vkUrl: dto.vkUrl === '' ? null : dto.vkUrl ?? undefined,
+          websiteUrl: dto.websiteUrl === '' ? null : dto.websiteUrl ?? undefined,
           startingBankroll: dto.startingBankroll ?? undefined,
           bankrollCurrency: dto.bankrollCurrency ?? undefined
         },
