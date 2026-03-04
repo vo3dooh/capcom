@@ -31,7 +31,7 @@
 }
 
 .headerCard {
-    min-height: 376px;
+    min-height: 350px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     background: #ffffff;
     border-radius: 10px;
@@ -79,7 +79,7 @@
 }
 
 .headerBody {
-    padding: 18px 20px 20px 20px;
+    padding: 10px 20px 10px 20px;
     position: relative;
 }
 
@@ -94,14 +94,14 @@
     height: 96px;
     flex: 0 0 auto;
     position: relative;
-    transform: translateY(-52px);
+    transform: translateY(-35px);
     z-index: 2;
 }
 
 .avatarWrap::before {
     content: "";
     position: absolute;
-    inset: -6px;
+    inset: -5px;
     border-radius: 999px;
     background: #ffffff;
     z-index: 0;
@@ -115,7 +115,7 @@
     display: block;
     position: relative;
     z-index: 1;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
 }
 
 .avatarFallback {
@@ -164,7 +164,7 @@
 .hr {
     height: 1px;
     background: rgba(20, 24, 28, 0.10);
-    margin: 4px 0;
+    margin: 10px 0;
 }
 
 .meta {
@@ -255,7 +255,7 @@
     padding: 10px 12px;
     font-size: 14px;
     line-height: 18px;
-    font-weight: 900;
+    font-weight: 800;
     cursor: pointer;
 }
 
@@ -273,14 +273,14 @@
 .aboutTitle {
     font-size: 13px;
     line-height: 18px;
-    font-weight: 900;
-    color: rgba(15, 23, 42, 0.80);
+    font-weight: 800;
+    color: #0f172a;
 }
 
 .aboutText {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 20px;
-    color: rgba(15, 23, 42, 0.75);
+    color: rgba(71, 85, 105, 1);
 }
 
 .card {
