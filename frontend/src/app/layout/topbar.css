@@ -1,4 +1,5 @@
 .topbar {
+    max-width: 1180px;
     grid-column: 2;
     grid-row: 1;
     height: 86px;

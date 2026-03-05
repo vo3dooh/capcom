@@ -6,10 +6,11 @@
 }
 
 .sidebar {
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
     background: #ffffff;
-    border-radius: 16px;
-    padding: 10px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -17,15 +18,16 @@
 
 .sidebarItem,
 .sidebarItemActive {
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    border-radius: 12px;
-    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    padding: 10px 14px;
     font-size: 14px;
     line-height: 20px;
     font-weight: 700;
     text-align: left;
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .sidebarItem {
@@ -44,10 +46,11 @@
 }
 
 .contentCard {
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
     background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
+    padding: 10px 14px;
     display: flex;
     flex-direction: column;
     gap: 14px;
