@@ -250,7 +250,7 @@ export function ChannelSettings({ slug }: { slug: string }) {
                                     <div className={styles.editableRow}>
                                         <div className={styles.valueSlot}>
                                             {editingField === "description" ? (
-                                                <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+                                                <input className={styles.fieldInput} type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
                                             ) : (
                                                 <div className={styles.displayValue}>{generalDisplayValue(description, "Описание не добавлено")}</div>
                                             )}
