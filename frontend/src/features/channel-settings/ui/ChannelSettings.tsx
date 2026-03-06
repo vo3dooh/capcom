@@ -235,7 +235,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         <div className={styles.valueSlot}>
                                             {editingField === "username" ? (
                                                 <div className={styles.slugInputWrap}>
-                                                    <span className={styles.slugPrefix}>capper-community.ru/channels/</span>
+                                                    <span className={styles.slugPrefix}>.../channels/</span>
                                                     <input
                                                         className={styles.slugInput}
                                                         type="text"
@@ -247,7 +247,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 <div className={styles.slugDisplayWrap}>
                                                     {username.trim() ? (
                                                         <>
-                                                            <span className={styles.slugPrefix}>capper-community.ru/channels/</span>
+                                                            <span className={styles.slugPrefix}>.../channels/</span>
                                                             <span className={styles.slugValue}>{username}</span>
                                                         </>
                                                     ) : (

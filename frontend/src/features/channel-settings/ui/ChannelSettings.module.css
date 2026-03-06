@@ -205,6 +205,7 @@
     max-height: 36px;
     box-sizing: border-box;
     gap: 0;
+    padding-left: 8px;
 }
 
 .dangerCard {
@@ -212,7 +213,6 @@
 }
 
 .slugPrefix {
-    padding: 8px 0 8px 8px;
     font-size: 13px;
     line-height: 20px;
     color: #0f172a;
@@ -223,7 +223,7 @@
     border: 0;
     box-shadow: none;
     background: transparent;
-    padding: 8px;
+    padding: 8px 8px 8px 0px;
     min-height: 34px;
 }
 
@@ -231,6 +231,7 @@
 .slugDisplayWrap {
     border-radius: 10px;
     background: #f5f5f5;
+    border: 1px solid #f5f5f5;
     color: #0f172a;
     font-size: 13px;
     line-height: 20px;
