@@ -60,8 +60,8 @@ export function useChannelSettings(slug: string) {
         load();
     }, [load]);
 
-    async function save(dto: ChannelSettingsDto) {
-        if (saving) return null;
+    async function save(dto: ChannelSettingsDto): Promise<{ updated: ChannelSettingsModel | null; error: unknown | null }> {
+        if (saving) return { updated: null, error: null };
         setSaving(true);
         setError(null);
         setOk(false);
@@ -70,11 +70,11 @@ export function useChannelSettings(slug: string) {
             const updated = await patchChannelSettings(slug, dto);
             setForm(toForm(updated));
             setOk(true);
-            return updated;
+            return { updated, error: null };
         } catch (e: unknown) {
             if (e instanceof HttpError) setError(e.message);
             else setError("Не удалось сохранить настройки");
-            return null;
+            return { updated: null, error: e };
         } finally {
             setSaving(false);
         }

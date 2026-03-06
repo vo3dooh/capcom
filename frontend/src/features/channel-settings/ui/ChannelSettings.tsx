@@ -6,6 +6,7 @@ import { ChannelSettingsDto } from "../api/channelSettingsApi";
 import { useChannelSettings } from "../model/useChannelSettings";
 import styles from "./ChannelSettings.module.css";
 import { ToastType } from "@/shared/ui/Toast";
+import { mapChannelSettingsSaveError } from "../lib/mapChannelSettingsSaveError";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
 type GeneralEditableField = "name" | "username" | "description" | "visibility";
@@ -35,14 +36,19 @@ function urlError(value: string): string | null {
     return "Ссылка должна начинаться с http:// или https://";
 }
 
+type ChannelSaveResult = {
+    type: ToastType;
+    description?: string;
+};
+
 type ChannelSettingsProps = {
     slug: string;
-    onSaveResult?: (type: ToastType) => void;
+    onSaveResult?: (result: ChannelSaveResult) => void;
 };
 
 export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const navigate = useNavigate();
-    const { form, loading, save, saving, error, ok, deleting, deleteError, removeChannel } = useChannelSettings(slug);
+    const { form, loading, save, saving, ok, deleting, deleteError, removeChannel } = useChannelSettings(slug);
 
     const [activeTab, setActiveTab] = useState<SettingsTab>("general");
     const [name, setName] = useState("");
@@ -112,20 +118,23 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
-        if (hasValidationError) return;
-
-        const payload = buildPayload();
-
-        const updated = await save(payload);
-        if (!updated) {
-            onSaveResult?.("error");
+        if (hasValidationError) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
             return;
         }
 
-        onSaveResult?.("success");
+        const payload = buildPayload();
 
-        if (updated.slug !== slug) {
-            navigate(`/channels/${updated.slug}/settings`, { replace: true });
+        const result = await save(payload);
+        if (!result.updated) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+            return;
+        }
+
+        onSaveResult?.({ type: "success" });
+
+        if (result.updated.slug !== slug) {
+            navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
     }
 
@@ -145,19 +154,22 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     }
 
     async function saveGeneralEdit(field: GeneralEditableField) {
-        if (field === "username" && slugError) return;
-
-        const updated = await save(buildPayload());
-        if (!updated) {
-            onSaveResult?.("error");
+        if (field === "username" && slugError) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
             return;
         }
 
-        onSaveResult?.("success");
+        const result = await save(buildPayload());
+        if (!result.updated) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+            return;
+        }
+
+        onSaveResult?.({ type: "success" });
 
         setEditingField(null);
-        if (updated.slug !== slug) {
-            navigate(`/channels/${updated.slug}/settings`, { replace: true });
+        if (result.updated.slug !== slug) {
+            navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
     }
 
@@ -215,7 +227,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </button>
                                         )}
                                     </div>
-                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
@@ -257,8 +268,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </button>
                                         )}
                                     </div>
-                                    {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
-                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
@@ -286,7 +295,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </button>
                                         )}
                                     </div>
-                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
@@ -322,7 +330,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </button>
                                         )}
                                     </div>
-                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
                             </div>
 
@@ -357,7 +364,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             placeholder="https://example.com/channel-avatar.png"
                                         />
                                     </div>
-                                    {avatarError ? <div className={styles.fieldError}>{avatarError}</div> : null}
                                 </div>
                             </div>
 
@@ -374,7 +380,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             placeholder="https://example.com/channel-cover.jpg"
                                         />
                                     </div>
-                                    {coverError ? <div className={styles.fieldError}>{coverError}</div> : null}
                                 </div>
                             </div>
                         </>
@@ -397,7 +402,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         onChange={(e) => setTelegramUrl(e.target.value)}
                                         placeholder="https://t.me/channel_name"
                                     />
-                                    {telegramError ? <div className={styles.fieldError}>{telegramError}</div> : null}
                                 </div>
                             </div>
 
@@ -411,7 +415,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         onChange={(e) => setTwitterUrl(e.target.value)}
                                         placeholder="https://twitter.com/channel_name"
                                     />
-                                    {twitterError ? <div className={styles.fieldError}>{twitterError}</div> : null}
                                 </div>
                             </div>
 
@@ -425,7 +428,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         onChange={(e) => setInstagramUrl(e.target.value)}
                                         placeholder="https://instagram.com/channel_name"
                                     />
-                                    {instagramError ? <div className={styles.fieldError}>{instagramError}</div> : null}
                                 </div>
                             </div>
 
@@ -439,7 +441,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         onChange={(e) => setVkUrl(e.target.value)}
                                         placeholder="https://vk.com/channel_name"
                                     />
-                                    {vkError ? <div className={styles.fieldError}>{vkError}</div> : null}
                                 </div>
                             </div>
 
@@ -453,7 +454,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                         onChange={(e) => setWebsiteUrl(e.target.value)}
                                         placeholder="https://example.com"
                                     />
-                                    {websiteError ? <div className={styles.fieldError}>{websiteError}</div> : null}
                                 </div>
                             </div>
                         </>
@@ -476,7 +476,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
                 {activeTab !== "general" ? (
                     <div className={styles.footerRow}>
-                        {error ? <div className={styles.fieldError}>{error}</div> : null}
                         {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
                         <button className={styles.saveButton} type="submit" disabled={saving || hasValidationError}>
                             {saving ? "Сохранение…" : "Сохранить"}

@@ -27,8 +27,8 @@ export function ChannelSettingsPage() {
         };
     }, [toast]);
 
-    function handleSaveResult(type: ToastType) {
-        if (type === "success") {
+    function handleSaveResult(result: { type: ToastType; description?: string }) {
+        if (result.type === "success") {
             setToast({
                 type: "success",
                 title: "Настройки сохранены",
@@ -41,7 +41,7 @@ export function ChannelSettingsPage() {
         setToast({
             type: "error",
             title: "Ошибка сохранения",
-            description: "Не удалось сохранить изменения.",
+            description: result.description || "Не удалось сохранить изменения.",
             id: Date.now(),
         });
     }
