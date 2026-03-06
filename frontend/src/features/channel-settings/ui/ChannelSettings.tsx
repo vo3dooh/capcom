@@ -138,55 +138,60 @@ export function ChannelSettings({ slug }: { slug: string }) {
                     ))}
                 </aside>
 
-                <section className={styles.contentCard}>
+                <section className={styles.contentColumn}>
                     {activeTab === "general" ? (
                         <>
-                            <h2 className={styles.sectionTitle}>Общие настройки канала</h2>
-                            <p className={styles.sectionDescription}>Измените базовые данные и режим видимости канала.</p>
-
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Название канала</label>
-                                <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                            <div className={styles.contentCard}>
+                                <h2 className={styles.sectionTitle}>Общие настройки канала</h2>
+                                <p className={styles.sectionDescription}>Измените базовые данные и режим видимости канала.</p>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Юзернейм канала</label>
-                                <div className={styles.slugInputWrap}>
-                                    <span className={styles.slugPrefix}>@</span>
-                                    <input
-                                        className={styles.slugInput}
-                                        type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(normalizeSlug(e.target.value))}
-                                    />
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Название канала</label>
+                                    <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
                                 </div>
-                                {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Описание канала</label>
-                                <textarea
-                                    className={styles.fieldTextarea}
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    rows={4}
-                                />
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Юзернейм канала</label>
+                                    <div className={styles.slugInputWrap}>
+                                        <span className={styles.slugPrefix}>@</span>
+                                        <input
+                                            className={styles.slugInput}
+                                            type="text"
+                                            value={username}
+                                            onChange={(e) => setUsername(normalizeSlug(e.target.value))}
+                                        />
+                                    </div>
+                                    {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
+                                </div>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Видимость канала</label>
-                                <select
-                                    className={styles.fieldSelect}
-                                    value={visibility}
-                                    onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
-                                >
-                                    <option value="public">public</option>
-                                    <option value="private">private</option>
-                                    <option value="unlisted">unlisted</option>
-                                </select>
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Описание канала</label>
+                                    <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+                                </div>
                             </div>
 
-                            <div className={styles.dangerZone}>
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Видимость канала</label>
+                                    <select
+                                        className={styles.fieldSelect}
+                                        value={visibility}
+                                        onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
+                                    >
+                                        <option value="public">public</option>
+                                        <option value="private">private</option>
+                                        <option value="unlisted">unlisted</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className={`${styles.contentCard} ${styles.dangerCard}`}>
                                 <div className={styles.dangerZoneTitle}>Danger zone</div>
                                 <div className={styles.dangerZoneText}>Удаление канала необратимо. Все связанные данные будут удалены.</div>
                                 {deleteError ? <div className={styles.fieldError}>{deleteError}</div> : null}
@@ -199,124 +204,138 @@ export function ChannelSettings({ slug }: { slug: string }) {
 
                     {activeTab === "branding" ? (
                         <>
-                            <h2 className={styles.sectionTitle}>Оформление канала</h2>
-                            <p className={styles.sectionDescription}>Настройте визуальное представление аватара и обложки канала.</p>
-
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Аватар канала (URL)</label>
-                                <div className={styles.previewLine}>
-                                    <div className={styles.avatarPreviewWrap}>
-                                        {avatarUrl.trim() ? <img className={styles.avatarPreview} src={avatarUrl.trim()} alt="avatar preview" /> : null}
-                                    </div>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={avatarUrl}
-                                        onChange={(e) => setAvatarUrl(e.target.value)}
-                                        placeholder="https://example.com/channel-avatar.png"
-                                    />
-                                </div>
-                                {avatarError ? <div className={styles.fieldError}>{avatarError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <h2 className={styles.sectionTitle}>Оформление канала</h2>
+                                <p className={styles.sectionDescription}>Настройте визуальное представление аватара и обложки канала.</p>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Обложка канала (URL)</label>
-                                <div className={styles.previewLine}>
-                                    <div className={styles.coverPreviewWrap}>
-                                        {coverUrl.trim() ? <img className={styles.coverPreview} src={coverUrl.trim()} alt="cover preview" /> : null}
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Аватар канала (URL)</label>
+                                    <div className={styles.previewLine}>
+                                        <div className={styles.avatarPreviewWrap}>{avatarUrl.trim() ? <img className={styles.avatarPreview} src={avatarUrl.trim()} alt="avatar preview" /> : null}</div>
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="url"
+                                            value={avatarUrl}
+                                            onChange={(e) => setAvatarUrl(e.target.value)}
+                                            placeholder="https://example.com/channel-avatar.png"
+                                        />
                                     </div>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={coverUrl}
-                                        onChange={(e) => setCoverUrl(e.target.value)}
-                                        placeholder="https://example.com/channel-cover.jpg"
-                                    />
+                                    {avatarError ? <div className={styles.fieldError}>{avatarError}</div> : null}
                                 </div>
-                                {coverError ? <div className={styles.fieldError}>{coverError}</div> : null}
+                            </div>
+
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Обложка канала (URL)</label>
+                                    <div className={styles.previewLine}>
+                                        <div className={styles.coverPreviewWrap}>{coverUrl.trim() ? <img className={styles.coverPreview} src={coverUrl.trim()} alt="cover preview" /> : null}</div>
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="url"
+                                            value={coverUrl}
+                                            onChange={(e) => setCoverUrl(e.target.value)}
+                                            placeholder="https://example.com/channel-cover.jpg"
+                                        />
+                                    </div>
+                                    {coverError ? <div className={styles.fieldError}>{coverError}</div> : null}
+                                </div>
                             </div>
                         </>
                     ) : null}
 
                     {activeTab === "social" ? (
                         <>
-                            <h2 className={styles.sectionTitle}>Социальные сети</h2>
-                            <p className={styles.sectionDescription}>Ссылки будут отображаться в профиле канала.</p>
-
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Telegram</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="url"
-                                    value={telegramUrl}
-                                    onChange={(e) => setTelegramUrl(e.target.value)}
-                                    placeholder="https://t.me/channel_name"
-                                />
-                                {telegramError ? <div className={styles.fieldError}>{telegramError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <h2 className={styles.sectionTitle}>Социальные сети</h2>
+                                <p className={styles.sectionDescription}>Ссылки будут отображаться в профиле канала.</p>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Twitter</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="url"
-                                    value={twitterUrl}
-                                    onChange={(e) => setTwitterUrl(e.target.value)}
-                                    placeholder="https://twitter.com/channel_name"
-                                />
-                                {twitterError ? <div className={styles.fieldError}>{twitterError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Telegram</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        value={telegramUrl}
+                                        onChange={(e) => setTelegramUrl(e.target.value)}
+                                        placeholder="https://t.me/channel_name"
+                                    />
+                                    {telegramError ? <div className={styles.fieldError}>{telegramError}</div> : null}
+                                </div>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Instagram</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="url"
-                                    value={instagramUrl}
-                                    onChange={(e) => setInstagramUrl(e.target.value)}
-                                    placeholder="https://instagram.com/channel_name"
-                                />
-                                {instagramError ? <div className={styles.fieldError}>{instagramError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Twitter</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        value={twitterUrl}
+                                        onChange={(e) => setTwitterUrl(e.target.value)}
+                                        placeholder="https://twitter.com/channel_name"
+                                    />
+                                    {twitterError ? <div className={styles.fieldError}>{twitterError}</div> : null}
+                                </div>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>VK</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="url"
-                                    value={vkUrl}
-                                    onChange={(e) => setVkUrl(e.target.value)}
-                                    placeholder="https://vk.com/channel_name"
-                                />
-                                {vkError ? <div className={styles.fieldError}>{vkError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Instagram</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        value={instagramUrl}
+                                        onChange={(e) => setInstagramUrl(e.target.value)}
+                                        placeholder="https://instagram.com/channel_name"
+                                    />
+                                    {instagramError ? <div className={styles.fieldError}>{instagramError}</div> : null}
+                                </div>
                             </div>
 
-                            <div className={styles.formRow}>
-                                <label className={styles.fieldLabel}>Website</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="url"
-                                    value={websiteUrl}
-                                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                                    placeholder="https://example.com"
-                                />
-                                {websiteError ? <div className={styles.fieldError}>{websiteError}</div> : null}
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>VK</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        value={vkUrl}
+                                        onChange={(e) => setVkUrl(e.target.value)}
+                                        placeholder="https://vk.com/channel_name"
+                                    />
+                                    {vkError ? <div className={styles.fieldError}>{vkError}</div> : null}
+                                </div>
+                            </div>
+
+                            <div className={styles.contentCard}>
+                                <div className={styles.formRow}>
+                                    <label className={styles.fieldLabel}>Website</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        value={websiteUrl}
+                                        onChange={(e) => setWebsiteUrl(e.target.value)}
+                                        placeholder="https://example.com"
+                                    />
+                                    {websiteError ? <div className={styles.fieldError}>{websiteError}</div> : null}
+                                </div>
                             </div>
                         </>
                     ) : null}
 
                     {activeTab === "team" ? (
-                        <>
+                        <div className={styles.contentCard}>
                             <h2 className={styles.sectionTitle}>Команда канала</h2>
                             <p className={styles.sectionDescription}>Скоро будет.</p>
-                        </>
+                        </div>
                     ) : null}
 
                     {activeTab === "subscriptions" ? (
-                        <>
+                        <div className={styles.contentCard}>
                             <h2 className={styles.sectionTitle}>Платные подписки</h2>
                             <p className={styles.sectionDescription}>Скоро будет.</p>
-                        </>
+                        </div>
                     ) : null}
                 </section>
 
@@ -338,12 +357,7 @@ export function ChannelSettings({ slug }: { slug: string }) {
                         <button className={styles.secondaryButton} type="button" onClick={() => setConfirmOpen(false)}>
                             Отмена
                         </button>
-                        <button
-                            className={styles.deleteButton}
-                            type="button"
-                            onClick={confirmDelete}
-                            disabled={deleting || confirmText !== "DELETE"}
-                        >
+                        <button className={styles.deleteButton} type="button" onClick={confirmDelete} disabled={deleting || confirmText !== "DELETE"}>
                             {deleting ? "Удаление…" : "Подтвердить удаление"}
                         </button>
                     </div>
