@@ -18,7 +18,7 @@ export function mapChannelSettingsSaveError(error: unknown): string {
     const message = toMessage(error).trim().toLowerCase();
     const status = error instanceof HttpError ? error.status : null;
 
-    if (message.includes("slug is already taken")) return "Данный юзернейм канала уже занят.";
+    if (message.includes("slug is already taken")) return "Такая ссылка канала уже занята.";
     if (message.includes("name is already taken")) return "Данное название канала уже занято.";
 
     if (status === 401 || message.includes("unauthorized")) {

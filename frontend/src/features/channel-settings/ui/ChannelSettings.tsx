@@ -230,12 +230,12 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                 </div>
 
                                 <div className={styles.contentCard}>
-                                    <label className={styles.fieldLabel}>Юзернейм канала</label>
+                                    <label className={styles.fieldLabel}>Ссылка на канал</label>
                                     <div className={styles.editableRow}>
                                         <div className={styles.valueSlot}>
                                             {editingField === "username" ? (
                                                 <div className={styles.slugInputWrap}>
-                                                    <span className={styles.slugPrefix}>@</span>
+                                                    <span className={styles.slugPrefix}>capper-community.ru/channels/</span>
                                                     <input
                                                         className={styles.slugInput}
                                                         type="text"
@@ -244,7 +244,16 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                     />
                                                 </div>
                                             ) : (
-                                                <div className={styles.displayValue}>{username.trim() ? `@${username}` : "Юзернейм не указан"}</div>
+                                                <div className={styles.slugDisplayWrap}>
+                                                    {username.trim() ? (
+                                                        <>
+                                                            <span className={styles.slugPrefix}>capper-community.ru/channels/</span>
+                                                            <span className={styles.slugValue}>{username}</span>
+                                                        </>
+                                                    ) : (
+                                                        <span className={styles.slugValue}>Ссылка на канал не указана</span>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
                                         {editingField === "username" ? (
@@ -254,16 +263,16 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                     type="button"
                                                     onClick={() => saveGeneralEdit("username")}
                                                     disabled={saving || !!slugError}
-                                                    aria-label="Сохранить юзернейм"
+                                                    aria-label="Сохранить ссылку на канал"
                                                 >
                                                     <Check size={16} />
                                                 </button>
-                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("username")} aria-label="Отменить редактирование юзернейма">
+                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("username")} aria-label="Отменить редактирование ссылки на канал">
                                                     <X size={16} />
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("username")} aria-label="Редактировать юзернейм">
+                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("username")} aria-label="Редактировать ссылку на канал">
                                                 <Pencil size={14} />
                                             </button>
                                         )}
