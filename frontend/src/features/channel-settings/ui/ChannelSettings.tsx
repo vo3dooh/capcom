@@ -6,6 +6,7 @@ import { useChannelSettings } from "../model/useChannelSettings";
 import styles from "./ChannelSettings.module.css";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
+type GeneralEditableField = "name" | "username" | "description" | "visibility";
 
 const TAB_ITEMS: Array<{ key: SettingsTab; label: string }> = [
     { key: "general", label: "Общие настройки канала" },
@@ -51,6 +52,7 @@ export function ChannelSettings({ slug }: { slug: string }) {
     const [websiteUrl, setWebsiteUrl] = useState("");
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState("");
+    const [editingField, setEditingField] = useState<GeneralEditableField | null>(null);
 
     useEffect(() => {
         setName(form.name);
@@ -84,11 +86,8 @@ export function ChannelSettings({ slug }: { slug: string }) {
     const hasValidationError =
         !!slugError || !!avatarError || !!coverError || !!telegramError || !!twitterError || !!instagramError || !!vkError || !!websiteError;
 
-    async function onSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        if (hasValidationError) return;
-
-        const payload: ChannelSettingsDto = {
+    function buildPayload(): ChannelSettingsDto {
+        return {
             name: name.trim(),
             slug: username,
             description: description.trim(),
@@ -102,6 +101,13 @@ export function ChannelSettings({ slug }: { slug: string }) {
             vkUrl: vkUrl.trim(),
             websiteUrl: websiteUrl.trim(),
         };
+    }
+
+    async function onSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        if (hasValidationError) return;
+
+        const payload = buildPayload();
 
         const updated = await save(payload);
         if (!updated) return;
@@ -116,6 +122,31 @@ export function ChannelSettings({ slug }: { slug: string }) {
         const okDelete = await removeChannel();
         if (!okDelete) return;
         navigate("/channels", { replace: true, state: { channelDeleted: true } });
+    }
+
+    function cancelGeneralEdit(field: GeneralEditableField) {
+        if (field === "name") setName(form.name);
+        if (field === "username") setUsername(form.slug);
+        if (field === "description") setDescription(form.description);
+        if (field === "visibility") setVisibility(form.visibility);
+        setEditingField(null);
+    }
+
+    async function saveGeneralEdit(field: GeneralEditableField) {
+        if (field === "username" && slugError) return;
+
+        const updated = await save(buildPayload());
+        if (!updated) return;
+
+        setEditingField(null);
+        if (updated.slug !== slug) {
+            navigate(`/channels/${updated.slug}/settings`, { replace: true });
+        }
+    }
+
+    function generalDisplayValue(value: string, placeholder: string): string {
+        const clean = value.trim();
+        return clean ? clean : placeholder;
     }
 
     if (loading) {
@@ -147,48 +178,141 @@ export function ChannelSettings({ slug }: { slug: string }) {
                             </div>
 
                             <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
+                                <div className={styles.cardHeaderRow}>
                                     <label className={styles.fieldLabel}>Название канала</label>
-                                    <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                                    {editingField === "name" ? <span className={styles.editingBadge}>Редактирование</span> : null}
+                                    {editingField !== "name" ? (
+                                        <button className={styles.editButton} type="button" onClick={() => setEditingField("name")}>
+                                            Редактировать
+                                        </button>
+                                    ) : null}
                                 </div>
-                            </div>
-
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>Юзернейм канала</label>
-                                    <div className={styles.slugInputWrap}>
-                                        <span className={styles.slugPrefix}>@</span>
-                                        <input
-                                            className={styles.slugInput}
-                                            type="text"
-                                            value={username}
-                                            onChange={(e) => setUsername(normalizeSlug(e.target.value))}
-                                        />
+                                {editingField === "name" ? (
+                                    <div className={styles.formRow}>
+                                        <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                                        {error ? <div className={styles.fieldError}>{error}</div> : null}
+                                        {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
+                                        <div className={styles.cardActions}>
+                                            <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("name")} disabled={saving}>
+                                                {saving ? "Сохранение…" : "Save"}
+                                            </button>
+                                            <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("name")}>
+                                                Cancel
+                                            </button>
+                                        </div>
                                     </div>
-                                    {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
-                                </div>
+                                ) : (
+                                    <div className={styles.displayValue}>{generalDisplayValue(name, "Название не указано")}</div>
+                                )}
                             </div>
 
                             <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
+                                <div className={styles.cardHeaderRow}>
+                                    <label className={styles.fieldLabel}>Юзернейм канала</label>
+                                    {editingField === "username" ? <span className={styles.editingBadge}>Редактирование</span> : null}
+                                    {editingField !== "username" ? (
+                                        <button className={styles.editButton} type="button" onClick={() => setEditingField("username")}>
+                                            Редактировать
+                                        </button>
+                                    ) : null}
+                                </div>
+                                {editingField === "username" ? (
+                                    <div className={styles.formRow}>
+                                        <div className={styles.slugInputWrap}>
+                                            <span className={styles.slugPrefix}>@</span>
+                                            <input
+                                                className={styles.slugInput}
+                                                type="text"
+                                                value={username}
+                                                onChange={(e) => setUsername(normalizeSlug(e.target.value))}
+                                            />
+                                        </div>
+                                        {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
+                                        {error ? <div className={styles.fieldError}>{error}</div> : null}
+                                        {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
+                                        <div className={styles.cardActions}>
+                                            <button
+                                                className={styles.saveButton}
+                                                type="button"
+                                                onClick={() => saveGeneralEdit("username")}
+                                                disabled={saving || !!slugError}
+                                            >
+                                                {saving ? "Сохранение…" : "Save"}
+                                            </button>
+                                            <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("username")}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.displayValue}>{username.trim() ? `@${username}` : "Юзернейм не указан"}</div>
+                                )}
+                            </div>
+
+                            <div className={styles.contentCard}>
+                                <div className={styles.cardHeaderRow}>
                                     <label className={styles.fieldLabel}>Описание канала</label>
-                                    <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+                                    {editingField === "description" ? <span className={styles.editingBadge}>Редактирование</span> : null}
+                                    {editingField !== "description" ? (
+                                        <button className={styles.editButton} type="button" onClick={() => setEditingField("description")}>
+                                            Редактировать
+                                        </button>
+                                    ) : null}
                                 </div>
+                                {editingField === "description" ? (
+                                    <div className={styles.formRow}>
+                                        <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+                                        {error ? <div className={styles.fieldError}>{error}</div> : null}
+                                        {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
+                                        <div className={styles.cardActions}>
+                                            <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("description")} disabled={saving}>
+                                                {saving ? "Сохранение…" : "Save"}
+                                            </button>
+                                            <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("description")}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.displayValue}>{generalDisplayValue(description, "Описание не добавлено")}</div>
+                                )}
                             </div>
 
                             <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
+                                <div className={styles.cardHeaderRow}>
                                     <label className={styles.fieldLabel}>Видимость канала</label>
-                                    <select
-                                        className={styles.fieldSelect}
-                                        value={visibility}
-                                        onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
-                                    >
-                                        <option value="public">public</option>
-                                        <option value="private">private</option>
-                                        <option value="unlisted">unlisted</option>
-                                    </select>
+                                    {editingField === "visibility" ? <span className={styles.editingBadge}>Редактирование</span> : null}
+                                    {editingField !== "visibility" ? (
+                                        <button className={styles.editButton} type="button" onClick={() => setEditingField("visibility")}>
+                                            Редактировать
+                                        </button>
+                                    ) : null}
                                 </div>
+                                {editingField === "visibility" ? (
+                                    <div className={styles.formRow}>
+                                        <select
+                                            className={styles.fieldSelect}
+                                            value={visibility}
+                                            onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
+                                        >
+                                            <option value="public">public</option>
+                                            <option value="private">private</option>
+                                            <option value="unlisted">unlisted</option>
+                                        </select>
+                                        {error ? <div className={styles.fieldError}>{error}</div> : null}
+                                        {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
+                                        <div className={styles.cardActions}>
+                                            <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("visibility")} disabled={saving}>
+                                                {saving ? "Сохранение…" : "Save"}
+                                            </button>
+                                            <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("visibility")}>
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.displayValue}>{visibility}</div>
+                                )}
                             </div>
 
                             <div className={`${styles.contentCard} ${styles.dangerCard}`}>
@@ -339,13 +463,15 @@ export function ChannelSettings({ slug }: { slug: string }) {
                     ) : null}
                 </section>
 
-                <div className={styles.footerRow}>
-                    {error ? <div className={styles.fieldError}>{error}</div> : null}
-                    {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
-                    <button className={styles.saveButton} type="submit" disabled={saving || hasValidationError}>
-                        {saving ? "Сохранение…" : "Сохранить"}
-                    </button>
-                </div>
+                {activeTab !== "general" ? (
+                    <div className={styles.footerRow}>
+                        {error ? <div className={styles.fieldError}>{error}</div> : null}
+                        {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
+                        <button className={styles.saveButton} type="submit" disabled={saving || hasValidationError}>
+                            {saving ? "Сохранение…" : "Сохранить"}
+                        </button>
+                    </div>
+                ) : null}
             </form>
 
             <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title="Подтверждение удаления канала">
