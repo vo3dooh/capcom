@@ -187,10 +187,10 @@ export function ChannelSettings({ slug }: { slug: string }) {
                                         {editingField === "name" ? (
                                             <div className={styles.rowActions}>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("name")} disabled={saving} aria-label="Сохранить название">
-                                                    <Check size={14} />
+                                                    <Check size={16} />
                                                 </button>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("name")} aria-label="Отменить редактирование названия">
-                                                    <X size={14} />
+                                                    <X size={16} />
                                                 </button>
                                             </div>
                                         ) : (
