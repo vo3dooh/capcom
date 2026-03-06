@@ -198,13 +198,13 @@
 .slugInputWrap {
     display: flex;
     align-items: center;
-    border: 1px solid rgba(15, 23, 42, 0.16);
+    border: 1px solid rgba(0, 0, 0, 0.10);
     border-radius: 10px;
-    background: #ffffff;
+    background: #f5f5f5;
     width: 100%;
     max-height: 36px;
     box-sizing: border-box;
-    gap: 6px;
+    gap: 0;
 }
 
 .dangerCard {
@@ -212,18 +212,45 @@
 }
 
 .slugPrefix {
-    padding: 10px 0 10px 12px;
-    font-size: 14px;
+    padding: 8px 0 8px 8px;
+    font-size: 13px;
     line-height: 20px;
-    color: rgba(71, 85, 105, 1);
-    font-weight: 700;
+    color: #0f172a;
+    user-select: none;
 }
 
 .slugInput {
     border: 0;
     box-shadow: none;
-    padding-left: 4px;
+    background: transparent;
+    padding: 8px;
     min-height: 34px;
+}
+
+
+.slugDisplayWrap {
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #0f172a;
+    font-size: 13px;
+    line-height: 20px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 36px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.slugValue {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .previewLine {
@@ -385,7 +412,33 @@
         flex-wrap: wrap;
     }
 
-    .previewLine {
+    
+.slugDisplayWrap {
+    border-radius: 10px;
+    background: #f5f5f5;
+    color: #0f172a;
+    font-size: 13px;
+    line-height: 20px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 36px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.slugValue {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.previewLine {
         grid-template-columns: 1fr;
     }
 }
