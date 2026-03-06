@@ -18,6 +18,7 @@
 
 .toastError {
     background: #f8e9e9;
+    border: 1px solid #f1e0e0;
 }
 
 .iconWrap {

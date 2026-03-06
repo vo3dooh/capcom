@@ -110,25 +110,25 @@
 }
 
 .actionButtonSave {
-    background: #E6F7EC;
-    border: 1px solid #248A3D;
-    color: #248A3D;
+    border: 1px solid #8fbd9d;
+    background: #dff1e191;
+    color: #2c9b36;
 }
 
 .actionButtonSave:hover {
-    background: #D1F2DC;
-    border: 1px solid #248A3D;
+    border: 1px solid rgba(13, 125, 32, 0.5);
+    background: #dff1e1;
 }
 
 .actionButtonCancel {
-    border-color: #FF453A;
-    background: #FDEBEC;
-    color: #D70015;
+    border: 1px solid rgba(220, 38, 38, 0.3);
+    background: rgba(220, 38, 38, 0.05);
+    color: #b91c1c;
 }
 
 .actionButtonCancel:hover {
-    background: #F9D6D8;
-    border-color: #FF3B30;
+    border: 1px solid rgba(220, 38, 38, 0.5);
+    background: rgba(220, 38, 38, 0.1);
 }
 
 .editableRow {

@@ -20,7 +20,7 @@ export function ChannelSettingsPage() {
 
         const timerId = window.setTimeout(() => {
             setToast(null);
-        }, 7000);
+        }, 711000);
 
         return () => {
             window.clearTimeout(timerId);
