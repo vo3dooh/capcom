@@ -171,7 +171,6 @@
 
 .fieldInput,
 .fieldSelect,
-.fieldTextarea,
 .slugInput {
     border: 1px solid rgba(0, 0, 0, 0.10);
     border-radius: 10px;
@@ -184,14 +183,9 @@
     width: 100%;
 }
 
-.fieldTextarea {
-    resize: vertical;
-    min-height: 92px;
-}
 
 .fieldInput:focus,
 .fieldSelect:focus,
-.fieldTextarea:focus,
 .slugInput:focus,
 .slugInputWrap:focus-within {
     outline: none;
