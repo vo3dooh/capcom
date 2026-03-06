@@ -5,6 +5,12 @@
 }
 
 .header {
+    position: relative;
+    min-height: 92px;
+    padding-right: 460px;
+}
+
+.headerText {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -22,4 +28,11 @@
     font-size: 14px;
     line-height: 20px;
     color: rgba(15, 23, 42, 0.7);
+}
+
+.toastSlot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
 }

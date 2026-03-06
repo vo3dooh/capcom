@@ -5,6 +5,7 @@ import { Modal } from "@/shared/ui/Modal";
 import { ChannelSettingsDto } from "../api/channelSettingsApi";
 import { useChannelSettings } from "../model/useChannelSettings";
 import styles from "./ChannelSettings.module.css";
+import { ToastType } from "@/shared/ui/Toast";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
 type GeneralEditableField = "name" | "username" | "description" | "visibility";
@@ -34,7 +35,12 @@ function urlError(value: string): string | null {
     return "Ссылка должна начинаться с http:// или https://";
 }
 
-export function ChannelSettings({ slug }: { slug: string }) {
+type ChannelSettingsProps = {
+    slug: string;
+    onSaveResult?: (type: ToastType) => void;
+};
+
+export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const navigate = useNavigate();
     const { form, loading, save, saving, error, ok, deleting, deleteError, removeChannel } = useChannelSettings(slug);
 
@@ -111,7 +117,12 @@ export function ChannelSettings({ slug }: { slug: string }) {
         const payload = buildPayload();
 
         const updated = await save(payload);
-        if (!updated) return;
+        if (!updated) {
+            onSaveResult?.("error");
+            return;
+        }
+
+        onSaveResult?.("success");
 
         if (updated.slug !== slug) {
             navigate(`/channels/${updated.slug}/settings`, { replace: true });
@@ -137,7 +148,12 @@ export function ChannelSettings({ slug }: { slug: string }) {
         if (field === "username" && slugError) return;
 
         const updated = await save(buildPayload());
-        if (!updated) return;
+        if (!updated) {
+            onSaveResult?.("error");
+            return;
+        }
+
+        onSaveResult?.("success");
 
         setEditingField(null);
         if (updated.slug !== slug) {
