@@ -40,7 +40,7 @@
 }
 
 .sidebarItemActive {
-    background: rgba(15, 23, 42, 0.08);
+    background: rgba(15, 23, 42, 0.04);
     border-color: rgba(15, 23, 42, 0.3);
     color: #0f172a;
 }
@@ -166,7 +166,7 @@
 }
 
 .fieldLabel {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 18px;
     font-weight: 600;
     color: #0f172a;

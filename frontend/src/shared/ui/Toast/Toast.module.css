@@ -5,14 +5,15 @@
     grid-template-columns: auto 1fr auto;
     align-items: center;
     gap: 14px;
-    border-radius: 14px;
-    padding: 14px 16px;
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+    border-radius: 10px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
     animation: toast-fade-in 0.22s ease-out;
 }
 
 .toastSuccess {
     background: #dff1ec;
+    border: 1px solid #dcebe7;
 }
 
 .toastError {
@@ -44,18 +45,16 @@
 }
 
 .title {
-    font-size: 22px;
-    line-height: 28px;
+    font-size: 13px;
     font-weight: 800;
     color: #131313;
     margin: 0;
 }
 
 .description {
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 12px;
+    line-height: 20px;
     color: rgba(19, 19, 19, 0.7);
-    margin: 2px 0 0;
 }
 
 .closeButton {
