@@ -29,6 +29,11 @@ function normalizeSlug(value: string): string {
         .replace(/-+$/, "");
 }
 
+
+function hasMixedCyrillicAndLatin(value: string): boolean {
+    return /[A-Za-z]/.test(value) && /[А-Яа-яЁё]/.test(value);
+}
+
 function urlError(value: string): string | null {
     const clean = value.trim();
     if (!clean) return null;
@@ -82,6 +87,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         setWebsiteUrl(form.websiteUrl);
     }, [form]);
 
+    const nameError = useMemo(() => {
+        if (hasMixedCyrillicAndLatin(name.trim())) return "Название канала должно быть только на одном языке.";
+        return null;
+    }, [name]);
+
     const slugError = useMemo(() => {
         if (!username.trim()) return "Юзернейм не может быть пустым";
         if (!/^[a-z0-9-]+$/.test(username)) return "Разрешены только a-z, 0-9 и -";
@@ -97,7 +107,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const websiteError = useMemo(() => urlError(websiteUrl), [websiteUrl]);
 
     const hasValidationError =
-        !!slugError || !!avatarError || !!coverError || !!telegramError || !!twitterError || !!instagramError || !!vkError || !!websiteError;
+        !!nameError || !!slugError || !!avatarError || !!coverError || !!telegramError || !!twitterError || !!instagramError || !!vkError || !!websiteError;
 
     function buildPayload(): ChannelSettingsDto {
         return {
@@ -119,7 +129,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (hasValidationError) {
-            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
+            onSaveResult?.({ type: "error", description: nameError ?? mapChannelSettingsSaveError("client_validation") });
             return;
         }
 
@@ -154,6 +164,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     }
 
     async function saveGeneralEdit(field: GeneralEditableField) {
+        if (field === "name" && nameError) {
+            onSaveResult?.({ type: "error", description: nameError });
+            return;
+        }
+
         if (field === "username" && slugError) {
             onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
             return;

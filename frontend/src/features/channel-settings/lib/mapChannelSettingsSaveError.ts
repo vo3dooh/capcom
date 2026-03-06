@@ -19,7 +19,8 @@ export function mapChannelSettingsSaveError(error: unknown): string {
     const status = error instanceof HttpError ? error.status : null;
 
     if (message.includes("slug is already taken")) return "Такая ссылка канала уже занята.";
-    if (message.includes("name is already taken")) return "Данное название канала уже занято.";
+    if (message.includes("name is already taken") || message.includes("channel name already taken")) return "Такое название канала уже занято.";
+    if (message.includes("channel name must use one language") || message.includes("mixed cyrillic") || message.includes("mix cyrillic") || message.includes("mixing")) return "Название канала должно быть только на одном языке.";
 
     if (status === 401 || message.includes("unauthorized")) {
         return "Необходимо авторизоваться повторно.";
