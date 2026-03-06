@@ -45,16 +45,22 @@
     color: #0f172a;
 }
 
+.contentColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 460px;
+}
+
 .contentCard {
     border: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 10px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
     background: #ffffff;
-    padding: 10px 14px;
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    min-height: 460px;
+    gap: 10px;
 }
 
 .sectionTitle {
@@ -188,15 +194,9 @@
     color: #16a34a;
 }
 
-.dangerZone {
-    margin-top: 8px;
+.dangerCard {
     border: 1px solid rgba(220, 38, 38, 0.3);
-    border-radius: 12px;
-    padding: 14px;
     background: rgba(220, 38, 38, 0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 .dangerZoneTitle {
