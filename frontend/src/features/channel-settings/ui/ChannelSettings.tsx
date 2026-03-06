@@ -229,10 +229,10 @@ export function ChannelSettings({ slug }: { slug: string }) {
                                                     disabled={saving || !!slugError}
                                                     aria-label="Сохранить юзернейм"
                                                 >
-                                                    <Check size={14} />
+                                                    <Check size={16} />
                                                 </button>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("username")} aria-label="Отменить редактирование юзернейма">
-                                                    <X size={14} />
+                                                    <X size={16} />
                                                 </button>
                                             </div>
                                         ) : (
@@ -258,10 +258,10 @@ export function ChannelSettings({ slug }: { slug: string }) {
                                         {editingField === "description" ? (
                                             <div className={styles.rowActions}>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("description")} disabled={saving} aria-label="Сохранить описание">
-                                                    <Check size={14} />
+                                                    <Check size={16} />
                                                 </button>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("description")} aria-label="Отменить редактирование описания">
-                                                    <X size={14} />
+                                                    <X size={16} />
                                                 </button>
                                             </div>
                                         ) : (
@@ -294,10 +294,10 @@ export function ChannelSettings({ slug }: { slug: string }) {
                                         {editingField === "visibility" ? (
                                             <div className={styles.rowActions}>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("visibility")} disabled={saving} aria-label="Сохранить видимость">
-                                                    <Check size={14} />
+                                                    <Check size={16} />
                                                 </button>
                                                 <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("visibility")} aria-label="Отменить редактирование видимости">
-                                                    <X size={14} />
+                                                    <X size={16} />
                                                 </button>
                                             </div>
                                         ) : (
