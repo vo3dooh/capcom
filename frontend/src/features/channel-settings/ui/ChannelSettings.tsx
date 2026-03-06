@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil } from "lucide-react";
+import { Check, Pencil, X } from "lucide-react";
 import { Modal } from "@/shared/ui/Modal";
 import { ChannelSettingsDto } from "../api/channelSettingsApi";
 import { useChannelSettings } from "../model/useChannelSettings";
@@ -175,141 +175,138 @@ export function ChannelSettings({ slug }: { slug: string }) {
                         <>
                             <div className={styles.generalGrid}>
                                 <div className={styles.contentCard}>
-                                    <div className={styles.cardHeaderRow}>
-                                        <label className={styles.fieldLabel}>Название канала</label>
-                                        {editingField === "name" ? <span className={styles.editingBadge}>Редактирование</span> : null}
-                                        {editingField !== "name" ? (
-                                            <button className={styles.editButton} type="button" onClick={() => setEditingField("name")} aria-label="Редактировать название">
-                                                <Pencil size={16} />
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    {editingField === "name" ? (
-                                        <div className={styles.formRow}>
-                                            <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
-                                            {error ? <div className={styles.fieldError}>{error}</div> : null}
-                                            {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
-                                            <div className={styles.cardActions}>
-                                                <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("name")} disabled={saving}>
-                                                    {saving ? "Сохранение…" : "Save"}
+                                    <label className={styles.fieldLabel}>Название канала</label>
+                                    <div className={styles.editableRow}>
+                                        <div className={styles.valueSlot}>
+                                            {editingField === "name" ? (
+                                                <input className={styles.fieldInput} type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                                            ) : (
+                                                <div className={styles.displayValue}>{generalDisplayValue(name, "Название не указано")}</div>
+                                            )}
+                                        </div>
+                                        {editingField === "name" ? (
+                                            <div className={styles.rowActions}>
+                                                <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("name")} disabled={saving} aria-label="Сохранить название">
+                                                    <Check size={14} />
                                                 </button>
-                                                <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("name")}>
-                                                    Cancel
+                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("name")} aria-label="Отменить редактирование названия">
+                                                    <X size={14} />
                                                 </button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.displayValue}>{generalDisplayValue(name, "Название не указано")}</div>
-                                    )}
+                                        ) : (
+                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("name")} aria-label="Редактировать название">
+                                                <Pencil size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
-                                    <div className={styles.cardHeaderRow}>
-                                        <label className={styles.fieldLabel}>Юзернейм канала</label>
-                                        {editingField === "username" ? <span className={styles.editingBadge}>Редактирование</span> : null}
-                                        {editingField !== "username" ? (
-                                            <button className={styles.editButton} type="button" onClick={() => setEditingField("username")} aria-label="Редактировать юзернейм">
-                                                <Pencil size={16} />
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    {editingField === "username" ? (
-                                        <div className={styles.formRow}>
-                                            <div className={styles.slugInputWrap}>
-                                                <span className={styles.slugPrefix}>@</span>
-                                                <input
-                                                    className={styles.slugInput}
-                                                    type="text"
-                                                    value={username}
-                                                    onChange={(e) => setUsername(normalizeSlug(e.target.value))}
-                                                />
-                                            </div>
-                                            {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
-                                            {error ? <div className={styles.fieldError}>{error}</div> : null}
-                                            {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
-                                            <div className={styles.cardActions}>
+                                    <label className={styles.fieldLabel}>Юзернейм канала</label>
+                                    <div className={styles.editableRow}>
+                                        <div className={styles.valueSlot}>
+                                            {editingField === "username" ? (
+                                                <div className={styles.slugInputWrap}>
+                                                    <span className={styles.slugPrefix}>@</span>
+                                                    <input
+                                                        className={styles.slugInput}
+                                                        type="text"
+                                                        value={username}
+                                                        onChange={(e) => setUsername(normalizeSlug(e.target.value))}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className={styles.displayValue}>{username.trim() ? `@${username}` : "Юзернейм не указан"}</div>
+                                            )}
+                                        </div>
+                                        {editingField === "username" ? (
+                                            <div className={styles.rowActions}>
                                                 <button
-                                                    className={styles.saveButton}
+                                                    className={`${styles.actionButton} ${styles.actionButtonSave}`}
                                                     type="button"
                                                     onClick={() => saveGeneralEdit("username")}
                                                     disabled={saving || !!slugError}
+                                                    aria-label="Сохранить юзернейм"
                                                 >
-                                                    {saving ? "Сохранение…" : "Save"}
+                                                    <Check size={14} />
                                                 </button>
-                                                <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("username")}>
-                                                    Cancel
+                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("username")} aria-label="Отменить редактирование юзернейма">
+                                                    <X size={14} />
                                                 </button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.displayValue}>{username.trim() ? `@${username}` : "Юзернейм не указан"}</div>
-                                    )}
+                                        ) : (
+                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("username")} aria-label="Редактировать юзернейм">
+                                                <Pencil size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {slugError ? <div className={styles.fieldError}>{slugError}</div> : null}
+                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
-                                    <div className={styles.cardHeaderRow}>
-                                        <label className={styles.fieldLabel}>Описание канала</label>
-                                        {editingField === "description" ? <span className={styles.editingBadge}>Редактирование</span> : null}
-                                        {editingField !== "description" ? (
-                                            <button className={styles.editButton} type="button" onClick={() => setEditingField("description")} aria-label="Редактировать описание">
-                                                <Pencil size={16} />
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    {editingField === "description" ? (
-                                        <div className={styles.formRow}>
-                                            <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
-                                            {error ? <div className={styles.fieldError}>{error}</div> : null}
-                                            {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
-                                            <div className={styles.cardActions}>
-                                                <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("description")} disabled={saving}>
-                                                    {saving ? "Сохранение…" : "Save"}
+                                    <label className={styles.fieldLabel}>Описание канала</label>
+                                    <div className={styles.editableRow}>
+                                        <div className={styles.valueSlot}>
+                                            {editingField === "description" ? (
+                                                <textarea className={styles.fieldTextarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+                                            ) : (
+                                                <div className={styles.displayValue}>{generalDisplayValue(description, "Описание не добавлено")}</div>
+                                            )}
+                                        </div>
+                                        {editingField === "description" ? (
+                                            <div className={styles.rowActions}>
+                                                <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("description")} disabled={saving} aria-label="Сохранить описание">
+                                                    <Check size={14} />
                                                 </button>
-                                                <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("description")}>
-                                                    Cancel
+                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("description")} aria-label="Отменить редактирование описания">
+                                                    <X size={14} />
                                                 </button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.displayValue}>{generalDisplayValue(description, "Описание не добавлено")}</div>
-                                    )}
+                                        ) : (
+                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("description")} aria-label="Редактировать описание">
+                                                <Pencil size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
 
                                 <div className={styles.contentCard}>
-                                    <div className={styles.cardHeaderRow}>
-                                        <label className={styles.fieldLabel}>Видимость канала</label>
-                                        {editingField === "visibility" ? <span className={styles.editingBadge}>Редактирование</span> : null}
-                                        {editingField !== "visibility" ? (
-                                            <button className={styles.editButton} type="button" onClick={() => setEditingField("visibility")} aria-label="Редактировать видимость">
-                                                <Pencil size={16} />
-                                            </button>
-                                        ) : null}
-                                    </div>
-                                    {editingField === "visibility" ? (
-                                        <div className={styles.formRow}>
-                                            <select
-                                                className={styles.fieldSelect}
-                                                value={visibility}
-                                                onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
-                                            >
-                                                <option value="public">public</option>
-                                                <option value="private">private</option>
-                                                <option value="unlisted">unlisted</option>
-                                            </select>
-                                            {error ? <div className={styles.fieldError}>{error}</div> : null}
-                                            {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
-                                            <div className={styles.cardActions}>
-                                                <button className={styles.saveButton} type="button" onClick={() => saveGeneralEdit("visibility")} disabled={saving}>
-                                                    {saving ? "Сохранение…" : "Save"}
+                                    <label className={styles.fieldLabel}>Видимость канала</label>
+                                    <div className={styles.editableRow}>
+                                        <div className={styles.valueSlot}>
+                                            {editingField === "visibility" ? (
+                                                <select
+                                                    className={styles.fieldSelect}
+                                                    value={visibility}
+                                                    onChange={(e) => setVisibility(e.target.value as "public" | "private" | "unlisted")}
+                                                >
+                                                    <option value="public">public</option>
+                                                    <option value="private">private</option>
+                                                    <option value="unlisted">unlisted</option>
+                                                </select>
+                                            ) : (
+                                                <div className={styles.displayValue}>{visibility}</div>
+                                            )}
+                                        </div>
+                                        {editingField === "visibility" ? (
+                                            <div className={styles.rowActions}>
+                                                <button className={`${styles.actionButton} ${styles.actionButtonSave}`} type="button" onClick={() => saveGeneralEdit("visibility")} disabled={saving} aria-label="Сохранить видимость">
+                                                    <Check size={14} />
                                                 </button>
-                                                <button className={styles.secondaryButton} type="button" onClick={() => cancelGeneralEdit("visibility")}>
-                                                    Cancel
+                                                <button className={`${styles.actionButton} ${styles.actionButtonCancel}`} type="button" onClick={() => cancelGeneralEdit("visibility")} aria-label="Отменить редактирование видимости">
+                                                    <X size={14} />
                                                 </button>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className={styles.displayValue}>{visibility}</div>
-                                    )}
+                                        ) : (
+                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("visibility")} aria-label="Редактировать видимость">
+                                                <Pencil size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                    {error ? <div className={styles.fieldError}>{error}</div> : null}
                                 </div>
                             </div>
 
