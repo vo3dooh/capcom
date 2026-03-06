@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '@prisma/client'
 import { CreateChannelDto } from './dto/create-channel.dto'
@@ -7,6 +7,30 @@ import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
 @Injectable()
 export class ChannelsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private hasMixedCyrillicAndLatin(value: string): boolean {
+    return /[A-Za-z]/.test(value) && /[А-Яа-яЁё]/.test(value)
+  }
+
+  private ensureSingleLanguageChannelName(name: string) {
+    if (this.hasMixedCyrillicAndLatin(name)) {
+      throw new BadRequestException('Channel name must use one language')
+    }
+  }
+
+  private async ensureUniqueChannelName(name: string, excludedChannelId?: string) {
+    const existing = await this.prisma.channel.findFirst({
+      where: {
+        name,
+        ...(excludedChannelId ? { id: { not: excludedChannelId } } : {})
+      },
+      select: { id: true }
+    })
+
+    if (existing) {
+      throw new ConflictException('Name is already taken')
+    }
+  }
 
   private normalizeSlug(input: string): string {
     const s = input
@@ -64,6 +88,10 @@ export class ChannelsService {
   }
 
   async create(userId: string, dto: CreateChannelDto) {
+    const channelName = dto.name.trim()
+    this.ensureSingleLanguageChannelName(channelName)
+    await this.ensureUniqueChannelName(channelName)
+
     const slugSource = dto.slug?.trim().length ? dto.slug : dto.name
     const slug = await this.ensureUniqueSlug(slugSource)
 
@@ -76,7 +104,7 @@ export class ChannelsService {
       const channel = await tx.channel.create({
         data: {
           slug,
-          name: dto.name,
+          name: channelName,
           description: dto.description ?? null,
           avatarUrl: dto.avatarUrl ?? null,
           coverUrl: dto.coverUrl ?? null,
@@ -402,11 +430,18 @@ export class ChannelsService {
     const channel = await this.requireChannelBySlug(slug)
     await this.requireEditorRole(channel.id, userId)
 
+    let channelName: string | undefined
+    if (dto.name !== undefined) {
+      channelName = dto.name.trim()
+      this.ensureSingleLanguageChannelName(channelName)
+      await this.ensureUniqueChannelName(channelName, channel.id)
+    }
+
     try {
       return await this.prisma.channel.update({
         where: { id: channel.id },
         data: {
-          name: dto.name ?? undefined,
+          name: channelName ?? undefined,
           slug: dto.slug ?? undefined,
           description: dto.description ?? undefined,
           avatarUrl: dto.avatarUrl ?? undefined,
