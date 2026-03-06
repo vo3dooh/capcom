@@ -19,17 +19,41 @@ export class ChannelsService {
   }
 
   private async ensureUniqueChannelName(name: string, excludedChannelId?: string) {
-    const existing = await this.prisma.channel.findFirst({
-      where: {
-        name,
-        ...(excludedChannelId ? { id: { not: excludedChannelId } } : {})
-      },
-      select: { id: true }
-    })
+    const excludedCondition = excludedChannelId
+      ? Prisma.sql`AND id <> ${excludedChannelId}`
+      : Prisma.empty
 
-    if (existing) {
+    const existing = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`
+      SELECT id
+      FROM "Channel"
+      WHERE lower(name) = lower(${name})
+      ${excludedCondition}
+      LIMIT 1
+    `)
+
+    if (existing.length > 0) {
       throw new ConflictException('Name is already taken')
     }
+  }
+
+  private throwMappedUniqueConstraint(error: Prisma.PrismaClientKnownRequestError): never {
+    const target = Array.isArray(error.meta?.target)
+      ? error.meta?.target.join(',').toLowerCase()
+      : String(error.meta?.target ?? '').toLowerCase()
+
+    if (target.includes('slug') || target.includes('channel_slug_key')) {
+      throw new ConflictException('Slug is already taken')
+    }
+
+    if (
+      target.includes('name') ||
+      target.includes('channel_name_nocase_key') ||
+      target.includes('channel.name')
+    ) {
+      throw new ConflictException('Name is already taken')
+    }
+
+    throw error
   }
 
   private normalizeSlug(input: string): string {
@@ -100,79 +124,86 @@ export class ChannelsService {
 
     const sportIds = Array.isArray(dto.sportIds) ? dto.sportIds.filter(Boolean) : []
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      const channel = await tx.channel.create({
-        data: {
-          slug,
-          name: channelName,
-          description: dto.description ?? null,
-          avatarUrl: dto.avatarUrl ?? null,
-          coverUrl: dto.coverUrl ?? null,
-          visibility: (dto.visibility as any) ?? 'public',
-          joinPolicy: (dto.joinPolicy as any) ?? 'open',
-          ownerId: userId,
-          startingBankroll,
-          currentBankroll: startingBankroll,
-          bankrollCurrency: dto.bankrollCurrency ?? null,
-          membersCount: 1
-        }
-      })
-
-      await tx.channelMember.create({
-        data: {
-          userId,
-          channelId: channel.id,
-          role: 'owner',
-          status: 'active'
-        }
-      })
-
-      await tx.channelStats.upsert({
-        where: { channelId: channel.id },
-        update: {},
-        create: {
-          channelId: channel.id,
-          totalPredictions: 0,
-          wins: 0,
-          losses: 0,
-          voids: 0,
-          totalStake: 0,
-          totalProfit: 0,
-          roi: 0,
-          winRate: 0
-        }
-      })
-
-      if (sportIds.length) {
-        await tx.channelSport.createMany({
-          data: sportIds.map((sportId) => ({
-            channelId: channel.id,
-            sportId
-          }))
-        })
-      }
-
-      return channel
-    })
-
-    return this.prisma.channel.findUnique({
-      where: { id: result.id },
-      include: {
-        owner: {
-          select: {
-            id: true,
-            email: true,
-            username: true,
-            handle: true,
-            avatarUrl: true
+    try {
+      const result = await this.prisma.$transaction(async (tx) => {
+        const channel = await tx.channel.create({
+          data: {
+            slug,
+            name: channelName,
+            description: dto.description ?? null,
+            avatarUrl: dto.avatarUrl ?? null,
+            coverUrl: dto.coverUrl ?? null,
+            visibility: (dto.visibility as any) ?? 'public',
+            joinPolicy: (dto.joinPolicy as any) ?? 'open',
+            ownerId: userId,
+            startingBankroll,
+            currentBankroll: startingBankroll,
+            bankrollCurrency: dto.bankrollCurrency ?? null,
+            membersCount: 1
           }
-        },
-        sports: {
-          include: { sport: true }
-        },
-        stats: true
+        })
+
+        await tx.channelMember.create({
+          data: {
+            userId,
+            channelId: channel.id,
+            role: 'owner',
+            status: 'active'
+          }
+        })
+
+        await tx.channelStats.upsert({
+          where: { channelId: channel.id },
+          update: {},
+          create: {
+            channelId: channel.id,
+            totalPredictions: 0,
+            wins: 0,
+            losses: 0,
+            voids: 0,
+            totalStake: 0,
+            totalProfit: 0,
+            roi: 0,
+            winRate: 0
+          }
+        })
+
+        if (sportIds.length) {
+          await tx.channelSport.createMany({
+            data: sportIds.map((sportId) => ({
+              channelId: channel.id,
+              sportId
+            }))
+          })
+        }
+
+        return channel
+      })
+
+      return this.prisma.channel.findUnique({
+        where: { id: result.id },
+        include: {
+          owner: {
+            select: {
+              id: true,
+              email: true,
+              username: true,
+              handle: true,
+              avatarUrl: true
+            }
+          },
+          sports: {
+            include: { sport: true }
+          },
+          stats: true
+        }
+      })
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        this.throwMappedUniqueConstraint(e)
       }
-    })
+      throw e
+    }
   }
 
   async listPublic(takeRaw?: number, skipRaw?: number) {
@@ -473,7 +504,7 @@ export class ChannelsService {
       })
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-        throw new ConflictException('Slug is already taken')
+        this.throwMappedUniqueConstraint(e)
       }
       throw e
     }
