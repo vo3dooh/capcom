@@ -54,8 +54,10 @@ type ChannelSettingsProps = {
     onSaveResult?: (result: ChannelSaveResult) => void;
 };
 
+type SocialKey = "telegram" | "vk" | "website";
+
 type SocialCard = {
-    key: "telegram" | "vk" | "website";
+    key: SocialKey;
     label: string;
     placeholder: string;
     icon: typeof TelegramIcon;
@@ -87,7 +89,12 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const [telegramEnabled, setTelegramEnabled] = useState(false);
     const [vkEnabled, setVkEnabled] = useState(false);
     const [websiteEnabled, setWebsiteEnabled] = useState(false);
-    const [savingSocial, setSavingSocial] = useState<"telegram" | "vk" | "website" | null>(null);
+    const [savingSocial, setSavingSocial] = useState<SocialKey | null>(null);
+    const [socialEditing, setSocialEditing] = useState<Record<SocialKey, boolean>>({
+        telegram: false,
+        vk: false,
+        website: false,
+    });
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState("");
     const [editingField, setEditingField] = useState<GeneralEditableField | null>(null);
@@ -108,6 +115,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         setTelegramEnabled(form.telegramEnabled);
         setVkEnabled(form.vkEnabled);
         setWebsiteEnabled(form.websiteEnabled);
+        setSocialEditing({
+            telegram: form.telegramEnabled && !form.telegramUrl.trim(),
+            vk: form.vkEnabled && !form.vkUrl.trim(),
+            website: form.websiteEnabled && !form.websiteUrl.trim(),
+        });
     }, [form]);
 
     const nameError = useMemo(() => {
@@ -132,8 +144,8 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const hasValidationError =
         !!nameError || !!slugError || !!avatarError || !!coverError || !!telegramError || !!twitterError || !!instagramError || !!vkError || !!websiteError;
 
-    function buildPayload(): ChannelSettingsDto {
-        return {
+    function buildPayload(overrides?: Partial<ChannelSettingsDto>): ChannelSettingsDto {
+        const payload: ChannelSettingsDto = {
             name: name.trim(),
             slug: username,
             description: description.trim(),
@@ -150,6 +162,8 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             vkEnabled,
             websiteEnabled,
         };
+
+        return { ...payload, ...overrides };
     }
 
     async function onSubmit(e: React.FormEvent) {
@@ -219,37 +233,37 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         return clean ? clean : placeholder;
     }
 
-    function getSocialValue(type: "telegram" | "vk" | "website"): string {
+    function getSocialValue(type: SocialKey): string {
         if (type === "telegram") return telegramUrl;
         if (type === "vk") return vkUrl;
         return websiteUrl;
     }
 
-    function getSocialError(type: "telegram" | "vk" | "website"): string | null {
+    function getSocialError(type: SocialKey): string | null {
         if (type === "telegram") return telegramError;
         if (type === "vk") return vkError;
         return websiteError;
     }
 
-    function isSocialEnabled(type: "telegram" | "vk" | "website"): boolean {
+    function isSocialEnabled(type: SocialKey): boolean {
         if (type === "telegram") return telegramEnabled;
         if (type === "vk") return vkEnabled;
         return websiteEnabled;
     }
 
-    function setSocialEnabled(type: "telegram" | "vk" | "website", value: boolean) {
+    function setSocialEnabled(type: SocialKey, value: boolean) {
         if (type === "telegram") setTelegramEnabled(value);
         if (type === "vk") setVkEnabled(value);
         if (type === "website") setWebsiteEnabled(value);
     }
 
-    function setSocialValue(type: "telegram" | "vk" | "website", value: string) {
+    function setSocialValue(type: SocialKey, value: string) {
         if (type === "telegram") setTelegramUrl(value);
         if (type === "vk") setVkUrl(value);
         if (type === "website") setWebsiteUrl(value);
     }
 
-    async function saveSocialCard(type: "telegram" | "vk" | "website") {
+    async function saveSocialCard(type: SocialKey) {
         const error = getSocialError(type);
         if (error) {
             onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
@@ -266,32 +280,48 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         }
 
         onSaveResult?.({ type: "success" });
+        setSocialEditing((prev) => ({ ...prev, [type]: false }));
 
         if (result.updated.slug !== slug) {
             navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
     }
 
-    async function toggleSocial(type: "telegram" | "vk" | "website", nextValue: boolean) {
+    function setSocialEditMode(type: SocialKey, value: boolean) {
+        setSocialEditing((prev) => ({ ...prev, [type]: value }));
+    }
+
+    async function toggleSocial(type: SocialKey, nextValue: boolean) {
         const prevValue = isSocialEnabled(type);
+        const currentValue = getSocialValue(type);
+
         setSocialEnabled(type, nextValue);
-
         if (!nextValue) {
-            setSavingSocial(type);
-            const result = await save(buildPayload());
-            setSavingSocial(null);
+            setSocialEditMode(type, false);
+        }
 
-            if (!result.updated) {
-                setSocialEnabled(type, prevValue);
-                onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
-                return;
-            }
+        setSavingSocial(type);
+        const result = await save(buildPayload({
+            telegramEnabled: type === "telegram" ? nextValue : telegramEnabled,
+            vkEnabled: type === "vk" ? nextValue : vkEnabled,
+            websiteEnabled: type === "website" ? nextValue : websiteEnabled,
+        }));
+        setSavingSocial(null);
 
-            onSaveResult?.({ type: "success" });
+        if (!result.updated) {
+            setSocialEnabled(type, prevValue);
+            setSocialEditMode(type, prevValue && !currentValue.trim());
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+            return;
+        }
 
-            if (result.updated.slug !== slug) {
-                navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
-            }
+        onSaveResult?.({ type: "success" });
+        if (nextValue) {
+            setSocialEditMode(type, !currentValue.trim());
+        }
+
+        if (result.updated.slug !== slug) {
+            navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
     }
 
@@ -548,27 +578,42 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </div>
 
                                             {enabled ? (
-                                                <div className={styles.socialCardEditor}>
-                                                    <input
-                                                        className={styles.fieldInput}
-                                                        type="url"
-                                                        value={value}
-                                                        onChange={(e) => setSocialValue(item.key, e.target.value)}
-                                                        placeholder={item.placeholder}
-                                                    />
-                                                    <button
-                                                        className={`${styles.actionButton} ${styles.actionButtonSave}`}
-                                                        type="button"
-                                                        onClick={() => saveSocialCard(item.key)}
-                                                        disabled={pending || !value.trim() || !!error}
-                                                        aria-label={`Сохранить ${item.label}`}
-                                                    >
-                                                        <Check size={16} />
-                                                    </button>
-                                                </div>
+                                                socialEditing[item.key] ? (
+                                                    <div className={styles.socialCardEditor}>
+                                                        <input
+                                                            className={styles.fieldInput}
+                                                            type="url"
+                                                            value={value}
+                                                            onChange={(e) => setSocialValue(item.key, e.target.value)}
+                                                            placeholder={item.placeholder}
+                                                        />
+                                                        <button
+                                                            className={`${styles.actionButton} ${styles.actionButtonSave}`}
+                                                            type="button"
+                                                            onClick={() => saveSocialCard(item.key)}
+                                                            disabled={pending || !value.trim() || !!error}
+                                                            aria-label={`Сохранить ${item.label}`}
+                                                        >
+                                                            <Check size={16} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className={styles.socialCardEditor}>
+                                                        <div className={styles.displayValue}>{value.trim() || "Ссылка не указана"}</div>
+                                                        <button
+                                                            className={styles.actionButton}
+                                                            type="button"
+                                                            onClick={() => setSocialEditMode(item.key, true)}
+                                                            disabled={pending}
+                                                            aria-label={`Редактировать ${item.label}`}
+                                                        >
+                                                            <Pencil size={14} />
+                                                        </button>
+                                                    </div>
+                                                )
                                             ) : null}
 
-                                            {enabled && error ? <div className={styles.fieldError}>{error}</div> : null}
+                                            {enabled && socialEditing[item.key] && error ? <div className={styles.fieldError}>{error}</div> : null}
                                         </div>
                                     );
                                 })}
