@@ -142,6 +142,9 @@ model Channel {
   instagramUrl String?
   vkUrl        String?
   websiteUrl   String?
+  telegramEnabled Boolean @default(false)
+  vkEnabled       Boolean @default(false)
+  websiteEnabled  Boolean @default(false)
 
   visibility            ChannelVisibility            @default(public)
   predictionsVisibility ChannelPredictionsVisibility @default(public)

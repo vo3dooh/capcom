@@ -13,6 +13,9 @@ export type ChannelSettingsModel = {
     instagramUrl: string | null;
     vkUrl: string | null;
     websiteUrl: string | null;
+    telegramEnabled: boolean;
+    vkEnabled: boolean;
+    websiteEnabled: boolean;
 };
 
 export type ChannelSettingsDto = {
@@ -28,6 +31,9 @@ export type ChannelSettingsDto = {
     instagramUrl: string;
     vkUrl: string;
     websiteUrl: string;
+    telegramEnabled: boolean;
+    vkEnabled: boolean;
+    websiteEnabled: boolean;
 };
 
 export async function fetchChannelSettings(slug: string) {

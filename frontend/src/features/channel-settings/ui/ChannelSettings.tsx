@@ -7,6 +7,9 @@ import { useChannelSettings } from "../model/useChannelSettings";
 import styles from "./ChannelSettings.module.css";
 import { ToastType } from "@/shared/ui/Toast";
 import { mapChannelSettingsSaveError } from "../lib/mapChannelSettingsSaveError";
+import TelegramIcon from "@/shared/assets/social/TelegramIcon";
+import VkIcon from "@/shared/assets/social/VkIcon";
+import WebsiteIcon from "@/shared/assets/social/WebsiteIcon";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
 type GeneralEditableField = "name" | "username" | "description" | "visibility";
@@ -51,6 +54,19 @@ type ChannelSettingsProps = {
     onSaveResult?: (result: ChannelSaveResult) => void;
 };
 
+type SocialCard = {
+    key: "telegram" | "vk" | "website";
+    label: string;
+    placeholder: string;
+    icon: typeof TelegramIcon;
+};
+
+const SOCIAL_CARDS: SocialCard[] = [
+    { key: "telegram", label: "Telegram", placeholder: "https://t.me/channel_name", icon: TelegramIcon },
+    { key: "vk", label: "VK", placeholder: "https://vk.com/channel_name", icon: VkIcon },
+    { key: "website", label: "Website", placeholder: "https://example.com", icon: WebsiteIcon },
+];
+
 export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const navigate = useNavigate();
     const { form, loading, save, saving, ok, deleting, deleteError, removeChannel } = useChannelSettings(slug);
@@ -68,6 +84,10 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const [instagramUrl, setInstagramUrl] = useState("");
     const [vkUrl, setVkUrl] = useState("");
     const [websiteUrl, setWebsiteUrl] = useState("");
+    const [telegramEnabled, setTelegramEnabled] = useState(false);
+    const [vkEnabled, setVkEnabled] = useState(false);
+    const [websiteEnabled, setWebsiteEnabled] = useState(false);
+    const [savingSocial, setSavingSocial] = useState<"telegram" | "vk" | "website" | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState("");
     const [editingField, setEditingField] = useState<GeneralEditableField | null>(null);
@@ -85,6 +105,9 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         setInstagramUrl(form.instagramUrl);
         setVkUrl(form.vkUrl);
         setWebsiteUrl(form.websiteUrl);
+        setTelegramEnabled(form.telegramEnabled);
+        setVkEnabled(form.vkEnabled);
+        setWebsiteEnabled(form.websiteEnabled);
     }, [form]);
 
     const nameError = useMemo(() => {
@@ -123,6 +146,9 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             instagramUrl: instagramUrl.trim(),
             vkUrl: vkUrl.trim(),
             websiteUrl: websiteUrl.trim(),
+            telegramEnabled,
+            vkEnabled,
+            websiteEnabled,
         };
     }
 
@@ -191,6 +217,82 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     function generalDisplayValue(value: string, placeholder: string): string {
         const clean = value.trim();
         return clean ? clean : placeholder;
+    }
+
+    function getSocialValue(type: "telegram" | "vk" | "website"): string {
+        if (type === "telegram") return telegramUrl;
+        if (type === "vk") return vkUrl;
+        return websiteUrl;
+    }
+
+    function getSocialError(type: "telegram" | "vk" | "website"): string | null {
+        if (type === "telegram") return telegramError;
+        if (type === "vk") return vkError;
+        return websiteError;
+    }
+
+    function isSocialEnabled(type: "telegram" | "vk" | "website"): boolean {
+        if (type === "telegram") return telegramEnabled;
+        if (type === "vk") return vkEnabled;
+        return websiteEnabled;
+    }
+
+    function setSocialEnabled(type: "telegram" | "vk" | "website", value: boolean) {
+        if (type === "telegram") setTelegramEnabled(value);
+        if (type === "vk") setVkEnabled(value);
+        if (type === "website") setWebsiteEnabled(value);
+    }
+
+    function setSocialValue(type: "telegram" | "vk" | "website", value: string) {
+        if (type === "telegram") setTelegramUrl(value);
+        if (type === "vk") setVkUrl(value);
+        if (type === "website") setWebsiteUrl(value);
+    }
+
+    async function saveSocialCard(type: "telegram" | "vk" | "website") {
+        const error = getSocialError(type);
+        if (error) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
+            return;
+        }
+
+        setSavingSocial(type);
+        const result = await save(buildPayload());
+        setSavingSocial(null);
+
+        if (!result.updated) {
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+            return;
+        }
+
+        onSaveResult?.({ type: "success" });
+
+        if (result.updated.slug !== slug) {
+            navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
+        }
+    }
+
+    async function toggleSocial(type: "telegram" | "vk" | "website", nextValue: boolean) {
+        const prevValue = isSocialEnabled(type);
+        setSocialEnabled(type, nextValue);
+
+        if (!nextValue) {
+            setSavingSocial(type);
+            const result = await save(buildPayload());
+            setSavingSocial(null);
+
+            if (!result.updated) {
+                setSocialEnabled(type, prevValue);
+                onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+                return;
+            }
+
+            onSaveResult?.({ type: "success" });
+
+            if (result.updated.slug !== slug) {
+                navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
+            }
+        }
     }
 
     if (loading) {
@@ -413,72 +515,63 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                         <>
                             <div className={styles.contentCard}>
                                 <h2 className={styles.sectionTitle}>Социальные сети</h2>
-                                <p className={styles.sectionDescription}>Ссылки будут отображаться в профиле канала.</p>
+                                <p className={styles.sectionDescription}>Отображение иконок на обложке зависит от переключателя каждой карточки.</p>
                             </div>
 
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>Telegram</label>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={telegramUrl}
-                                        onChange={(e) => setTelegramUrl(e.target.value)}
-                                        placeholder="https://t.me/channel_name"
-                                    />
-                                </div>
-                            </div>
+                            <div className={styles.socialCards}>
+                                {SOCIAL_CARDS.map((item) => {
+                                    const enabled = isSocialEnabled(item.key);
+                                    const value = getSocialValue(item.key);
+                                    const error = getSocialError(item.key);
+                                    const Icon = item.icon;
+                                    const pending = saving || savingSocial === item.key;
 
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>Twitter</label>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={twitterUrl}
-                                        onChange={(e) => setTwitterUrl(e.target.value)}
-                                        placeholder="https://twitter.com/channel_name"
-                                    />
-                                </div>
-                            </div>
+                                    return (
+                                        <div className={styles.contentCard} key={item.key}>
+                                            <div className={styles.socialCardTop}>
+                                                <div className={styles.socialIdentity}>
+                                                    <span className={styles.socialIconWrap}>
+                                                        <Icon className={styles.socialIcon} aria-hidden="true" />
+                                                    </span>
+                                                    <span className={styles.socialName}>{item.label}</span>
+                                                </div>
 
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>Instagram</label>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={instagramUrl}
-                                        onChange={(e) => setInstagramUrl(e.target.value)}
-                                        placeholder="https://instagram.com/channel_name"
-                                    />
-                                </div>
-                            </div>
+                                                <button
+                                                    type="button"
+                                                    className={`${styles.switchButton} ${enabled ? styles.switchButtonActive : ""}`}
+                                                    aria-pressed={enabled}
+                                                    onClick={() => toggleSocial(item.key, !enabled)}
+                                                    disabled={pending}
+                                                >
+                                                    <span className={styles.switchThumb} />
+                                                </button>
+                                            </div>
 
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>VK</label>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={vkUrl}
-                                        onChange={(e) => setVkUrl(e.target.value)}
-                                        placeholder="https://vk.com/channel_name"
-                                    />
-                                </div>
-                            </div>
+                                            {enabled ? (
+                                                <div className={styles.socialCardEditor}>
+                                                    <input
+                                                        className={styles.fieldInput}
+                                                        type="url"
+                                                        value={value}
+                                                        onChange={(e) => setSocialValue(item.key, e.target.value)}
+                                                        placeholder={item.placeholder}
+                                                    />
+                                                    <button
+                                                        className={`${styles.actionButton} ${styles.actionButtonSave}`}
+                                                        type="button"
+                                                        onClick={() => saveSocialCard(item.key)}
+                                                        disabled={pending || !value.trim() || !!error}
+                                                        aria-label={`Сохранить ${item.label}`}
+                                                    >
+                                                        <Check size={16} />
+                                                    </button>
+                                                </div>
+                                            ) : null}
 
-                            <div className={styles.contentCard}>
-                                <div className={styles.formRow}>
-                                    <label className={styles.fieldLabel}>Website</label>
-                                    <input
-                                        className={styles.fieldInput}
-                                        type="url"
-                                        value={websiteUrl}
-                                        onChange={(e) => setWebsiteUrl(e.target.value)}
-                                        placeholder="https://example.com"
-                                    />
-                                </div>
+                                            {enabled && error ? <div className={styles.fieldError}>{error}</div> : null}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </>
                     ) : null}
@@ -498,7 +591,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                     ) : null}
                 </section>
 
-                {activeTab !== "general" ? (
+                {activeTab !== "general" && activeTab !== "social" ? (
                     <div className={styles.footerRow}>
                         {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
                         <button className={styles.saveButton} type="submit" disabled={saving || hasValidationError}>

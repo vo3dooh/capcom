@@ -15,6 +15,9 @@ const defaultForm: ChannelSettingsDto = {
     instagramUrl: "",
     vkUrl: "",
     websiteUrl: "",
+    telegramEnabled: false,
+    vkEnabled: false,
+    websiteEnabled: false,
 };
 
 function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
@@ -31,6 +34,9 @@ function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
         instagramUrl: data.instagramUrl ?? "",
         vkUrl: data.vkUrl ?? "",
         websiteUrl: data.websiteUrl ?? "",
+        telegramEnabled: data.telegramEnabled,
+        vkEnabled: data.vkEnabled,
+        websiteEnabled: data.websiteEnabled,
     };
 }
 

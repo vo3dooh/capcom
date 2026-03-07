@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsNumber, Matches, Min, MaxLength } from 'class-validator'
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Matches, Min, MaxLength } from 'class-validator'
 import { ChannelVisibility, ChannelJoinPolicy } from '@prisma/client'
 
 export class UpdateChannelSettingsDto {
@@ -58,6 +58,18 @@ export class UpdateChannelSettingsDto {
   @IsString()
   @Matches(/^(https?:\/\/.*)?$/, { message: 'websiteUrl must start with http:// or https://' })
   websiteUrl?: string | null
+
+  @IsOptional()
+  @IsBoolean()
+  telegramEnabled?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  vkEnabled?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  websiteEnabled?: boolean
 
   @IsOptional()
   @IsNumber()

@@ -1,0 +1,3 @@
+ALTER TABLE "Channel" ADD COLUMN "telegramEnabled" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Channel" ADD COLUMN "vkEnabled" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Channel" ADD COLUMN "websiteEnabled" BOOLEAN NOT NULL DEFAULT false;
