@@ -1,7 +1,7 @@
 import styles from "./ChannelSocialLinks.module.css"
-import TelegramIcon from "@/shared/assets/social/telegram.svg"
-import VkIcon from "@/shared/assets/social/vk.svg"
-import WebsiteIcon from "@/shared/assets/social/website.svg"
+import TelegramIcon from "@/shared/assets/social/TelegramIcon"
+import VkIcon from "@/shared/assets/social/VkIcon"
+import WebsiteIcon from "@/shared/assets/social/WebsiteIcon"
 
 type Props = {
     telegramUrl: string | null
