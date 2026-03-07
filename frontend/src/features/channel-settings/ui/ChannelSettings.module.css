@@ -67,6 +67,27 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: background-color 0.24s ease, border-color 0.24s ease;
+}
+
+.socialCardEnabled_telegram,
+.socialCardEnabled_vk,
+.socialCardEnabled_website {
+}
+
+.socialCardEnabled_telegram {
+    background: rgba(34, 158, 217, 0.16);
+    border-color: rgba(34, 158, 217, 0.52);
+}
+
+.socialCardEnabled_vk {
+    background: rgba(0, 119, 255, 0.14);
+    border-color: rgba(0, 119, 255, 0.5);
+}
+
+.socialCardEnabled_website {
+    background: rgba(221, 74, 58, 0.14);
+    border-color: rgba(221, 74, 58, 0.5);
 }
 
 .sectionTitle {
@@ -125,6 +146,22 @@
     align-items: center;
     justify-content: center;
     flex: 0 0 40px;
+    transition: background-color 0.24s ease, border-color 0.24s ease;
+}
+
+.socialIconWrapEnabled_telegram {
+    background: #229ed9;
+    border-color: #229ed9;
+}
+
+.socialIconWrapEnabled_vk {
+    background: #0077ff;
+    border-color: #0077ff;
+}
+
+.socialIconWrapEnabled_website {
+    background: #dd4a3a;
+    border-color: #dd4a3a;
 }
 
 .socialIcon {
@@ -132,6 +169,10 @@
     height: 20px;
     color: #0f172a;
     transition: color 0.22s ease;
+}
+
+.socialIconEnabled {
+    color: #ffffff;
 }
 
 .socialIcon_telegram {
