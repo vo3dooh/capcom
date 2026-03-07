@@ -235,6 +235,68 @@
     color: #111827;
 }
 
+
+.coverSocials {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.socialBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.20);
+    transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.socialBtn:hover {
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.26);
+    transform: translateY(-1px);
+}
+
+.socialBtn:active {
+    transform: translateY(0);
+}
+
+.socialBtn_telegram {
+    background: #229ed9;
+}
+
+.socialBtn_telegram:hover {
+    background: #1b8dbf;
+}
+
+.socialBtn_vk {
+    background: #2787f5;
+}
+
+.socialBtn_vk:hover {
+    background: #2177d9;
+}
+
+.socialBtn_website {
+    background: #dd4a3a;
+}
+
+.socialBtn_website:hover {
+    background: #c33f31;
+}
+
+.socialIcon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
 .btn {
     border: 1px solid rgba(15, 23, 42, 0.18);
     background: #ffffff;
@@ -396,6 +458,23 @@
 
     .cover {
         height: 150px;
+    }
+
+    .coverSocials {
+        right: 12px;
+        bottom: 12px;
+        gap: 6px;
+    }
+
+    .socialBtn {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+    }
+
+    .socialIcon {
+        width: 18px;
+        height: 18px;
     }
 
     .headerContent {
