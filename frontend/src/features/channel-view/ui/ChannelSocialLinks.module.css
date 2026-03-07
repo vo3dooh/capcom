@@ -9,8 +9,8 @@
 }
 
 .socialButton {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -22,36 +22,45 @@
 }
 
 .socialIcon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     display: block;
-    color: inherit;
+    transition: all 0.2s ease;
 }
 
-.socialButton_telegram {
+.socialButton_telegram .socialIcon {
     color: #229ed9;
 }
 
 .socialButton_telegram:hover {
     background: #229ed9;
+}
+
+.socialButton_telegram:hover .socialIcon {
     color: #ffffff;
 }
 
-.socialButton_vk {
+.socialButton_vk .socialIcon {
     color: #0077ff;
 }
 
 .socialButton_vk:hover {
     background: #0077ff;
+}
+
+.socialButton_vk:hover .socialIcon {
     color: #ffffff;
 }
 
-.socialButton_website {
+.socialButton_website .socialIcon {
     color: #dd4a3a;
 }
 
 .socialButton_website:hover {
     background: #dd4a3a;
+}
+
+.socialButton_website:hover .socialIcon {
     color: #ffffff;
 }
 
@@ -60,15 +69,5 @@
         right: 12px;
         bottom: 12px;
         gap: 6px;
-    }
-
-    .socialButton {
-        width: 40px;
-        height: 40px;
-    }
-
-    .socialIcon {
-        width: 20px;
-        height: 20px;
     }
 }
