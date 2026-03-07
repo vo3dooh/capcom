@@ -10,6 +10,7 @@ import { mapChannelSettingsSaveError } from "../lib/mapChannelSettingsSaveError"
 import TelegramIcon from "@/shared/assets/social/TelegramIcon";
 import VkIcon from "@/shared/assets/social/VkIcon";
 import WebsiteIcon from "@/shared/assets/social/WebsiteIcon";
+import { getSocialSaveError, normalizeSocialUrl } from "../lib/socialUrl";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
 type GeneralEditableField = "name" | "username" | "description" | "visibility";
@@ -135,14 +136,10 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
     const avatarError = useMemo(() => urlError(avatarUrl), [avatarUrl]);
     const coverError = useMemo(() => urlError(coverUrl), [coverUrl]);
-    const telegramError = useMemo(() => urlError(telegramUrl), [telegramUrl]);
     const twitterError = useMemo(() => urlError(twitterUrl), [twitterUrl]);
     const instagramError = useMemo(() => urlError(instagramUrl), [instagramUrl]);
-    const vkError = useMemo(() => urlError(vkUrl), [vkUrl]);
-    const websiteError = useMemo(() => urlError(websiteUrl), [websiteUrl]);
 
-    const hasValidationError =
-        !!nameError || !!slugError || !!avatarError || !!coverError || !!telegramError || !!twitterError || !!instagramError || !!vkError || !!websiteError;
+    const hasValidationError = !!nameError || !!slugError || !!avatarError || !!coverError || !!twitterError || !!instagramError;
 
     function buildPayload(overrides?: Partial<ChannelSettingsDto>): ChannelSettingsDto {
         const payload: ChannelSettingsDto = {
@@ -153,11 +150,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             coverUrl: coverUrl.trim(),
             visibility,
             joinPolicy,
-            telegramUrl: telegramUrl.trim(),
+            telegramUrl: normalizeSocialUrl(telegramUrl),
             twitterUrl: twitterUrl.trim(),
             instagramUrl: instagramUrl.trim(),
-            vkUrl: vkUrl.trim(),
-            websiteUrl: websiteUrl.trim(),
+            vkUrl: normalizeSocialUrl(vkUrl),
+            websiteUrl: normalizeSocialUrl(websiteUrl),
             telegramEnabled,
             vkEnabled,
             websiteEnabled,
@@ -166,10 +163,32 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         return { ...payload, ...overrides };
     }
 
+    function getAllSocialValidationError(): string | null {
+        const telegramSaveError = getSocialSaveError(telegramEnabled, telegramUrl);
+        if (telegramSaveError) return telegramSaveError;
+        const vkSaveError = getSocialSaveError(vkEnabled, vkUrl);
+        if (vkSaveError) return vkSaveError;
+        const websiteSaveError = getSocialSaveError(websiteEnabled, websiteUrl);
+        if (websiteSaveError) return websiteSaveError;
+        return null;
+    }
+
+    function applyNormalizedSocialState(payload: ChannelSettingsDto) {
+        setTelegramUrl(payload.telegramUrl ?? "");
+        setVkUrl(payload.vkUrl ?? "");
+        setWebsiteUrl(payload.websiteUrl ?? "");
+    }
+
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
         if (hasValidationError) {
             onSaveResult?.({ type: "error", description: nameError ?? mapChannelSettingsSaveError("client_validation") });
+            return;
+        }
+
+        const socialError = getAllSocialValidationError();
+        if (socialError) {
+            onSaveResult?.({ type: "error", description: socialError });
             return;
         }
 
@@ -180,6 +199,8 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
             return;
         }
+
+        applyNormalizedSocialState(payload);
 
         onSaveResult?.({ type: "success" });
 
@@ -239,12 +260,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         return websiteUrl;
     }
 
-    function getSocialError(type: SocialKey): string | null {
-        if (type === "telegram") return telegramError;
-        if (type === "vk") return vkError;
-        return websiteError;
-    }
-
     function isSocialEnabled(type: SocialKey): boolean {
         if (type === "telegram") return telegramEnabled;
         if (type === "vk") return vkEnabled;
@@ -264,14 +279,27 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     }
 
     async function saveSocialCard(type: SocialKey) {
-        const error = getSocialError(type);
-        if (error) {
-            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError("client_validation") });
+        const enabled = isSocialEnabled(type);
+        const value = getSocialValue(type);
+        const socialError = getSocialSaveError(enabled, value);
+        if (socialError) {
+            onSaveResult?.({ type: "error", description: socialError });
             return;
         }
 
+        const normalizedValue = normalizeSocialUrl(value);
+        setSocialValue(type, normalizedValue);
+
+        const payload = buildPayload(
+            type === "telegram"
+                ? { telegramUrl: normalizedValue }
+                : type === "vk"
+                  ? { vkUrl: normalizedValue }
+                  : { websiteUrl: normalizedValue },
+        );
+
         setSavingSocial(type);
-        const result = await save(buildPayload());
+        const result = await save(payload);
         setSavingSocial(null);
 
         if (!result.updated) {
@@ -279,6 +307,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             return;
         }
 
+        applyNormalizedSocialState(payload);
         onSaveResult?.({ type: "success" });
         setSocialEditing((prev) => ({ ...prev, [type]: false }));
 
@@ -552,7 +581,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                 {SOCIAL_CARDS.map((item) => {
                                     const enabled = isSocialEnabled(item.key);
                                     const value = getSocialValue(item.key);
-                                    const error = getSocialError(item.key);
                                     const Icon = item.icon;
                                     const pending = saving || savingSocial === item.key;
 
@@ -561,7 +589,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             <div className={styles.socialCardTop}>
                                                 <div className={styles.socialIdentity}>
                                                     <span className={styles.socialIconWrap}>
-                                                        <Icon className={styles.socialIcon} aria-hidden="true" />
+                                                        <Icon className={`${styles.socialIcon} ${enabled ? styles[`socialIcon_${item.key}`] : ""}`} aria-hidden="true" />
                                                     </span>
                                                     <span className={styles.socialName}>{item.label}</span>
                                                 </div>
@@ -582,7 +610,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                     <div className={styles.socialCardEditor}>
                                                         <input
                                                             className={styles.fieldInput}
-                                                            type="url"
+                                                            type="text"
                                                             value={value}
                                                             onChange={(e) => setSocialValue(item.key, e.target.value)}
                                                             placeholder={item.placeholder}
@@ -591,7 +619,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                             className={`${styles.actionButton} ${styles.actionButtonSave}`}
                                                             type="button"
                                                             onClick={() => saveSocialCard(item.key)}
-                                                            disabled={pending || !value.trim() || !!error}
+                                                            disabled={pending}
                                                             aria-label={`Сохранить ${item.label}`}
                                                         >
                                                             <Check size={16} />
@@ -613,7 +641,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 )
                                             ) : null}
 
-                                            {enabled && socialEditing[item.key] && error ? <div className={styles.fieldError}>{error}</div> : null}
                                         </div>
                                     );
                                 })}
