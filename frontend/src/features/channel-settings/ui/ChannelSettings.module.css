@@ -92,9 +92,13 @@
 
 .socialCards {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 14px;
-    align-items: stretch;
+    justify-items: start;
+}
+
+.socialCards > .contentCard {
+    width: calc((100% - 14px) / 2);
 }
 
 .socialCardTop {
@@ -127,6 +131,19 @@
     width: 18px;
     height: 18px;
     color: #0f172a;
+    transition: color 0.22s ease;
+}
+
+.socialIcon_telegram {
+    color: #229ed9;
+}
+
+.socialIcon_vk {
+    color: #0077ff;
+}
+
+.socialIcon_website {
+    color: #dd4a3a;
 }
 
 .socialName {
@@ -494,6 +511,11 @@
 
     .socialCards {
         grid-template-columns: 1fr;
+        justify-items: stretch;
+    }
+
+    .socialCards > .contentCard {
+        width: 100%;
     }
 
     .footerRow {
