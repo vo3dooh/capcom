@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChannelSettings } from "@/features/channel-settings/ui/ChannelSettings";
 import { Toast, ToastType } from "@/shared/ui/Toast";
 import styles from "./ChannelSettingsPage.module.css";
@@ -13,6 +14,7 @@ type PageToast = {
 
 export function ChannelSettingsPage() {
     const { slug } = useParams();
+    const navigate = useNavigate();
     const [toast, setToast] = useState<PageToast | null>(null);
 
     useEffect(() => {
@@ -50,14 +52,28 @@ export function ChannelSettingsPage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <div className={styles.headerText}>
-                    <h1 className={styles.title}>Настройки канала</h1>
-                    <div className={styles.subtitle}>Управляйте параметрами канала и сохраните изменения одной кнопкой.</div>
-                </div>
-                <div className={styles.toastSlot}>{toast ? <Toast key={toast.id} type={toast.type} title={toast.title} description={toast.description} onClose={() => setToast(null)} /> : null}</div>
+            <div className={styles.leftRail}>
+                <button
+                    className={styles.backButton}
+                    type="button"
+                    aria-label="Назад в канал"
+                    onClick={() => navigate(`/channels/${slug}`)}
+                >
+                    <ArrowLeft className={styles.backButtonIcon} aria-hidden="true" />
+                </button>
             </div>
-            <ChannelSettings slug={slug} onSaveResult={handleSaveResult} />
+
+            <div className={styles.mainContent}>
+                <div className={styles.header}>
+                    <div className={styles.headerText}>
+                        <h1 className={styles.title}>Настройки канала</h1>
+                        <div className={styles.subtitle}>Управляйте параметрами канала и сохраните изменения одной кнопкой.</div>
+                    </div>
+                    <div className={styles.toastSlot}>{toast ? <Toast key={toast.id} type={toast.type} title={toast.title} description={toast.description} onClose={() => setToast(null)} /> : null}</div>
+                </div>
+
+                <ChannelSettings slug={slug} onSaveResult={handleSaveResult} />
+            </div>
         </div>
     );
 }
