@@ -57,6 +57,11 @@ type ChannelSettingsProps = {
 
 type SocialKey = "telegram" | "vk" | "website";
 
+type ActiveEditing =
+    | { type: "general"; field: GeneralEditableField }
+    | { type: "social"; key: SocialKey }
+    | null;
+
 type SocialCard = {
     key: SocialKey;
     label: string;
@@ -91,14 +96,10 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const [vkEnabled, setVkEnabled] = useState(false);
     const [websiteEnabled, setWebsiteEnabled] = useState(false);
     const [savingSocial, setSavingSocial] = useState<SocialKey | null>(null);
-    const [socialEditing, setSocialEditing] = useState<Record<SocialKey, boolean>>({
-        telegram: false,
-        vk: false,
-        website: false,
-    });
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState("");
     const [editingField, setEditingField] = useState<GeneralEditableField | null>(null);
+    const [activeEditing, setActiveEditing] = useState<ActiveEditing>(null);
 
     useEffect(() => {
         setName(form.name);
@@ -116,11 +117,8 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         setTelegramEnabled(form.telegramEnabled);
         setVkEnabled(form.vkEnabled);
         setWebsiteEnabled(form.websiteEnabled);
-        setSocialEditing({
-            telegram: form.telegramEnabled && !form.telegramUrl.trim(),
-            vk: form.vkEnabled && !form.vkUrl.trim(),
-            website: form.websiteEnabled && !form.websiteUrl.trim(),
-        });
+        setEditingField(null);
+        setActiveEditing(null);
     }, [form]);
 
     const nameError = useMemo(() => {
@@ -161,6 +159,13 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         };
 
         return { ...payload, ...overrides };
+    }
+
+    function buildPayloadFromForm(overrides?: Partial<ChannelSettingsDto>): ChannelSettingsDto {
+        return {
+            ...form,
+            ...overrides,
+        };
     }
 
     function getAllSocialValidationError(): string | null {
@@ -216,12 +221,55 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         navigate("/channels", { replace: true, state: { channelDeleted: true } });
     }
 
-    function cancelGeneralEdit(field: GeneralEditableField) {
+    function resetGeneralField(field: GeneralEditableField) {
         if (field === "name") setName(form.name);
         if (field === "username") setUsername(form.slug);
         if (field === "description") setDescription(form.description);
         if (field === "visibility") setVisibility(form.visibility);
+    }
+
+    function cancelGeneralEdit(field: GeneralEditableField) {
+        resetGeneralField(field);
         setEditingField(null);
+        setActiveEditing(null);
+    }
+
+    function resetSocialField(type: SocialKey) {
+        if (type === "telegram") {
+            setTelegramUrl(form.telegramUrl);
+            return;
+        }
+
+        if (type === "vk") {
+            setVkUrl(form.vkUrl);
+            return;
+        }
+
+        setWebsiteUrl(form.websiteUrl);
+    }
+
+    function clearActiveEditing() {
+        if (!activeEditing) return;
+
+        if (activeEditing.type === "general") {
+            resetGeneralField(activeEditing.field);
+            setEditingField(null);
+            return;
+        }
+
+        resetSocialField(activeEditing.key);
+    }
+
+    function activateGeneralEdit(field: GeneralEditableField) {
+        clearActiveEditing();
+        setEditingField(field);
+        setActiveEditing({ type: "general", field });
+    }
+
+    function activateSocialEdit(type: SocialKey) {
+        clearActiveEditing();
+        setEditingField(null);
+        setActiveEditing({ type: "social", key: type });
     }
 
     async function saveGeneralEdit(field: GeneralEditableField) {
@@ -235,7 +283,16 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             return;
         }
 
-        const result = await save(buildPayload());
+        const payload =
+            field === "name"
+                ? buildPayloadFromForm({ name: name.trim() })
+                : field === "username"
+                  ? buildPayloadFromForm({ slug: username })
+                  : field === "description"
+                    ? buildPayloadFromForm({ description: description.trim() })
+                    : buildPayloadFromForm({ visibility });
+
+        const result = await save(payload);
         if (!result.updated) {
             onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
             return;
@@ -244,6 +301,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         onSaveResult?.({ type: "success" });
 
         setEditingField(null);
+        setActiveEditing(null);
         if (result.updated.slug !== slug) {
             navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
@@ -290,12 +348,12 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         const normalizedValue = normalizeSocialUrl(value);
         setSocialValue(type, normalizedValue);
 
-        const payload = buildPayload(
+        const payload = buildPayloadFromForm(
             type === "telegram"
-                ? { telegramUrl: normalizedValue }
+                ? { telegramUrl: normalizedValue, telegramEnabled }
                 : type === "vk"
-                  ? { vkUrl: normalizedValue }
-                  : { websiteUrl: normalizedValue },
+                  ? { vkUrl: normalizedValue, vkEnabled }
+                  : { websiteUrl: normalizedValue, websiteEnabled },
         );
 
         setSavingSocial(type);
@@ -309,15 +367,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
         applyNormalizedSocialState(payload);
         onSaveResult?.({ type: "success" });
-        setSocialEditing((prev) => ({ ...prev, [type]: false }));
+        setActiveEditing(null);
 
         if (result.updated.slug !== slug) {
             navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
         }
-    }
-
-    function setSocialEditMode(type: SocialKey, value: boolean) {
-        setSocialEditing((prev) => ({ ...prev, [type]: value }));
     }
 
     async function toggleSocial(type: SocialKey, nextValue: boolean) {
@@ -326,27 +380,34 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
         setSocialEnabled(type, nextValue);
         if (!nextValue) {
-            setSocialEditMode(type, false);
+            if (activeEditing?.type === "social" && activeEditing.key === type) {
+                setActiveEditing(null);
+            }
         }
 
         setSavingSocial(type);
-        const result = await save(buildPayload({
-            telegramEnabled: type === "telegram" ? nextValue : telegramEnabled,
-            vkEnabled: type === "vk" ? nextValue : vkEnabled,
-            websiteEnabled: type === "website" ? nextValue : websiteEnabled,
-        }));
+        const result = await save(
+            buildPayloadFromForm(
+                type === "telegram"
+                    ? { telegramEnabled: nextValue }
+                    : type === "vk"
+                      ? { vkEnabled: nextValue }
+                      : { websiteEnabled: nextValue },
+            ),
+        );
         setSavingSocial(null);
 
         if (!result.updated) {
             setSocialEnabled(type, prevValue);
-            setSocialEditMode(type, prevValue && !currentValue.trim());
             onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
             return;
         }
 
         onSaveResult?.({ type: "success" });
         if (nextValue) {
-            setSocialEditMode(type, !currentValue.trim());
+            if (!currentValue.trim()) {
+                activateSocialEdit(type);
+            }
         }
 
         if (result.updated.slug !== slug) {
@@ -398,7 +459,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("name")} aria-label="Редактировать название">
+                                            <button className={styles.actionButton} type="button" onClick={() => activateGeneralEdit("name")} aria-label="Редактировать название">
                                                 <Pencil size={14} />
                                             </button>
                                         )}
@@ -448,7 +509,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("username")} aria-label="Редактировать ссылку на канал">
+                                            <button className={styles.actionButton} type="button" onClick={() => activateGeneralEdit("username")} aria-label="Редактировать ссылку на канал">
                                                 <Pencil size={14} />
                                             </button>
                                         )}
@@ -475,7 +536,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("description")} aria-label="Редактировать описание">
+                                            <button className={styles.actionButton} type="button" onClick={() => activateGeneralEdit("description")} aria-label="Редактировать описание">
                                                 <Pencil size={14} />
                                             </button>
                                         )}
@@ -510,7 +571,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className={styles.actionButton} type="button" onClick={() => setEditingField("visibility")} aria-label="Редактировать видимость">
+                                            <button className={styles.actionButton} type="button" onClick={() => activateGeneralEdit("visibility")} aria-label="Редактировать видимость">
                                                 <Pencil size={14} />
                                             </button>
                                         )}
@@ -585,11 +646,11 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                     const pending = saving || savingSocial === item.key;
 
                                     return (
-                                        <div className={styles.contentCard} key={item.key}>
+                                        <div className={`${styles.contentCard} ${enabled ? styles[`socialCardEnabled_${item.key}`] : ""}`} key={item.key}>
                                             <div className={styles.socialCardTop}>
                                                 <div className={styles.socialIdentity}>
-                                                    <span className={styles.socialIconWrap}>
-                                                        <Icon className={`${styles.socialIcon} ${enabled ? styles[`socialIcon_${item.key}`] : ""}`} aria-hidden="true" />
+                                                    <span className={`${styles.socialIconWrap} ${enabled ? styles[`socialIconWrapEnabled_${item.key}`] : ""}`}>
+                                                        <Icon className={`${styles.socialIcon} ${enabled ? styles.socialIconEnabled : styles[`socialIcon_${item.key}`]}`} aria-hidden="true" />
                                                     </span>
                                                     <span className={styles.socialName}>{item.label}</span>
                                                 </div>
@@ -606,7 +667,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                             </div>
 
                                             {enabled ? (
-                                                socialEditing[item.key] ? (
+                                                activeEditing?.type === "social" && activeEditing.key === item.key ? (
                                                     <div className={styles.socialCardEditor}>
                                                         <input
                                                             className={styles.fieldInput}
@@ -631,7 +692,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                                                         <button
                                                             className={styles.actionButton}
                                                             type="button"
-                                                            onClick={() => setSocialEditMode(item.key, true)}
+                                                            onClick={() => activateSocialEdit(item.key)}
                                                             disabled={pending}
                                                             aria-label={`Редактировать ${item.label}`}
                                                         >
