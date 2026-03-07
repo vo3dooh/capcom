@@ -8,50 +8,50 @@
     gap: 8px;
 }
 
-.socialBtn {
+.socialButton {
     width: 44px;
     height: 44px;
     border-radius: 10px;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.socialBtn:hover {
-    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.24);
-}
-
-.socialBtn_telegram {
-    background: #229ed9;
-}
-
-.socialBtn_telegram:hover {
-    background: #1d8fc5;
-}
-
-.socialBtn_vk {
-    background: #0077ff;
-}
-
-.socialBtn_vk:hover {
-    background: #0069e0;
-}
-
-.socialBtn_website {
-    background: #dd4a3a;
-}
-
-.socialBtn_website:hover {
-    background: #c84031;
+    background: #ffffff;
+    transition: all 0.2s ease;
 }
 
 .socialIcon {
     width: 22px;
     height: 22px;
     display: block;
+    color: inherit;
+}
+
+.socialButton_telegram {
+    color: #229ed9;
+}
+
+.socialButton_telegram:hover {
+    background: #229ed9;
+    color: #ffffff;
+}
+
+.socialButton_vk {
+    color: #0077ff;
+}
+
+.socialButton_vk:hover {
+    background: #0077ff;
+    color: #ffffff;
+}
+
+.socialButton_website {
+    color: #dd4a3a;
+}
+
+.socialButton_website:hover {
+    background: #dd4a3a;
+    color: #ffffff;
 }
 
 @media (max-width: 920px) {
@@ -61,7 +61,7 @@
         gap: 6px;
     }
 
-    .socialBtn {
+    .socialButton {
         width: 40px;
         height: 40px;
     }

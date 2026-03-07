@@ -1,6 +1,4 @@
-import telegramIcon from "@/shared/assets/social/telegram.svg"
-import vkIcon from "@/shared/assets/social/vk.svg"
-import websiteIcon from "@/shared/assets/social/website.svg"
+import type { ReactElement } from "react"
 import styles from "./ChannelSocialLinks.module.css"
 
 type Props = {
@@ -9,18 +7,59 @@ type Props = {
     websiteUrl: string | null
 }
 
+type SocialType = "telegram" | "vk" | "website"
+
 type SocialLink = {
-    type: "telegram" | "vk" | "website"
+    type: SocialType
     label: string
     href: string
-    icon: string
+}
+
+const icons: Record<SocialType, ReactElement> = {
+    telegram: (
+        <svg viewBox="0 0 32 32" className={styles.socialIcon} aria-hidden="true">
+            <path
+                fill="currentColor"
+                d="m29.919 6.163l-4.225 19.925c-.319 1.406-1.15 1.756-2.331 1.094l-6.438-4.744l-3.106 2.988c-.344.344-.631.631-1.294.631l.463-6.556L24.919 8.72c.519-.462-.113-.719-.806-.256l-14.75 9.288l-6.35-1.988c-1.381-.431-1.406-1.381.288-2.044l24.837-9.569c1.15-.431 2.156.256 1.781 2.013z"
+            />
+        </svg>
+    ),
+    vk: (
+        <svg viewBox="0 0 24 24" className={styles.socialIcon} aria-hidden="true">
+            <path
+                fill="currentColor"
+                d="M23.456 5.784c-.27.849-.634 1.588-1.09 2.259l.019-.03q-.672 1.12-1.605 2.588-.8 1.159-.847 1.2c-.138.173-.234.385-.267.618l-.001.007c.027.212.125.397.268.535l.4.446q3.21 3.299 3.611 4.548c.035.092.055.198.055.309 0 .194-.062.373-.167.52l.002-.003c-.176.181-.422.293-.694.293-.03 0-.061-.001-.09-.004h.004-2.631c-.001 0-.003 0-.005 0-.337 0-.647-.118-.89-.314l.003.002c-.354-.291-.669-.606-.951-.948l-.009-.012q-.691-.781-1.226-1.315-1.782-1.694-2.63-1.694c-.021-.002-.045-.003-.07-.003-.165 0-.319.051-.446.138l.003-.002c-.104.13-.167.298-.167.479 0 .036.002.07.007.105v-.004c-.027.314-.043.679-.043 1.048 0 .119.002.237.005.355v-.017 1.159c.01.047.016.101.016.156 0 .242-.11.458-.282.601l-.001.001c-.387.177-.839.281-1.316.281-.102 0-.202-.005-.301-.014l.013.001c-1.574-.03-3.034-.491-4.275-1.268l.035.02c-1.511-.918-2.763-2.113-3.717-3.525l-.027-.042c-.906-1.202-1.751-2.56-2.471-3.992l-.07-.154c-.421-.802-.857-1.788-1.233-2.802l-.06-.185c-.153-.456-.264-.986-.31-1.535l-.002-.025q0-.758.892-.758h2.63c.024-.002.052-.003.081-.003.248 0 .477.085.658.228l-.002-.002c.2.219.348.488.421.788l.003.012c.484 1.367.997 2.515 1.587 3.615l-.067-.137c.482.97 1.015 1.805 1.623 2.576l-.023-.031q.8.982 1.248.982c.009.001.02.001.032.001.148 0 .277-.08.347-.2l.001-.002c.074-.19.117-.411.117-.641 0-.049-.002-.098-.006-.146v.006-3.879c-.021-.457-.133-.884-.32-1.267l.008.019c-.124-.264-.273-.492-.45-.695l.003.004c-.164-.164-.276-.379-.311-.619l-.001-.006c0-.17.078-.323.2-.423l.001-.001c.121-.111.283-.178.46-.178h.008 4.146c.022-.003.047-.004.073-.004.195 0 .37.088.486.226l.001.001c.103.188.164.413.164.651 0 .038-.002.075-.005.112v-.005 5.173c-.002.024-.003.052-.003.08 0 .184.051.357.139.504l-.002-.004c.073.108.195.178.333.178h.001c.176-.012.336-.07.471-.162l-.003.002c.272-.187.506-.4.709-.641l.004-.005c.607-.686 1.167-1.444 1.655-2.25l.039-.07c.344-.57.716-1.272 1.053-1.993l.062-.147.446-.892c.155-.446.571-.76 1.06-.76.019 0 .038 0 .057.001h-.003 2.631q1.066 0 .8.981z"
+            />
+        </svg>
+    ),
+    website: (
+        <svg viewBox="0 0 512 512" className={styles.socialIcon} aria-hidden="true">
+            <path fill="currentColor" d="M256 48h-.2H255.5C140.8 48.3 48 141.3 48 256s92.8 207.7 207.5 208h.5c114.9 0 208-93.1 208-208S370.9 48 256 48zm0 399.4h-.2H255.5C150.1 447.1 64.6 361.5 64.6 256S150 64.9 255.5 64.7h.5c105.7 0 191.4 85.7 191.4 191.4 0 105.6-85.7 191.3-191.4 191.3z" />
+            <path fill="currentColor" d="M322.3 171.8c-18.7 4.5-38 7.2-57.9 7.8v68.1H332c-.6-28.1-4.1-53.6-9.7-75.9z" />
+            <path fill="currentColor" d="M264.3 82.5v81.9c18.5-.6 36.5-3 53.8-7.2-13.1-41.4-33.5-68.6-53.8-74.7z" />
+            <path fill="currentColor" d="M193.4 157.1c17.5 4.2 35.6 6.7 54.2 7.3V82.3c-20.3 5.9-41 33.1-54.2 74.8z" />
+            <path fill="currentColor" d="M380.6 133.4c-22.6-23-51.5-39.8-83.9-47.5 14.8 15.3 27.2 38.7 36.1 67.3 16.7-5.1 32.7-11.7 47.8-19.8z" />
+            <path fill="currentColor" d="M347.3 247.7h83.3c-1.8-38.8-16.3-74.4-39.5-102.6-17.1 9.4-35.2 17.1-54.1 22.8 6.1 24 9.7 51.1 10.3 79.8z" />
+            <path fill="currentColor" d="M179.5 247.7h68.2v-68.1c-20.1-.6-39.6-3.3-58.4-7.9-5.7 22.3-9.2 47.9-9.8 76z" />
+            <path fill="currentColor" d="M332 264.3h-67.7v68c19.9.6 39.3 3.2 58 7.8 5.6-22.2 9.1-47.8 9.7-75.8z" />
+            <path fill="currentColor" d="M189.3 340.2c18.8-4.6 38.3-7.3 58.4-7.9v-68h-68.2c.6 28.1 4.1 53.7 9.8 75.9z" />
+            <path fill="currentColor" d="M247.7 429.6v-82.1c-18.6.6-36.8 3.1-54.3 7.3 13.2 41.7 33.9 69 54.3 74.8z" />
+            <path fill="currentColor" d="M296.7 426.1c32.4-7.8 61.3-24.5 84-47.6-15.1-8.1-31.1-14.7-47.8-19.8-8.9 28.7-21.4 52-36.2 67.4z" />
+            <path fill="currentColor" d="M214.7 86.1c-32.1 7.8-60.8 24.5-83.3 47.4 15 8 30.8 14.6 47.3 19.6 8.9-28.5 21.3-51.7 36-67z" />
+            <path fill="currentColor" d="M337 344.1c19 5.7 37.1 13.4 54.2 22.8 23.2-28.2 37.7-63.8 39.5-102.6h-83.3c-.7 28.7-4.3 55.7-10.4 79.8z" />
+            <path fill="currentColor" d="M264.3 347.5v82c20.3-6.1 40.7-33.3 53.8-74.8-17.3-4.2-35.3-6.6-53.8-7.2z" />
+            <path fill="currentColor" d="M174.6 167.8c-18.8-5.7-36.8-13.3-53.7-22.7-23.2 28.2-37.7 63.8-39.5 102.6h82.9c.5-28.8 4.2-55.9 10.3-79.9z" />
+            <path fill="currentColor" d="M164.2 264.3H81.3c1.8 38.8 16.3 74.4 39.5 102.6 16.9-9.3 34.9-17 53.7-22.7-6-24-9.7-51.1-10.3-79.9z" />
+            <path fill="currentColor" d="M131.3 378.5c22.5 22.9 51.2 39.6 83.4 47.4-14.7-15.3-27.1-38.6-36-67.1-16.5 5.1-32.4 11.7-47.4 19.7z" />
+        </svg>
+    ),
 }
 
 export function ChannelSocialLinks({ telegramUrl, vkUrl, websiteUrl }: Props) {
     const links: SocialLink[] = [
-        { type: "telegram", label: "Telegram", href: telegramUrl ?? "", icon: telegramIcon },
-        { type: "vk", label: "VK", href: vkUrl ?? "", icon: vkIcon },
-        { type: "website", label: "Website", href: websiteUrl ?? "", icon: websiteIcon },
+        { type: "telegram", label: "Telegram", href: telegramUrl ?? "" },
+        { type: "vk", label: "VK", href: vkUrl ?? "" },
+        { type: "website", label: "Website", href: websiteUrl ?? "" },
     ].filter((item): item is SocialLink => Boolean(item.href))
 
     if (!links.length) return null
@@ -33,11 +72,11 @@ export function ChannelSocialLinks({ telegramUrl, vkUrl, websiteUrl }: Props) {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`${styles.socialBtn} ${styles[`socialBtn_${social.type}`]}`}
+                    className={`${styles.socialButton} ${styles[`socialButton_${social.type}`]}`}
                     aria-label={social.label}
                     title={social.label}
                 >
-                    <img src={social.icon} alt="" className={styles.socialIcon} aria-hidden="true" />
+                    {icons[social.type]}
                 </a>
             ))}
         </div>
