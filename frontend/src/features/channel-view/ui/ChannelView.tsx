@@ -67,7 +67,14 @@ export function ChannelView({ slug }: { slug: string }) {
                                     </Link>
                                 ) : null}
                             </div>
-                            <ChannelSocialLinks telegramUrl={data.telegramUrl} vkUrl={data.vkUrl} websiteUrl={data.websiteUrl} />
+                            <ChannelSocialLinks
+                                telegramUrl={data.telegramUrl}
+                                vkUrl={data.vkUrl}
+                                websiteUrl={data.websiteUrl}
+                                telegramEnabled={data.telegramEnabled}
+                                vkEnabled={data.vkEnabled}
+                                websiteEnabled={data.websiteEnabled}
+                            />
                         </div>
 
                         <div className={styles.headerBody}>

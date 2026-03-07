@@ -7,6 +7,9 @@ type Props = {
     telegramUrl: string | null
     vkUrl: string | null
     websiteUrl: string | null
+    telegramEnabled: boolean
+    vkEnabled: boolean
+    websiteEnabled: boolean
 }
 
 type SocialType = "telegram" | "vk" | "website"
@@ -23,11 +26,11 @@ const icons = {
     website: WebsiteIcon,
 }
 
-export function ChannelSocialLinks({ telegramUrl, vkUrl, websiteUrl }: Props) {
+export function ChannelSocialLinks({ telegramUrl, vkUrl, websiteUrl, telegramEnabled, vkEnabled, websiteEnabled }: Props) {
     const links: SocialLink[] = [
-        { type: "telegram", label: "Telegram", href: telegramUrl ?? "" },
-        { type: "vk", label: "VK", href: vkUrl ?? "" },
-        { type: "website", label: "Website", href: websiteUrl ?? "" },
+        { type: "telegram", label: "Telegram", href: telegramEnabled ? telegramUrl ?? "" : "" },
+        { type: "vk", label: "VK", href: vkEnabled ? vkUrl ?? "" : "" },
+        { type: "website", label: "Website", href: websiteEnabled ? websiteUrl ?? "" : "" },
     ].filter((item): item is SocialLink => Boolean(item.href))
 
     if (!links.length) return null

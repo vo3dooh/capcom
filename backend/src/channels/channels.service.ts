@@ -484,6 +484,9 @@ export class ChannelsService {
           instagramUrl: dto.instagramUrl === '' ? null : dto.instagramUrl ?? undefined,
           vkUrl: dto.vkUrl === '' ? null : dto.vkUrl ?? undefined,
           websiteUrl: dto.websiteUrl === '' ? null : dto.websiteUrl ?? undefined,
+          telegramEnabled: dto.telegramEnabled ?? undefined,
+          vkEnabled: dto.vkEnabled ?? undefined,
+          websiteEnabled: dto.websiteEnabled ?? undefined,
           startingBankroll: dto.startingBankroll ?? undefined,
           bankrollCurrency: dto.bankrollCurrency ?? undefined
         },

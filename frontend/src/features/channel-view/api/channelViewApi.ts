@@ -12,6 +12,9 @@ export type ChannelViewModel = {
     telegramUrl: string | null;
     vkUrl: string | null;
     websiteUrl: string | null;
+    telegramEnabled: boolean;
+    vkEnabled: boolean;
+    websiteEnabled: boolean;
     predictionsVisibility: "public" | "members";
     membersCount: number;
     isMember: boolean;
