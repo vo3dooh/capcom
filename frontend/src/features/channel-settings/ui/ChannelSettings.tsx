@@ -633,10 +633,6 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
 
                     {activeTab === "social" ? (
                         <>
-                            <div className={styles.contentCard}>
-                                <h2 className={styles.sectionTitle}>Социальные сети</h2>
-                                <p className={styles.sectionDescription}>Отображение иконок на обложке зависит от переключателя каждой карточки.</p>
-                            </div>
 
                             <div className={styles.socialCards}>
                                 {SOCIAL_CARDS.map((item) => {
