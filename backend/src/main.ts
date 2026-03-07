@@ -35,14 +35,14 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: ['http://localhost:5173'],
+    origin: ['http://localhost:5173', 'http://192.168.0.14:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const port = process.env.PORT ? Number(process.env.PORT) : 3001;
-  await app.listen(port);
-  console.log(`API listening on http://localhost:${port}`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`API listening on http://0.0.0.0:${port}`);
 }
 bootstrap();

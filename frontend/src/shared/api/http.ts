@@ -25,7 +25,10 @@ function getToken(): string | null {
     }
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3001"
+        : `http://${window.location.hostname}:3001`;
 
 export async function http<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const method = options.method ?? "GET";
