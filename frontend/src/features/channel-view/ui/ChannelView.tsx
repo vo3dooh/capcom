@@ -6,6 +6,9 @@ import { ChannelStatsBlock } from "@/features/predictions/ui/ChannelStatsBlock"
 import { ChannelOverviewCardConnected } from "@/features/analytics/ui/ChannelOverviewCard"
 import { ChannelMonthlyStatsCardConnected } from "@/features/analytics/ui/ChannelMonthlyStatsCard"
 import { useAuthSession } from "@/features/auth/model/useAuthSession"
+import telegramIcon from "@/shared/assets/social/telegram.svg"
+import vkIcon from "@/shared/assets/social/vk.svg"
+import websiteIcon from "@/shared/assets/social/website.svg"
 import styles from "./ChannelView.module.css"
 
 export function ChannelView({ slug }: { slug: string }) {
@@ -30,6 +33,12 @@ export function ChannelView({ slug }: { slug: string }) {
         : data.owner.handle
             ? `@${data.owner.handle}`
             : data.owner.id
+
+    const socialLinks = [
+        { type: "telegram", label: "Telegram", href: data.telegramUrl, icon: telegramIcon },
+        { type: "vk", label: "VK", href: data.vkUrl, icon: vkIcon },
+        { type: "website", label: "Website", href: data.websiteUrl, icon: websiteIcon },
+    ].filter((item): item is { type: "telegram" | "vk" | "website"; label: string; href: string; icon: string } => Boolean(item.href))
 
     return (
         <div className={styles.page}>
@@ -66,6 +75,23 @@ export function ChannelView({ slug }: { slug: string }) {
                                     </Link>
                                 ) : null}
                             </div>
+                            {socialLinks.length ? (
+                                <div className={styles.coverSocials}>
+                                    {socialLinks.map((social) => (
+                                        <a
+                                            key={social.type}
+                                            href={social.href}
+                                            target="_blank"
+                                            rel="noreferrer noopener"
+                                            className={`${styles.socialBtn} ${styles[`socialBtn_${social.type}`]}`}
+                                            aria-label={social.label}
+                                            title={social.label}
+                                        >
+                                            <img src={social.icon} alt="" className={styles.socialIcon} aria-hidden="true" />
+                                        </a>
+                                    ))}
+                                </div>
+                            ) : null}
                         </div>
 
                         <div className={styles.headerBody}>

@@ -9,6 +9,9 @@ export type ChannelViewModel = {
     coverUrl: string | null;
     visibility: "public" | "private" | "unlisted";
     joinPolicy: "open" | "request" | "inviteOnly";
+    telegramUrl: string | null;
+    vkUrl: string | null;
+    websiteUrl: string | null;
     predictionsVisibility: "public" | "members";
     membersCount: number;
     isMember: boolean;
