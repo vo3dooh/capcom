@@ -2,24 +2,18 @@ export type TeamPermissionKey = "publishFree" | "publishPaid" | "paidModuleAcces
 
 export type TeamPermissionSet = Record<TeamPermissionKey, boolean>;
 
-export type TeamRoleKey = "editor" | "moderator" | "member";
+export type TeamRoleKey = "analyst" | "manager";
 
 export type TeamRolePermissions = Record<TeamRoleKey, TeamPermissionSet>;
 
 export const DEFAULT_TEAM_ROLE_PERMISSIONS: TeamRolePermissions = {
-    editor: {
-        publishFree: true,
-        publishPaid: false,
-        paidModuleAccess: false,
-        directMessagesAccess: false,
-    },
-    moderator: {
+    analyst: {
         publishFree: true,
         publishPaid: true,
         paidModuleAccess: false,
         directMessagesAccess: false,
     },
-    member: {
+    manager: {
         publishFree: false,
         publishPaid: false,
         paidModuleAccess: true,
@@ -42,8 +36,7 @@ export function normalizeTeamRolePermissions(value: unknown): TeamRolePermission
     const source = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 
     return {
-        editor: normalizeSet(source.editor, DEFAULT_TEAM_ROLE_PERMISSIONS.editor),
-        moderator: normalizeSet(source.moderator, DEFAULT_TEAM_ROLE_PERMISSIONS.moderator),
-        member: normalizeSet(source.member, DEFAULT_TEAM_ROLE_PERMISSIONS.member),
+        analyst: normalizeSet(source.analyst, DEFAULT_TEAM_ROLE_PERMISSIONS.analyst),
+        manager: normalizeSet(source.manager, DEFAULT_TEAM_ROLE_PERMISSIONS.manager),
     };
 }

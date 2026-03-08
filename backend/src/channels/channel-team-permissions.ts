@@ -1,3 +1,5 @@
+import { ChannelMemberRole, ChannelTeamRoleGroup } from '@prisma/client'
+
 export type ChannelTeamPermissionKey =
   | 'publishFree'
   | 'publishPaid'
@@ -6,26 +8,26 @@ export type ChannelTeamPermissionKey =
 
 export type ChannelTeamPermissionSet = Record<ChannelTeamPermissionKey, boolean>
 
-export type ChannelTeamRolePermissions = {
-  editor: ChannelTeamPermissionSet
-  moderator: ChannelTeamPermissionSet
-  member: ChannelTeamPermissionSet
+export type ChannelTeamRoleKey = 'analyst' | 'manager'
+
+export type ChannelTeamRolePermissions = Record<ChannelTeamRoleKey, ChannelTeamPermissionSet>
+
+type ChannelTeamRolePermissionRow = {
+  roleGroup: ChannelTeamRoleGroup
+  publishFree: boolean
+  publishPaid: boolean
+  paidModuleAccess: boolean
+  directMessagesAccess: boolean
 }
 
 export const DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS: ChannelTeamRolePermissions = {
-  editor: {
-    publishFree: true,
-    publishPaid: false,
-    paidModuleAccess: false,
-    directMessagesAccess: false
-  },
-  moderator: {
+  analyst: {
     publishFree: true,
     publishPaid: true,
     paidModuleAccess: false,
     directMessagesAccess: false
   },
-  member: {
+  manager: {
     publishFree: false,
     publishPaid: false,
     paidModuleAccess: true,
@@ -52,8 +54,56 @@ export function normalizeChannelTeamRolePermissions(value: unknown): ChannelTeam
   const source = value && typeof value === 'object' ? (value as Record<string, unknown>) : {}
 
   return {
-    editor: normalizePermissionSet(source.editor, DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.editor),
-    moderator: normalizePermissionSet(source.moderator, DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.moderator),
-    member: normalizePermissionSet(source.member, DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.member)
+    analyst: normalizePermissionSet(source.analyst, DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst),
+    manager: normalizePermissionSet(source.manager, DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager)
   }
+}
+
+export function mapChannelTeamRolePermissionsFromRows(
+  rows: ChannelTeamRolePermissionRow[] | null | undefined
+): ChannelTeamRolePermissions {
+  if (!rows || rows.length === 0) {
+    return DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS
+  }
+
+  const analystRow = rows.find((row) => row.roleGroup === 'analyst')
+  const managerRow = rows.find((row) => row.roleGroup === 'manager')
+
+  return {
+    analyst: analystRow
+      ? {
+          publishFree: analystRow.publishFree,
+          publishPaid: analystRow.publishPaid,
+          paidModuleAccess: analystRow.paidModuleAccess,
+          directMessagesAccess: analystRow.directMessagesAccess
+        }
+      : DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst,
+    manager: managerRow
+      ? {
+          publishFree: managerRow.publishFree,
+          publishPaid: managerRow.publishPaid,
+          paidModuleAccess: managerRow.paidModuleAccess,
+          directMessagesAccess: managerRow.directMessagesAccess
+        }
+      : DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager
+  }
+}
+
+export function canRolePublishFree(
+  memberRole: ChannelMemberRole,
+  permissions: ChannelTeamRolePermissions
+): boolean {
+  if (memberRole === 'owner') {
+    return true
+  }
+
+  if (memberRole === 'moderator' || memberRole === 'editor') {
+    return permissions.analyst.publishFree
+  }
+
+  if (memberRole === 'member') {
+    return permissions.manager.publishFree
+  }
+
+  return false
 }

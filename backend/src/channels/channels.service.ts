@@ -3,7 +3,11 @@ import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '@prisma/client'
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
-import { normalizeChannelTeamRolePermissions } from './channel-team-permissions'
+import {
+  DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS,
+  mapChannelTeamRolePermissionsFromRows,
+  normalizeChannelTeamRolePermissions
+} from './channel-team-permissions'
 
 @Injectable()
 export class ChannelsService {
@@ -112,6 +116,25 @@ export class ChannelsService {
     return member
   }
 
+  private mapChannelWithPermissions<T extends {
+    teamRolePermissions?: Array<{
+      roleGroup: 'analyst' | 'manager'
+      publishFree: boolean
+      publishPaid: boolean
+      paidModuleAccess: boolean
+      directMessagesAccess: boolean
+    }>
+  }>(channel: T) {
+    if (!channel.teamRolePermissions) {
+      return channel
+    }
+
+    return {
+      ...channel,
+      teamRolePermissions: mapChannelTeamRolePermissionsFromRows(channel.teamRolePermissions)
+    }
+  }
+
   async create(userId: string, dto: CreateChannelDto) {
     const channelName = dto.name.trim()
     this.ensureSingleLanguageChannelName(channelName)
@@ -151,6 +174,27 @@ export class ChannelsService {
             role: 'owner',
             status: 'active'
           }
+        })
+
+        await tx.channelTeamRolePermission.createMany({
+          data: [
+            {
+              channelId: channel.id,
+              roleGroup: 'analyst',
+              publishFree: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst.publishFree,
+              publishPaid: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst.publishPaid,
+              paidModuleAccess: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst.paidModuleAccess,
+              directMessagesAccess: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.analyst.directMessagesAccess
+            },
+            {
+              channelId: channel.id,
+              roleGroup: 'manager',
+              publishFree: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager.publishFree,
+              publishPaid: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager.publishPaid,
+              paidModuleAccess: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager.paidModuleAccess,
+              directMessagesAccess: DEFAULT_CHANNEL_TEAM_ROLE_PERMISSIONS.manager.directMessagesAccess
+            }
+          ]
         })
 
         await tx.channelStats.upsert({
@@ -254,7 +298,16 @@ export class ChannelsService {
         sports: {
           include: { sport: true }
         },
-        stats: true
+        stats: true,
+        teamRolePermissions: {
+          select: {
+            roleGroup: true,
+            publishFree: true,
+            publishPaid: true,
+            paidModuleAccess: true,
+            directMessagesAccess: true
+          }
+        }
       }
     })
 
@@ -283,8 +336,10 @@ export class ChannelsService {
 
     const isMemberActive = membership?.status === 'active'
 
+    const mappedChannel = this.mapChannelWithPermissions(channel)
+
     return {
-      ...channel,
+      ...mappedChannel,
       isMember: isMemberActive,
       myRole: isMemberActive ? membership?.role ?? null : null
     }
@@ -469,32 +524,71 @@ export class ChannelsService {
       await this.ensureUniqueChannelName(channelName, channel.id)
     }
 
+    const normalizedPermissions =
+      dto.teamRolePermissions === undefined
+        ? undefined
+        : normalizeChannelTeamRolePermissions(dto.teamRolePermissions)
+
     try {
-      return await this.prisma.channel.update({
+      await this.prisma.$transaction(async (tx) => {
+        await tx.channel.update({
+          where: { id: channel.id },
+          data: {
+            name: channelName ?? undefined,
+            slug: dto.slug ?? undefined,
+            description: dto.description ?? undefined,
+            avatarUrl: dto.avatarUrl ?? undefined,
+            coverUrl: dto.coverUrl ?? undefined,
+            visibility: dto.visibility ?? undefined,
+            joinPolicy: dto.joinPolicy ?? undefined,
+            telegramUrl: dto.telegramUrl === '' ? null : dto.telegramUrl ?? undefined,
+            twitterUrl: dto.twitterUrl === '' ? null : dto.twitterUrl ?? undefined,
+            instagramUrl: dto.instagramUrl === '' ? null : dto.instagramUrl ?? undefined,
+            vkUrl: dto.vkUrl === '' ? null : dto.vkUrl ?? undefined,
+            websiteUrl: dto.websiteUrl === '' ? null : dto.websiteUrl ?? undefined,
+            telegramEnabled: dto.telegramEnabled ?? undefined,
+            vkEnabled: dto.vkEnabled ?? undefined,
+            websiteEnabled: dto.websiteEnabled ?? undefined,
+            startingBankroll: dto.startingBankroll ?? undefined,
+            bankrollCurrency: dto.bankrollCurrency ?? undefined
+          }
+        })
+
+        if (normalizedPermissions) {
+          await tx.channelTeamRolePermission.upsert({
+            where: {
+              channelId_roleGroup: {
+                channelId: channel.id,
+                roleGroup: 'analyst'
+              }
+            },
+            update: normalizedPermissions.analyst,
+            create: {
+              channelId: channel.id,
+              roleGroup: 'analyst',
+              ...normalizedPermissions.analyst
+            }
+          })
+
+          await tx.channelTeamRolePermission.upsert({
+            where: {
+              channelId_roleGroup: {
+                channelId: channel.id,
+                roleGroup: 'manager'
+              }
+            },
+            update: normalizedPermissions.manager,
+            create: {
+              channelId: channel.id,
+              roleGroup: 'manager',
+              ...normalizedPermissions.manager
+            }
+          })
+        }
+      })
+
+      const updatedChannel = await this.prisma.channel.findUnique({
         where: { id: channel.id },
-        data: {
-          name: channelName ?? undefined,
-          slug: dto.slug ?? undefined,
-          description: dto.description ?? undefined,
-          avatarUrl: dto.avatarUrl ?? undefined,
-          coverUrl: dto.coverUrl ?? undefined,
-          visibility: dto.visibility ?? undefined,
-          joinPolicy: dto.joinPolicy ?? undefined,
-          telegramUrl: dto.telegramUrl === '' ? null : dto.telegramUrl ?? undefined,
-          twitterUrl: dto.twitterUrl === '' ? null : dto.twitterUrl ?? undefined,
-          instagramUrl: dto.instagramUrl === '' ? null : dto.instagramUrl ?? undefined,
-          vkUrl: dto.vkUrl === '' ? null : dto.vkUrl ?? undefined,
-          websiteUrl: dto.websiteUrl === '' ? null : dto.websiteUrl ?? undefined,
-          telegramEnabled: dto.telegramEnabled ?? undefined,
-          vkEnabled: dto.vkEnabled ?? undefined,
-          websiteEnabled: dto.websiteEnabled ?? undefined,
-          startingBankroll: dto.startingBankroll ?? undefined,
-          bankrollCurrency: dto.bankrollCurrency ?? undefined,
-          teamRolePermissions:
-            dto.teamRolePermissions === undefined
-              ? undefined
-              : normalizeChannelTeamRolePermissions(dto.teamRolePermissions)
-        },
         include: {
           owner: {
             select: {
@@ -507,9 +601,24 @@ export class ChannelsService {
           stats: true,
           sports: {
             include: { sport: true }
+          },
+          teamRolePermissions: {
+            select: {
+              roleGroup: true,
+              publishFree: true,
+              publishPaid: true,
+              paidModuleAccess: true,
+              directMessagesAccess: true
+            }
           }
         }
       })
+
+      if (!updatedChannel) {
+        throw new NotFoundException('Channel not found')
+      }
+
+      return this.mapChannelWithPermissions(updatedChannel)
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
         this.throwMappedUniqueConstraint(e)
