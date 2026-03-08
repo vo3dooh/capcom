@@ -83,14 +83,13 @@ type TeamRoleCard = {
 };
 
 const TEAM_ROLE_CARDS: TeamRoleCard[] = [
-    { role: "editor", title: "Прогнозист канала" },
-    { role: "moderator", title: "Аналитик канала" },
-    { role: "member", title: "Менеджер канала" },
+    { role: "analyst", title: "Аналитик канала" },
+    { role: "manager", title: "Менеджер канала" },
 ];
 
 const TEAM_PERMISSION_ITEMS: Array<{ key: TeamPermissionKey; label: string }> = [
-    { key: "publishFree", label: "Возможность публиковать прогнозы в бесплатном разделе" },
-    { key: "publishPaid", label: "Возможность публиковать прогнозы в платном разделе" },
+    { key: "publishFree", label: "Публикация прогнозов в бесплатном разделе" },
+    { key: "publishPaid", label: "Публикация прогнозов в платном разделе" },
     { key: "paidModuleAccess", label: "Доступ в платный модуль канала" },
     { key: "directMessagesAccess", label: "Доступ к личным сообщениям канала" },
 ];

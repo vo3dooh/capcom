@@ -63,6 +63,11 @@ enum ChannelJoinRequestStatus {
   canceled
 }
 
+enum ChannelTeamRoleGroup {
+  analyst
+  manager
+}
+
 enum ChannelLinkType {
   telegram
   twitter
@@ -146,7 +151,6 @@ model Channel {
   vkEnabled       Boolean @default(false)
   websiteEnabled  Boolean @default(false)
 
-  teamRolePermissions Json?
 
   visibility            ChannelVisibility            @default(public)
   predictionsVisibility ChannelPredictionsVisibility @default(public)
@@ -170,7 +174,8 @@ model Channel {
   invites      ChannelInvite[]      @relation("ChannelInvites")
   joinRequests ChannelJoinRequest[] @relation("ChannelJoinRequests")
   bans         ChannelBan[]         @relation("ChannelBans")
-  bankrollLogs ChannelBankrollLog[] @relation("ChannelBankrollLogs")
+  bankrollLogs         ChannelBankrollLog[]        @relation("ChannelBankrollLogs")
+  teamRolePermissions ChannelTeamRolePermission[]
 
   sports ChannelSport[]        @relation("ChannelSports")
   tags   ChannelTagOnChannel[] @relation("ChannelTags")
@@ -182,6 +187,26 @@ model Channel {
   @@index([ownerId])
   @@index([visibility])
   @@index([deletedAt])
+}
+
+
+model ChannelTeamRolePermission {
+  id        String               @id @default(cuid())
+  channelId String
+  roleGroup ChannelTeamRoleGroup
+
+  publishFree          Boolean @default(false)
+  publishPaid          Boolean @default(false)
+  paidModuleAccess     Boolean @default(false)
+  directMessagesAccess Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, roleGroup])
+  @@index([channelId])
 }
 
 model ChannelStats {

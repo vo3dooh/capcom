@@ -8,7 +8,8 @@ import { CreatePredictionDto } from './dto/create-prediction.dto';
 import { PredictionResultDto } from './dto/settle-prediction.dto';
 import { TheSportsDbService } from '../integrations/theSportsDb/theSportsDb.service';
 import { LogoCacheService } from '../shared/files/logo-cache.service';
-import { normalizeChannelTeamRolePermissions } from '../channels/channel-team-permissions';
+import { ChannelMemberRole } from '@prisma/client';
+import { canRolePublishFree, mapChannelTeamRolePermissionsFromRows } from '../channels/channel-team-permissions';
 
 type CompetitorLite = {
   id: string;
@@ -106,7 +107,7 @@ export class PredictionsService {
     return channel;
   }
 
-  private async requireMember(channelId: string, userId: string) {
+  private async requireMember(channelId: string, userId: string): Promise<{ id: string; role: ChannelMemberRole }> {
     const member = await this.prisma.channelMember.findFirst({
       where: {
         channelId,
@@ -123,19 +124,27 @@ export class PredictionsService {
     return member;
   }
 
-  private async requireEditor(channelId: string, member: { role: string }) {
+  private async requireEditor(channelId: string, member: { role: ChannelMemberRole }) {
     if (member.role === 'owner') return
 
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },
-      select: { teamRolePermissions: true }
+      select: {
+        teamRolePermissions: {
+          select: {
+            roleGroup: true,
+            publishFree: true,
+            publishPaid: true,
+            paidModuleAccess: true,
+            directMessagesAccess: true
+          }
+        }
+      }
     })
 
-    const permissions = normalizeChannelTeamRolePermissions(channel?.teamRolePermissions)
+    const permissions = mapChannelTeamRolePermissionsFromRows(channel?.teamRolePermissions)
 
-    if (member.role === 'editor' && permissions.editor.publishFree) return
-    if (member.role === 'moderator' && permissions.moderator.publishFree) return
-    if (member.role === 'member' && permissions.member.publishFree) return
+    if (canRolePublishFree(member.role, permissions)) return
 
     throw new ForbiddenException('No permission')
   }
