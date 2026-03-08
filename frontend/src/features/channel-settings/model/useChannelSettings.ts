@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ChannelSettingsDto, ChannelSettingsModel, deleteChannel, fetchChannelSettings, patchChannelSettings } from "../api/channelSettingsApi";
 import { HttpError } from "@/shared/api/http";
+import { DEFAULT_TEAM_ROLE_PERMISSIONS, normalizeTeamRolePermissions } from "./teamRolePermissions";
 
 const defaultForm: ChannelSettingsDto = {
     name: "",
@@ -18,6 +19,7 @@ const defaultForm: ChannelSettingsDto = {
     telegramEnabled: false,
     vkEnabled: false,
     websiteEnabled: false,
+    teamRolePermissions: DEFAULT_TEAM_ROLE_PERMISSIONS,
 };
 
 function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
@@ -37,6 +39,7 @@ function toForm(data: ChannelSettingsModel): ChannelSettingsDto {
         telegramEnabled: data.telegramEnabled,
         vkEnabled: data.vkEnabled,
         websiteEnabled: data.websiteEnabled,
+        teamRolePermissions: normalizeTeamRolePermissions(data.teamRolePermissions),
     };
 }
 

@@ -11,6 +11,7 @@ import TelegramIcon from "@/shared/assets/social/TelegramIcon";
 import VkIcon from "@/shared/assets/social/VkIcon";
 import WebsiteIcon from "@/shared/assets/social/WebsiteIcon";
 import { getSocialSaveError, normalizeSocialUrl } from "../lib/socialUrl";
+import { TeamPermissionKey, TeamRoleKey, TeamRolePermissions } from "../model/teamRolePermissions";
 
 type SettingsTab = "general" | "branding" | "social" | "team" | "subscriptions";
 type GeneralEditableField = "name" | "username" | "description" | "visibility";
@@ -75,6 +76,25 @@ const SOCIAL_CARDS: SocialCard[] = [
     { key: "website", label: "Website", placeholder: "https://example.com", icon: WebsiteIcon },
 ];
 
+
+type TeamRoleCard = {
+    role: TeamRoleKey;
+    title: string;
+};
+
+const TEAM_ROLE_CARDS: TeamRoleCard[] = [
+    { role: "editor", title: "Прогнозист канала" },
+    { role: "moderator", title: "Аналитик канала" },
+    { role: "member", title: "Менеджер канала" },
+];
+
+const TEAM_PERMISSION_ITEMS: Array<{ key: TeamPermissionKey; label: string }> = [
+    { key: "publishFree", label: "Возможность публиковать прогнозы в бесплатном разделе" },
+    { key: "publishPaid", label: "Возможность публиковать прогнозы в платном разделе" },
+    { key: "paidModuleAccess", label: "Доступ в платный модуль канала" },
+    { key: "directMessagesAccess", label: "Доступ к личным сообщениям канала" },
+];
+
 export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const navigate = useNavigate();
     const { form, loading, save, saving, ok, deleting, deleteError, removeChannel } = useChannelSettings(slug);
@@ -95,6 +115,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
     const [telegramEnabled, setTelegramEnabled] = useState(false);
     const [vkEnabled, setVkEnabled] = useState(false);
     const [websiteEnabled, setWebsiteEnabled] = useState(false);
+    const [teamRolePermissions, setTeamRolePermissions] = useState<TeamRolePermissions>(form.teamRolePermissions);
     const [savingSocial, setSavingSocial] = useState<SocialKey | null>(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmText, setConfirmText] = useState("");
@@ -117,6 +138,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
         setTelegramEnabled(form.telegramEnabled);
         setVkEnabled(form.vkEnabled);
         setWebsiteEnabled(form.websiteEnabled);
+        setTeamRolePermissions(form.teamRolePermissions);
         setEditingField(null);
         setActiveEditing(null);
     }, [form]);
@@ -156,6 +178,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
             telegramEnabled,
             vkEnabled,
             websiteEnabled,
+            teamRolePermissions,
         };
 
         return { ...payload, ...overrides };
@@ -409,6 +432,33 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                 activateSocialEdit(type);
             }
         }
+
+        if (result.updated.slug !== slug) {
+            navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
+        }
+    }
+
+
+    async function toggleTeamPermission(role: TeamRoleKey, permission: TeamPermissionKey) {
+        const nextPermissions: TeamRolePermissions = {
+            ...teamRolePermissions,
+            [role]: {
+                ...teamRolePermissions[role],
+                [permission]: !teamRolePermissions[role][permission],
+            },
+        };
+
+        setTeamRolePermissions(nextPermissions);
+
+        const result = await save(buildPayloadFromForm({ teamRolePermissions: nextPermissions }));
+
+        if (!result.updated) {
+            setTeamRolePermissions(form.teamRolePermissions);
+            onSaveResult?.({ type: "error", description: mapChannelSettingsSaveError(result.error) });
+            return;
+        }
+
+        onSaveResult?.({ type: "success" });
 
         if (result.updated.slug !== slug) {
             navigate(`/channels/${result.updated.slug}/settings`, { replace: true });
@@ -706,9 +756,35 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                     ) : null}
 
                     {activeTab === "team" ? (
-                        <div className={styles.contentCard}>
-                            <h2 className={styles.sectionTitle}>Команда канала</h2>
-                            <p className={styles.sectionDescription}>Скоро будет.</p>
+                        <div className={styles.teamRolesSection}>
+                            <h2 className={styles.teamRolesTitle}>Права групп команды канала</h2>
+                            <div className={styles.teamRolesGrid}>
+                                {TEAM_ROLE_CARDS.map((card) => (
+                                    <div key={card.role} className={styles.contentCard}>
+                                        <h3 className={styles.teamRoleCardTitle}>{card.title}</h3>
+                                        <div className={styles.teamRoleDivider} />
+                                        <div className={styles.teamRolePermissionsList}>
+                                            {TEAM_PERMISSION_ITEMS.map((permission) => {
+                                                const enabled = teamRolePermissions[card.role][permission.key];
+
+                                                return (
+                                                    <div key={permission.key} className={styles.teamRolePermissionRow}>
+                                                        <span className={styles.teamRolePermissionText}>{permission.label}</span>
+                                                        <button
+                                                            type="button"
+                                                            className={enabled ? `${styles.switchButton} ${styles.switchButtonActive}` : styles.switchButton}
+                                                            onClick={() => toggleTeamPermission(card.role, permission.key)}
+                                                            disabled={saving}
+                                                        >
+                                                            <span className={styles.switchThumb} />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     ) : null}
 
@@ -720,7 +796,7 @@ export function ChannelSettings({ slug, onSaveResult }: ChannelSettingsProps) {
                     ) : null}
                 </section>
 
-                {activeTab !== "general" && activeTab !== "social" ? (
+                {activeTab === "branding" || activeTab === "subscriptions" ? (
                     <div className={styles.footerRow}>
                         {ok ? <div className={styles.successMessage}>Сохранено</div> : null}
                         <button className={styles.saveButton} type="submit" disabled={saving || hasValidationError}>

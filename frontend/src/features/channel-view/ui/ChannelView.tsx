@@ -47,7 +47,7 @@ export function ChannelView({ slug }: { slug: string }) {
                             <div className={styles.coverActions}>
                                 {canCreatePrediction ? (
                                     <Link
-                                        to={`/channels/${data.slug}/predictions/new`}
+                                        to={`/channels/${data.slug}/predictions/create`}
                                         className={styles.iconBtn}
                                         aria-label="Создать прогноз"
                                         title="Создать прогноз"

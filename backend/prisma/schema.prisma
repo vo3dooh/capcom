@@ -146,6 +146,8 @@ model Channel {
   vkEnabled       Boolean @default(false)
   websiteEnabled  Boolean @default(false)
 
+  teamRolePermissions Json?
+
   visibility            ChannelVisibility            @default(public)
   predictionsVisibility ChannelPredictionsVisibility @default(public)
   joinPolicy            ChannelJoinPolicy            @default(open)

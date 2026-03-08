@@ -1,4 +1,5 @@
 import { http } from "@/shared/api/http";
+import { TeamRolePermissions } from "../model/teamRolePermissions";
 
 export type ChannelSettingsModel = {
     slug: string;
@@ -16,6 +17,7 @@ export type ChannelSettingsModel = {
     telegramEnabled: boolean;
     vkEnabled: boolean;
     websiteEnabled: boolean;
+    teamRolePermissions: TeamRolePermissions | null;
 };
 
 export type ChannelSettingsDto = {
@@ -34,6 +36,7 @@ export type ChannelSettingsDto = {
     telegramEnabled: boolean;
     vkEnabled: boolean;
     websiteEnabled: boolean;
+    teamRolePermissions: TeamRolePermissions;
 };
 
 export async function fetchChannelSettings(slug: string) {

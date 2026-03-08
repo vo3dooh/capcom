@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import { Prisma } from '@prisma/client'
 import { CreateChannelDto } from './dto/create-channel.dto'
 import { UpdateChannelSettingsDto } from './dto/update-channel-settings.dto'
+import { normalizeChannelTeamRolePermissions } from './channel-team-permissions'
 
 @Injectable()
 export class ChannelsService {
@@ -488,7 +489,11 @@ export class ChannelsService {
           vkEnabled: dto.vkEnabled ?? undefined,
           websiteEnabled: dto.websiteEnabled ?? undefined,
           startingBankroll: dto.startingBankroll ?? undefined,
-          bankrollCurrency: dto.bankrollCurrency ?? undefined
+          bankrollCurrency: dto.bankrollCurrency ?? undefined,
+          teamRolePermissions:
+            dto.teamRolePermissions === undefined
+              ? undefined
+              : normalizeChannelTeamRolePermissions(dto.teamRolePermissions)
         },
         include: {
           owner: {
