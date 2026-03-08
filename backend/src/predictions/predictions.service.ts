@@ -8,6 +8,7 @@ import { CreatePredictionDto } from './dto/create-prediction.dto';
 import { PredictionResultDto } from './dto/settle-prediction.dto';
 import { TheSportsDbService } from '../integrations/theSportsDb/theSportsDb.service';
 import { LogoCacheService } from '../shared/files/logo-cache.service';
+import { normalizeChannelTeamRolePermissions } from '../channels/channel-team-permissions';
 
 type CompetitorLite = {
   id: string;
@@ -122,14 +123,21 @@ export class PredictionsService {
     return member;
   }
 
-  private async requireEditor(member: { role: string }) {
-    if (
-      member.role === 'owner' ||
-      member.role === 'editor' ||
-      member.role === 'moderator'
-    )
-      return;
-    throw new ForbiddenException('No permission');
+  private async requireEditor(channelId: string, member: { role: string }) {
+    if (member.role === 'owner') return
+
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      select: { teamRolePermissions: true }
+    })
+
+    const permissions = normalizeChannelTeamRolePermissions(channel?.teamRolePermissions)
+
+    if (member.role === 'editor' && permissions.editor.publishFree) return
+    if (member.role === 'moderator' && permissions.moderator.publishFree) return
+    if (member.role === 'member' && permissions.member.publishFree) return
+
+    throw new ForbiddenException('No permission')
   }
 
   private async getOrCreateLeague(
@@ -377,7 +385,7 @@ export class PredictionsService {
   async create(slug: string, userId: string, dto: CreatePredictionDto) {
     const channel = await this.requireChannel(slug);
     const member = await this.requireMember(channel.id, userId);
-    await this.requireEditor(member);
+    await this.requireEditor(channel.id, member);
 
     const created = await this.prisma.$transaction(async (tx) => {
       const league = await this.getOrCreateLeague(
@@ -619,7 +627,7 @@ export class PredictionsService {
       throw new ForbiddenException('Already settled');
 
     const member = await this.requireMember(prediction.channelId, userId);
-    await this.requireEditor(member);
+    await this.requireEditor(prediction.channelId, member);
 
     const odds = prediction.odds;
     const stake = prediction.stake;
@@ -724,7 +732,7 @@ export class PredictionsService {
   async recalcChannelStats(slug: string, userId: string) {
     const channel = await this.requireChannel(slug);
     const member = await this.requireMember(channel.id, userId);
-    await this.requireEditor(member);
+    await this.requireEditor(channel.id, member);
 
     const preds = await this.prisma.prediction.findMany({
       where: { channelId: channel.id },

@@ -24,6 +24,7 @@ export default function App() {
                     <Route path="/channels/:slug" element={<ChannelPage />} />
                     <Route path="/channels/:slug/settings" element={<ChannelSettingsPage />} />
                     <Route path="/channels/:slug/predictions/new" element={<CreatePredictionPage />} />
+                    <Route path="/channels/:slug/predictions/create" element={<CreatePredictionPage />} />
 
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Routes>

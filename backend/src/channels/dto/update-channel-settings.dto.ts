@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Matches, Min, MaxLength } from 'class-validator'
+import { IsBoolean, IsEnum, IsOptional, IsString, IsNumber, Matches, Min, MaxLength, IsObject } from 'class-validator'
 import { ChannelVisibility, ChannelJoinPolicy } from '@prisma/client'
 
 export class UpdateChannelSettingsDto {
@@ -79,4 +79,8 @@ export class UpdateChannelSettingsDto {
   @IsOptional()
   @IsString()
   bankrollCurrency?: string | null
+
+  @IsOptional()
+  @IsObject()
+  teamRolePermissions?: Record<string, unknown>
 }
